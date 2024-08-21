@@ -18,7 +18,7 @@ buildTimeCompact := $(shell date +%Y%m%d%H%M%S)
 # https://git-scm.com/docs/git-rev-list#Documentation/git-rev-list.txt-emaIem
 # e.g. ffd23d3@2022-04-06T18:07:14+08:00
 gitCommit := $(shell [ -f git.commit ] && cat git.commit || git log --format=format:'%h@%aI' -1)
-gitBranch := $(shell [ -f git.branch ] && cat git.branch || git rev-parse --abbrev-ref HEAD)
+gitBranch := $(shell [ -f git.branch ] && cat git.branch || git reflog | head -1)
 gitInfo = $(gitBranch)-$(gitCommit)
 #gitCommit := $(shell git rev-list -1 HEAD)
 # https://stackoverflow.com/a/47510909
