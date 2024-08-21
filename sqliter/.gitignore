@@ -1,0 +1,4 @@
+testdata/keyseq.*
+testdata/metric.t.*
+keyseq.bolt
+testdata/keys.boltdb
