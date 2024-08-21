@@ -11,3 +11,4 @@ new gg
 7. [rt](rt) 运行时等, pprof 等
 8. [busy](busy) 模拟内存消耗和CPU忙碌
 9. [dog](dog) 看住go程序内存上限和 CPU 上限，达到上限后，采取相应动作
+10. [sqliter](sqliter) sqlite 按天/周/月，单库单表操作
