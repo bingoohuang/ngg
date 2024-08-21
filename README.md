@@ -9,3 +9,4 @@ new gg
 5. [unit](unit) 支持对文件大小的人类友好格式化及解析
 6. [tick](tick) 时间相关
 7. [rt](rt) 运行时等, pprof 等
+8. [busy](busy) 模拟内存消耗和CPU忙碌
