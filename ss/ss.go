@@ -35,3 +35,11 @@ func ContainsAny(s string, subs ...string) bool {
 
 	return false
 }
+
+func Must[A any](a A, err error) A {
+	if err != nil {
+		panic(err)
+	}
+
+	return a
+}
