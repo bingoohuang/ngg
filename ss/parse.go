@@ -2,6 +2,7 @@ package ss
 
 import (
 	"fmt"
+	"os"
 )
 
 type Parseable interface {
@@ -14,4 +15,19 @@ func Parse[T Parseable](str string) (T, error) {
 	var result T
 	_, err := fmt.Sscanf(str, "%v", &result)
 	return result, err
+}
+
+// Getenv 获取环境变量的值
+func Getenv[T Parseable](name string, defaultValue T) (T, error) {
+	env := os.Getenv(name)
+	if env == "" {
+		return defaultValue, nil
+	}
+
+	val, err := Parse[T](env)
+	if err != nil {
+		var zero T
+		return zero, fmt.Errorf("parse env %s error: %w", name, err)
+	}
+	return val, nil
 }
