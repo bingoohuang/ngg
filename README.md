@@ -10,3 +10,4 @@ new gg
 6. [tick](tick) 时间相关
 7. [rt](rt) 运行时等, pprof 等
 8. [busy](busy) 模拟内存消耗和CPU忙碌
+9. [dog](dog) 看住go程序内存上限和 CPU 上限，达到上限后，采取相应动作
