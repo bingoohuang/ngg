@@ -3,6 +3,8 @@ package tick
 import (
 	"context"
 	"time"
+
+	"github.com/bingoohuang/ngg/dur"
 )
 
 func Tick(ctx context.Context, interval, jitter time.Duration, f func() error) error {
@@ -11,7 +13,7 @@ func Tick(ctx context.Context, interval, jitter time.Duration, f func() error) e
 
 	for ctx.Err() == nil {
 		if jitter > 0 {
-			SleepRandom(ctx, jitter)
+			dur.SleepRandom(ctx, jitter)
 		}
 
 		if err := ctx.Err(); err != nil {
