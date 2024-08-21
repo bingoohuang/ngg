@@ -49,9 +49,9 @@
 ```sh
 $ go clean -testcache
 $ go test ./...      
-?       github.com/bingoohuang/ngg/sqliter/cmd/sqliteplus        [no test files]
-?       github.com/bingoohuang/ngg/sqliter/sqlrun        [no test files]
-ok      github.com/bingoohuang/ngg/sqliter       2.438s
+?   	github.com/bingoohuang/ngg/sqliter/cmd/sqliter	[no test files]
+ok  	github.com/bingoohuang/ngg/sqliter	8.981s
+ok  	github.com/bingoohuang/ngg/sqliter/influx	0.011s
 $ 
 ```
 
