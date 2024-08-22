@@ -3,6 +3,8 @@ package ss
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Parseable interface {
@@ -15,6 +17,21 @@ func Parse[T Parseable](str string) (T, error) {
 	var result T
 	_, err := fmt.Sscanf(str, "%v", &result)
 	return result, err
+}
+
+// ParseBool returns the boolean value represented by the string.
+// It accepts 1, t, true, y, yes, on as true with camel case incentive
+// and accepts 0, f false, n, no, off as false with camel case incentive
+// Any other value returns an error.
+func ParseBool(s string) (bool, error) {
+	switch strings.ToLower(s) {
+	case "1", "t", "true", "y", "yes", "on":
+		return true, nil
+	case "0", "f", "false", "n", "no", "off":
+		return false, nil
+	}
+
+	return false, fmt.Errorf("unknown bool %s: %w", s, strconv.ErrSyntax)
 }
 
 // Getenv 获取环境变量的值
@@ -30,4 +47,13 @@ func Getenv[T Parseable](name string, defaultValue T) (T, error) {
 		return zero, fmt.Errorf("parse env %s error: %w", name, err)
 	}
 	return val, nil
+}
+
+func GetenvBool(envName string, defaultValue bool) (bool, error) {
+	val := os.Getenv(envName)
+	if val == "" {
+		return defaultValue, nil
+	}
+
+	return ParseBool(val)
 }

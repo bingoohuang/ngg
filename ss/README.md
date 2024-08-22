@@ -12,6 +12,41 @@
 10. `Abbreviate` 缩略
 11. `QuoteSingle`, `UnquoteSingle` 单引号引用
 
+## 中国身份证等随机信息
+
+
+```go
+fmt.Println("姓名:", ss.RandChineseName())
+fmt.Println("性别:", ss.RandSex())
+fmt.Println("地址:", ss.RandAddress())
+fmt.Println("手机:", ss.RandMobile())
+fmt.Println("身份证:", ss.RandChinaID())
+fmt.Println("有效期:", ss.RandValidPeriod())
+fmt.Println("发证机关:", ss.RandIssueOrg())
+fmt.Println("邮箱:", ss.RandEmail())
+fmt.Println("银行卡:", ss.RandBankNo())
+fmt.Println("日期:", ss.RandTime())
+```
+
+```
+姓名: 武锴脹
+性别: 男
+地址: 四川省攀枝花市嫯航路3755号婘螐小区3单元1216室
+手机: 18507708621
+身份证: 156315197605103397
+有效期: 20020716-20220716
+发证机关: 平凉市公安局某某分局
+邮箱: wvcykkyh@kjsth.co
+银行卡: 6230959897028597497
+日期: 1977-06-16 23:41:28 +0800 CST
+```
+
+### Resources
+
+1. [Chinese Id Card Number (Resident Identity Card) and name Generator](https://www.myfakeinfo.com/nationalidno/get-china-citizenidandname.php)
+2. [China ID](https://github.com/mritd/chinaid)
+
+
 ## strcase
 
 forked from https://github.com/iancoleman/strcase

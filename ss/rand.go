@@ -47,34 +47,34 @@ func RandBytes(n int) []byte {
 
 func RandBool() bool { return RandInt64Between(0, 1) == 0 }
 
-func RandInt64() int64 { return RandInt64N(math.MaxInt64) }
+func RandInt64() int64 { return RandInt64n(math.MaxInt64) }
 
-func RandInt64N(n int64) int64 {
+func RandInt64n(n int64) int64 {
 	v, _ := rand.Int(rander, big.NewInt(n))
 	return v.Int64()
 }
 
-func RandInt64Between(min, max int64) (v int64) { return RandInt64N(max-min+1) + min }
+func RandInt64Between(min, max int64) (v int64) { return RandInt64n(max-min+1) + min }
 
-func RandIntN(n int) int {
+func RandIntn(n int) int {
 	v, _ := rand.Int(rander, big.NewInt(int64(n)))
 	return int(v.Int64())
 }
 
 func RandInt() int { return int(RandInt32()) }
 
-func RandIntBetween(min, max int) int { return RandIntN(max-min+1) + min }
+func RandIntBetween(min, max int) int { return RandIntn(max-min+1) + min }
 
-func RandInt32N(n int) int32 {
+func RandInt32n(n int) int32 {
 	v, _ := rand.Int(rander, big.NewInt(int64(n)))
 	return int32(v.Int64())
 }
 
-func RandInt32() int32 { return RandInt32N(math.MaxInt32) }
+func RandInt32() int32 { return RandInt32n(math.MaxInt32) }
 
-func RandInt32Between(min, max int) int32 { return RandInt32N(max-min+1) + int32(min) }
+func RandInt32Between(min, max int) int32 { return RandInt32n(max-min+1) + int32(min) }
 
-func RandUint64N(n int64) uint64 {
+func RandUint64n(n int64) uint64 {
 	v, _ := rand.Int(rander, big.NewInt(n))
 	return v.Uint64()
 }
@@ -103,7 +103,7 @@ func CopyShuffle[T any](a []T) []T {
 	b = append(b, a...)
 	swap := func(i, j int) { b[i], b[j] = b[j], b[i] }
 	for i := len(b) - 1; i > 0; i-- {
-		swap(i, RandIntN(i+1))
+		swap(i, RandIntn(i+1))
 	}
 	return b
 }

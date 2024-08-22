@@ -1,5 +1,9 @@
+github.com/bingoohuang/ngg/unit v0.0.0-20240822090839-f6300a37a609 h1:FVxh31v0ql6nZURxr8nEDO8Uxj+PmKQPBOG/DuraLQU=
+github.com/bingoohuang/ngg/unit v0.0.0-20240822090839-f6300a37a609/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 h1:pKjmNHL7BCXhgsnSlN6Ov3WAN2jbJMCx6IvrMN9GNfc=
+github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567/go.mod h1:ytYavTmrpWG4s7UOfDhP6m4ASL5XA66nrOcUn1e2M78=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
