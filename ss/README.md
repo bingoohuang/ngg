@@ -6,7 +6,7 @@
 4. `func Parse[T Parseable](str string) (T, error)`
 5. `func IndexN(s, sep string, n int) int`
 6. `func Must[A any](a A, err error) A`
-
+7. `func Or[T comparable](a, b T) T`
 
 ## strcase
 

@@ -77,3 +77,12 @@ func IndexN(s, sep string, n int) int {
 	}
 
 }
+
+func Or[T comparable](a, b T) T {
+	var zero T
+	if a == zero {
+		return b
+	}
+
+	return a
+}
