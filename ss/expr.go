@@ -33,7 +33,7 @@ func (s Subs) Eval(valuer Valuer) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			value += toString(vv)
+			value += fmt.Sprintf("%v", vv)
 		}
 	}
 
@@ -197,22 +197,6 @@ func wrap(s string, bracket *bracket) string {
 func validNameRune(r int32) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.Is(unicode.Han, r) ||
 		r == '_' || r == '-' || r == '.'
-}
-
-func toString(value any) string {
-	switch vv := value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return fmt.Sprintf("%d", vv)
-	case float32, float64:
-		return fmt.Sprintf("%f", vv)
-	case bool:
-		return fmt.Sprintf("%t", vv)
-	case string:
-		return vv
-	default:
-		vvv := fmt.Sprintf("%v", value)
-		return vvv
-	}
 }
 
 type GenFn func() any
