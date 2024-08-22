@@ -7,6 +7,10 @@
 5. `func IndexN(s, sep string, n int) int`
 6. `func Must[A any](a A, err error) A`
 7. `func Or[T comparable](a, b T) T`
+8. `func FnMatch(pattern, name string, caseInsensitive bool) (matched bool, err error)` 文件名模式匹配
+9. `Contains`, `AnyOf`, `IndexOf`, `Split`, `Split2`, `HasPrefix`, `HasSuffix`
+10. `Abbreviate` 缩略
+11. `QuoteSingle`, `UnquoteSingle` 单引号引用
 
 ## strcase
 

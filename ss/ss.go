@@ -1,6 +1,11 @@
 package ss
 
-import "strings"
+import (
+	"encoding/json"
+	"errors"
+	"strings"
+	"unicode/utf8"
+)
 
 func If[T any](condition bool, a, b T) T {
 	if condition {
@@ -26,7 +31,7 @@ func Repeat(s, separator string, count int) string {
 	return strings.Repeat(separator+s, count)[len(separator):]
 }
 
-func ContainsAny(s string, subs ...string) bool {
+func Contains(s string, subs ...string) bool {
 	for _, sub := range subs {
 		if strings.Contains(s, sub) {
 			return true
@@ -84,5 +89,234 @@ func Or[T comparable](a, b T) T {
 		return b
 	}
 
+	return a
+}
+
+func AnyOfFunc[T any](target T, f func(idx int, elem, target T) bool, anys ...T) bool {
+	return IndexOfFunc(target, f, anys...) >= 0
+}
+
+func IndexOfFunc[T any](target T, f func(idx int, elem, target T) bool, anys ...T) int {
+	for i, el := range anys {
+		if f(i, el, target) {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func AnyOf[T comparable](target T, anys ...T) bool {
+	return IndexOf(target, anys...) >= 0
+}
+
+func IndexOf[T comparable](target T, anys ...T) int {
+	for i, el := range anys {
+		if el == target {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func SplitFunc(idx int, sub, subSep string, cur []string) (splitSub string, ok, kontinue bool) {
+	sub = strings.TrimSpace(sub)
+	if sub == "" {
+		return "", false, true
+	}
+
+	return sub, true, true
+}
+
+func Split(s, sep string) []string {
+	return SplitN(s, sep, -1, SplitFunc)
+}
+
+func Split2(s, sep string) (s1, s2 string) {
+	res := SplitN(s, sep, 2, SplitFunc)
+	if len(res) >= 2 {
+		return res[0], res[1]
+	} else if len(res) >= 1 {
+		return res[0], ""
+	} else {
+		return "", ""
+	}
+}
+
+func SplitN(s, sep string, n int, f func(idx int, sub, subSep string, cur []string) (splitSub string, ok, kontinue bool)) []string {
+	if n == 0 {
+		return nil
+	}
+	if sep == "" {
+		panic("sep is empty")
+	}
+
+	if n < 0 {
+		n = strings.Count(s, sep) + 1
+	}
+
+	if n > len(s)+1 {
+		n = len(s) + 1
+	}
+	a := make([]string, 0, n)
+	n--
+	i := 0
+	sepSave := len(sep)
+	for i < n {
+		m := strings.Index(s, sep)
+		if m < 0 {
+			break
+		}
+
+		sub, yes, kontinue := f(i, s[:m], s[:m+sepSave], a)
+		if yes {
+			a = append(a, sub)
+		}
+		if !kontinue {
+			return a
+		}
+
+		s = s[m+len(sep):]
+		i++
+	}
+	sub, yes, _ := f(i, s, s, a)
+	if yes {
+		a = append(a, sub)
+	}
+
+	if i+1 <= len(a) {
+		return a[:i+1]
+	}
+
+	return a
+}
+
+func HasPrefix(s string, prefix ...string) bool {
+	for _, fix := range prefix {
+		if strings.HasPrefix(s, fix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func HasSuffix(s string, suffix ...string) bool {
+	for _, fix := range suffix {
+		if strings.HasSuffix(s, fix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// DefaultEllipse is the default char for marking abbreviation
+const DefaultEllipse = "…"
+
+// Abbreviate 将 string/[]byte 缩略到 maxLen （不包含 ellipse）
+func Abbreviate(s string, maxLen int, ellipse string) string {
+	if maxLen == 0 {
+		return s
+	}
+
+	if runeLength := utf8.RuneCountInString(s); runeLength > maxLen {
+		var result []rune
+		for len(result) < maxLen {
+			r, size := utf8.DecodeRuneInString(s)
+			result = append(result, r)
+			s = s[size:]
+		}
+		return string(result) + ellipse
+	}
+
+	return s
+}
+
+func AbbreviateBytes(p []byte, maxLen int, ellipse string) []byte {
+	if maxLen == 0 {
+		return p
+	}
+
+	if len(p) > maxLen {
+		bb := make([]byte, 0, maxLen+3)
+		bb = append(bb, p[:maxLen]...)
+		return append(bb, []byte(ellipse)...)
+	}
+
+	return p
+}
+
+func AbbreviateAny(s any, maxLen int, ellipse string) any {
+	switch p := s.(type) {
+	case string:
+		return Abbreviate(p, maxLen, ellipse)
+	case []byte:
+		return AbbreviateBytes(p, maxLen, ellipse)
+	default:
+		return s
+	}
+}
+
+func Json(v any) []byte {
+	vv, _ := json.Marshal(v)
+	return vv
+}
+
+const (
+	singleQuote = '\''
+	escape      = '\\'
+)
+
+var ErrSyntax = errors.New("invalid syntax")
+
+// QuoteSingle returns a single-quoted Go string literal representing s. But, nothing else escapes.
+func QuoteSingle(s string) string {
+	out := []rune{singleQuote}
+	for _, r := range s {
+		switch r {
+		case singleQuote:
+			out = append(out, escape, r)
+		default:
+			out = append(out, r)
+		}
+	}
+	out = append(out, singleQuote)
+	return string(out)
+}
+
+// UnquoteSingle interprets s as a single-quoted Go string literal, returning the string value that s quotes.
+func UnquoteSingle(s string) (string, error) {
+	if len(s) < 2 {
+		return "", ErrSyntax
+	}
+	if s[0] != singleQuote || s[len(s)-1] != singleQuote {
+		return "", ErrSyntax
+	}
+	var out []rune
+	escaped := false
+	for _, r := range s[1 : len(s)-1] {
+		switch r {
+		case escape:
+			escaped = !escaped
+			if !escaped {
+				out = append(out, escape, escape)
+			}
+		case singleQuote:
+			if !escaped {
+				return "", ErrSyntax
+			}
+			out = append(out, r)
+			escaped = false
+		default:
+			out = append(out, r)
+			escaped = false
+		}
+	}
+	return string(out), nil
+}
+
+func Pick1[T any](a T, _ error) T {
 	return a
 }
