@@ -17,10 +17,10 @@ limitations under the License.
 package tsid_test
 
 import (
-	"github.com/ngg/tsid"
 	"testing"
 	"time"
 
+	"github.com/bingoohuang/ngg/tsid"
 	"github.com/stretchr/testify/assert"
 )
 

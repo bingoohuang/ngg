@@ -1,4 +1,4 @@
-module github.com/ngg/tsid
+module github.com/bingoohuang/ngg/tsid
 
 go 1.21
 
