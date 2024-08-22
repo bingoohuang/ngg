@@ -33,6 +33,6 @@ import (
 
 ### 在程序的工作目录(环境变量 DOG_DIR 指定), 生成 Dog.busy 文件
 
-- `echo '{"pprof": "15s"}' > Dog.busy` 在15秒后生成 cpu/mem.pprof 文件
+- `echo '{"pprof": "15s"}' > Dog.busy` 在15秒后生成 cpu/mem.pprof 文件，取回本地， 执行命令 `go tool pprof -http=:8080 Dog.xxx.prof` 自动打开浏览器查看
 - `echo '{"mem":"20MiB"}' > Dog.busy` 打满 20 MiB 内存 (用于模拟测试)
 - `echo '{"cores":3,"cpu":100}' > Dog.busy` 打满 3 个核（用于模拟测试）
