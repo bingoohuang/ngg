@@ -11,6 +11,7 @@
 9. `Contains`, `AnyOf`, `IndexOf`, `Split`, `Split2`, `HasPrefix`, `HasSuffix`
 10. `Abbreviate` 缩略
 11. `QuoteSingle`, `UnquoteSingle` 单引号引用
+12. `ss.Base64().Encode/Decode` base64 编码/解码
 
 ## 中国身份证等随机信息
 
