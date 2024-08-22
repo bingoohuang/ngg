@@ -6,3 +6,4 @@
 2. `tick.SleepRandom()` 随机休眠
 3. `tick.Tick()` 滴答执行
 4. `func ParseThinkTime(think string) (t *ThinkTime, err error)` 思考时间
+5. `tick.Time` 支持 JSON 反序列化
