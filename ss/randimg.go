@@ -27,7 +27,7 @@ type RandomImageResult struct {
 // GG_IMG_FORMAT=jpg/png to choose the format
 // GG_IMG_FILE_SIZE=10M to set image file size
 // GG_IMG_SIZE=640x320 to set the {width}x{height} of image
-func (r Rand) Image(prefix string) (*RandomImageResult, error) {
+func (r random) Image(prefix string) (*RandomImageResult, error) {
 	imgFormat := r.parseImageFormat("IMG_FMT")
 	width, height := parseImageSize("IMG_SIZE")
 	fn := fmt.Sprintf("%s_%dx%d%s", prefix, width, height, imgFormat)
@@ -41,7 +41,7 @@ func (r Rand) Image(prefix string) (*RandomImageResult, error) {
 	return &RandomImageResult{Size: size, Filename: fn}, nil
 }
 
-func (r Rand) parseImageFormat(envName string) string {
+func (r random) parseImageFormat(envName string) string {
 	if v := os.Getenv(envName); v != "" {
 		switch strings.ToLower(v) {
 		case ".jpg", "jpg", ".jpeg", "jpeg":
@@ -102,7 +102,7 @@ func (c *RandImgConfig) GenFile(filename string, fileSize int) int {
 	}
 
 	if !c.FastMode {
-		b := Rand{}.Bytes(fileSize - imgSize)
+		b := random{}.Bytes(fileSize - imgSize)
 		f.Write(b)
 		return fileSize
 	}
@@ -137,7 +137,7 @@ func (c *RandImgConfig) Gen(imageFormat string) ([]byte, int) {
 	xp := c.Width / c.PixelSize
 	for yi := 0; yi < yp; yi++ {
 		for xi := 0; xi < xp; xi++ {
-			drawPixelWithColor(img, yi, xi, c.PixelSize, Rand{}.Color())
+			drawPixelWithColor(img, yi, xi, c.PixelSize, random{}.Color())
 		}
 	}
 
@@ -171,7 +171,7 @@ func drawPixelWithColor(img draw.Image, yi, xi, pixelSize int, c color.Color) {
 }
 
 // Color generate a random color
-func (r Rand) Color() color.Color {
+func (r random) Color() color.Color {
 	return color.RGBA{
 		R: uint8(r.Intn(255)),
 		G: uint8(r.Intn(255)),

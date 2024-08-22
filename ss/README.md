@@ -15,18 +15,17 @@
 
 ## 中国身份证等随机信息
 
-
 ```go
-fmt.Println("姓名:", ss.RandChineseName())
-fmt.Println("性别:", ss.RandSex())
-fmt.Println("地址:", ss.RandAddress())
-fmt.Println("手机:", ss.RandMobile())
-fmt.Println("身份证:", ss.RandChinaID())
-fmt.Println("有效期:", ss.RandValidPeriod())
-fmt.Println("发证机关:", ss.RandIssueOrg())
-fmt.Println("邮箱:", ss.RandEmail())
-fmt.Println("银行卡:", ss.RandBankNo())
-fmt.Println("日期:", ss.RandTime())
+fmt.Println("姓名:", ss.Rand().ChineseName())
+fmt.Println("性别:", ss.Rand().Sex())
+fmt.Println("地址:", ss.Rand().Address())
+fmt.Println("手机:", ss.Rand().Mobile())
+fmt.Println("身份证:", ss.Rand().ChinaID())
+fmt.Println("有效期:", ss.Rand().ValidPeriod())
+fmt.Println("发证机关:", ss.Rand().IssueOrg())
+fmt.Println("邮箱:", ss.Rand().Email())
+fmt.Println("银行卡:", ss.Rand().BankNo())
+fmt.Println("日期:", ss.Rand().Time())
 ```
 
 ```

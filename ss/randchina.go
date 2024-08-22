@@ -8,12 +8,12 @@ import (
 )
 
 // ProvinceCity 返回随机省/城市
-func (r Rand) ProvinceCity() string {
+func (r random) ProvinceCity() string {
 	return provinceCity[r.IntBetween(0, len(provinceCity))]
 }
 
 // Address 返回随机地址
-func (r Rand) Address() string {
+func (r random) Address() string {
 	return r.ProvinceCity() +
 		r.Chinese(2, 3) + "路" +
 		strconv.Itoa(r.IntBetween(1, 8000)) + "号" +
@@ -23,7 +23,7 @@ func (r Rand) Address() string {
 }
 
 // BankNo 返回随机银行卡号，银行卡号符合LUHN 算法并且有正确的卡 bin 前缀
-func (r Rand) BankNo() string {
+func (r random) BankNo() string {
 	// 随机选中银行卡卡头
 	bank := cardBins[r.Intn(len(cardBins))]
 	// 获取 卡前缀(cardBin)
@@ -38,7 +38,7 @@ func (r Rand) BankNo() string {
 }
 
 // luhnProcess 通过 LUHN 合成卡号处理给定的银行卡号
-func (r Rand) luhnProcess(preCardNo string) string {
+func (r random) luhnProcess(preCardNo string) string {
 	checkSum := 0
 	tmpCardNo := reverseString(preCardNo)
 	for i, s := range tmpCardNo {
@@ -70,24 +70,24 @@ func (r Rand) luhnProcess(preCardNo string) string {
 }
 
 // Email 返回随机邮箱，邮箱目前只支持常见的域名后缀
-func (r Rand) Email() string {
+func (r random) Email() string {
 	return r.SmallLetters(8) + "@" + r.SmallLetters(5) + domainSuffix[r.Intn(len(domainSuffix))]
 }
 
 // IssueOrg 返回身份证签发机关(eg: XXX公安局/XX区分局)
-func (r Rand) IssueOrg() string {
+func (r random) IssueOrg() string {
 	return cityNames[r.Intn(len(cityNames))] + "公安局某某分局"
 }
 
 // ValidPeriod 返回身份证有效期限(eg: 20150906-20350906)，有效期限固定为 20 年
-func (r Rand) ValidPeriod() string {
+func (r random) ValidPeriod() string {
 	begin := r.Time()
 	end := begin.AddDate(20, 0, 0)
 	return begin.Format("20060102") + "-" + end.Format("20060102")
 }
 
 // ChinaID 返回中国大陆地区身份证号.
-func (r Rand) ChinaID() string {
+func (r random) ChinaID() string {
 	// AreaCode 随机一个+4位随机数字(不够左填充0)
 	areaCode := AreaCode[r.Intn(len(AreaCode))] +
 		fmt.Sprintf("%0*d", 4, r.IntBetween(1, 9999))
@@ -108,22 +108,22 @@ func verifyCode(cardId string) string {
 }
 
 // Mobile 返回中国大陆地区手机号
-func (r Rand) Mobile() string {
+func (r random) Mobile() string {
 	return mobilePrefix[r.Intn(len(mobilePrefix))] + fmt.Sprintf("%0*d", 8, r.Intn(100000000))
 }
 
 // Sex 返回性别
-func (r Rand) Sex() string {
+func (r random) Sex() string {
 	return If(r.Bool(), "男", "女")
 }
 
 // ChineseName 返回中国姓名，姓名已经尽量返回常用姓氏和名字
-func (r Rand) ChineseName() string {
+func (r random) ChineseName() string {
 	return Surnames[r.Intn(len(Surnames))] + r.ChineseN(2)
 }
 
 // ChineseN 指定长度随机中文字符(包含复杂字符)。
-func (r Rand) ChineseN(n int) string {
+func (r random) ChineseN(n int) string {
 	var buf bytes.Buffer
 	for i := 0; i < n; i++ {
 		buf.WriteRune(rune(r.IntBetween(19968, 40869)))
@@ -132,12 +132,12 @@ func (r Rand) ChineseN(n int) string {
 }
 
 // Chinese 指定范围随机中文字符.
-func (r Rand) Chinese(minLen, maxLen int) string {
+func (r random) Chinese(minLen, maxLen int) string {
 	return r.ChineseN(r.IntBetween(minLen, maxLen))
 }
 
 // SmallLetters 随机英文小写字母.
-func (r Rand) SmallLetters(len int) string {
+func (r random) SmallLetters(len int) string {
 	data := make([]byte, len)
 	for i := 0; i < len; i++ {
 		data[i] = byte(r.Intn(26) + 97)
