@@ -2,6 +2,8 @@ github.com/bingoohuang/ngg/dur v0.0.0-20240821130433-fe028605f2c9 h1:2p0WlnzUotu
 github.com/bingoohuang/ngg/dur v0.0.0-20240821130433-fe028605f2c9/go.mod h1:5VfLBF9QOJzxucq7dDIHfk2Ve91ksRJ4I5I+0TOw9xg=
 github.com/bingoohuang/ngg/rt v0.0.0-20240821130433-fe028605f2c9 h1:+cfdZ7UYvoZwv9DVglB/ULCyBag+Rb5NOqhEr3jZJag=
 github.com/bingoohuang/ngg/rt v0.0.0-20240821130433-fe028605f2c9/go.mod h1:LYxOiPQ7eTbsf1ccqzbcfLpzREaXTsx5+5wWiQp5AvY=
+github.com/bingoohuang/ngg/ss v0.0.0-20240822031750-7657215be9f5 h1:NFCJGdvOvOSpt7weisQAau0AhjhFjjPjPyWk2EZlgbA=
+github.com/bingoohuang/ngg/ss v0.0.0-20240822031750-7657215be9f5/go.mod h1:5ZGlsHVyopfbhD6R0/h74E2z/WUY16qrfNbI/1Ef1fQ=
 github.com/bingoohuang/ngg/unit v0.0.0-20240821130433-fe028605f2c9 h1:37/xkg5Cz/we5LSzawzJ2/XEdJZgPPq3gZREIt+3DZM=
 github.com/bingoohuang/ngg/unit v0.0.0-20240821130433-fe028605f2c9/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

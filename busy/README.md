@@ -13,3 +13,26 @@ func ControlCPULoad(ctx context.Context, coresCount, percentage int, lockOsThrea
 // ControlMem 控制内存消耗
 func ControlMem(ctx context.Context, totalMem uint64) error
 ```
+
+## 一键引入
+
+```go
+import (
+    _ "github.com/bingoohuang/ngg/busy/autoload"
+)
+```
+
+## Environment
+
+| Name              | Default  | Meaning                              | Usage                         |
+| ----------------- | -------- | ------------------------------------ | ----------------------------- |
+| DOG_DEBUG         | 0        | Debug mode                           | `export DOG_DEBUG=1`          |
+| DOG_DIR           | 当前目录 | 检查 Dog.busy 和生成 Dog.exit 的路径 | `export DOG_DIR=/etc/dog`     |
+| DOG_BUSY_INTERVAL | 10s      | 检查 Dog.busy 文件的间隔时间         | `export DOG_BUSY_INTERVAL=1m` |
+
+
+### 在程序的工作目录(环境变量 DOG_DIR 指定), 生成 Dog.busy 文件
+
+- `echo '{"pprof": "15s"}' > Dog.busy` 在15秒后生成 cpu/mem.pprof 文件
+- `echo '{"mem":"20MiB"}' > Dog.busy` 打满 20 MiB 内存 (用于模拟测试)
+- `echo '{"cores":3,"cpu":100}' > Dog.busy` 打满 3 个核（用于模拟测试）

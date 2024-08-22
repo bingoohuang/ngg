@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/bingoohuang/ngg/dur v0.0.0-20240821130433-fe028605f2c9
+	github.com/bingoohuang/ngg/ss v0.0.0-20240822031750-7657215be9f5
 	github.com/bingoohuang/ngg/unit v0.0.0-20240821130433-fe028605f2c9
 	github.com/shirou/gopsutil/v4 v4.24.7
 )
