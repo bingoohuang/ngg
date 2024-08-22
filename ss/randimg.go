@@ -21,14 +21,14 @@ type RandomImageResult struct {
 	Filename string
 }
 
-// RandomImage creates a random image.
+// Image creates a random image.
 // Environment variables supported:
 // GG_IMG_FAST=Y/N to enable fast mode or not
 // GG_IMG_FORMAT=jpg/png to choose the format
 // GG_IMG_FILE_SIZE=10M to set image file size
 // GG_IMG_SIZE=640x320 to set the {width}x{height} of image
-func RandomImage(prefix string) (*RandomImageResult, error) {
-	imgFormat := parseImageFormat("IMG_FMT")
+func (r Rand) Image(prefix string) (*RandomImageResult, error) {
+	imgFormat := r.parseImageFormat("IMG_FMT")
 	width, height := parseImageSize("IMG_SIZE")
 	fn := fmt.Sprintf("%s_%dx%d%s", prefix, width, height, imgFormat)
 	c := RandImgConfig{
@@ -41,7 +41,7 @@ func RandomImage(prefix string) (*RandomImageResult, error) {
 	return &RandomImageResult{Size: size, Filename: fn}, nil
 }
 
-func parseImageFormat(envName string) string {
+func (r Rand) parseImageFormat(envName string) string {
 	if v := os.Getenv(envName); v != "" {
 		switch strings.ToLower(v) {
 		case ".jpg", "jpg", ".jpeg", "jpeg":
@@ -50,7 +50,7 @@ func parseImageFormat(envName string) string {
 			return ".png"
 		}
 	}
-	return If(RandBool(), ".jpg", ".png")
+	return If(r.Bool(), ".jpg", ".png")
 }
 
 func parseImageSize(envName string) (width, height int) {
@@ -102,7 +102,7 @@ func (c *RandImgConfig) GenFile(filename string, fileSize int) int {
 	}
 
 	if !c.FastMode {
-		b := RandBytes(fileSize - imgSize)
+		b := Rand{}.Bytes(fileSize - imgSize)
 		f.Write(b)
 		return fileSize
 	}
@@ -137,7 +137,7 @@ func (c *RandImgConfig) Gen(imageFormat string) ([]byte, int) {
 	xp := c.Width / c.PixelSize
 	for yi := 0; yi < yp; yi++ {
 		for xi := 0; xi < xp; xi++ {
-			drawPixelWithColor(img, yi, xi, c.PixelSize, RandColor())
+			drawPixelWithColor(img, yi, xi, c.PixelSize, Rand{}.Color())
 		}
 	}
 
@@ -170,7 +170,12 @@ func drawPixelWithColor(img draw.Image, yi, xi, pixelSize int, c color.Color) {
 	}
 }
 
-// RandColor generate a random color
-func RandColor() color.Color {
-	return color.RGBA{R: uint8(RandIntn(255)), G: uint8(RandIntn(255)), B: uint8(RandIntn(255)), A: uint8(RandIntn(255))}
+// Color generate a random color
+func (r Rand) Color() color.Color {
+	return color.RGBA{
+		R: uint8(r.Intn(255)),
+		G: uint8(r.Intn(255)),
+		B: uint8(r.Intn(255)),
+		A: uint8(r.Intn(255)),
+	}
 }
