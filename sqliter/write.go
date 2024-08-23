@@ -105,7 +105,7 @@ type LastError struct {
 }
 
 func (e *LastError) shouldRemove(allowDBErrors []string) bool {
-	return e.Error != nil && !ss.ContainsAny(e.Error.Error(), allowDBErrors...)
+	return e.Error != nil && !ss.Contains(e.Error.Error(), allowDBErrors...)
 }
 
 func (e *LastError) dealError(err error, query string, queryType QueryType) {
@@ -178,7 +178,7 @@ func (d *writeTable) prepareQuery(query string, columns int, onConflict string, 
 	}
 	stmt, err := d.db.dbPrepare(query, d.BatchInsertSize, postfixFn)
 	if err != nil {
-		if ss.ContainsAny(err.Error(), d.AllowDBErrors...) {
+		if ss.Contains(err.Error(), d.AllowDBErrors...) {
 			alterTables := CreateAlterTable(&d.tableMeta, metric, d.SeqKeysDB, d.AsTags)
 			for _, q := range alterTables {
 				d.db.dbExec(true, q)

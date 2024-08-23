@@ -1,7 +1,7 @@
-github.com/bingoohuang/ngg/ss v0.0.0-20240823005101-77a64a194291 h1:PmOcHmkJHjMhMdnpeJZP8HlXuFiYJ+2bmtjdwVbMMI4=
-github.com/bingoohuang/ngg/ss v0.0.0-20240823005101-77a64a194291/go.mod h1:AByTartNzAGaEkC9Ajxj9sYiQbYIIDSqDC76yuTzAdk=
-github.com/bingoohuang/ngg/unit v0.0.0-20240822144737-c2076964aa98 h1:IEMU2ZBPmU4ghq6LDosT3WF2gJjK4V2v3nG4nLeCyQU=
-github.com/bingoohuang/ngg/unit v0.0.0-20240822144737-c2076964aa98/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
+github.com/bingoohuang/ngg/ss v0.0.0-20240823035053-0eafc8675645 h1:Mi45Izb0Y/hAQp4xSCEM2BDrPD0EzGyVEVN5Crm46hs=
+github.com/bingoohuang/ngg/ss v0.0.0-20240823035053-0eafc8675645/go.mod h1:iMsSYxnF0wZ7ei7acW5iHtc7B+r8y47/9sHVN89mtcU=
+github.com/bingoohuang/ngg/unit v0.0.0-20240823035053-0eafc8675645 h1:evQDUTZDlm9s2xSo9WLl2VT8QGXgqKbgzInXiuF99j8=
+github.com/bingoohuang/ngg/unit v0.0.0-20240823035053-0eafc8675645/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=

@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
 	"github.com/golang-module/carbon/v2"
 	"go.uber.org/multierr"
