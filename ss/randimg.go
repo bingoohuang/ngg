@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bingoohuang/ngg/unit"
 	"github.com/pbnjay/pixfont"
 )
 
@@ -37,7 +36,7 @@ func (r random) Image(prefix string) (*RandomImageResult, error) {
 		RandomText: prefix,
 		FastMode:   Pick1(GetenvBool("IMG_FAST", false)),
 	}
-	size := c.GenFile(fn, int(Pick1(unit.GetEnvBytes("IMG_FILE_SIZE", 0))))
+	size := c.GenFile(fn, int(Pick1(GetenvBytes("IMG_FILE_SIZE", 0))))
 	return &RandomImageResult{Size: size, Filename: fn}, nil
 }
 

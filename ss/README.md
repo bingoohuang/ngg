@@ -12,6 +12,14 @@
 10. `Abbreviate` 缩略
 11. `QuoteSingle`, `UnquoteSingle` 单引号引用
 12. `ss.Base64().Encode/Decode` base64 编码/解码
+1. `pf, err := rt.StartMemProf()` 开始记录 mem profile
+2. `pf, err := rt.StartCPUProf()` 开始记录 cpu profile
+3. `ExpandHome` 展开 ~ 主目录
+4. `WriteTempFile` 写临时文件
+5. `Exists` 文件是否存在
+6. `Close` 关闭多个 io.Closer 
+7. `ReadAll` 从 io.Reader 中读取为字符串
+8. `ExpandAtFile` 扩展 @file 字符串，读取文件内容
 
 ## 中国身份证等随机信息
 
@@ -40,6 +48,18 @@ fmt.Println("日期:", ss.Rand().Time())
 银行卡: 6230959897028597497
 日期: 1977-06-16 23:41:28 +0800 CST
 ```
+
+## Humane Sizes
+
+This lets you take numbers like `82854982` and convert them to useful
+strings like, `83 MB` or `79 MiB` (whichever you prefer).
+
+Example:
+
+```go
+fmt.Printf("That file is %s.", ss.Bytes(82854982)) // That file is 83 MB.
+```
+
 
 ### Resources
 
