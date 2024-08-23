@@ -1,21 +1,19 @@
 module github.com/bingoohuang/ngg/sqliter
 
-go 1.22
-
-toolchain go1.23.0
+go 1.21
 
 require (
-	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240823035053-0eafc8675645
-	github.com/bingoohuang/ngg/ss v0.0.0-20240823073818-2c6f9404b6a0
-	github.com/bingoohuang/ngg/tick v0.0.0-20240823035053-0eafc8675645
-	github.com/bingoohuang/ngg/ver v0.0.0-20240823035053-0eafc8675645
+	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240823084034-023381ee0dec
+	github.com/bingoohuang/ngg/ss v0.0.0-20240823084034-023381ee0dec
+	github.com/bingoohuang/ngg/tick v0.0.0-20240823084034-023381ee0dec
+	github.com/bingoohuang/ngg/ver v0.0.0-20240823084034-023381ee0dec
 	github.com/elliotchance/pie/v2 v2.9.0
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/nxadm/tail v1.4.11
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
-	go.etcd.io/bbolt v1.3.11
+	go.etcd.io/bbolt v1.3.10
 	go.uber.org/multierr v1.11.0
 )
 
