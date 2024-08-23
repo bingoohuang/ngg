@@ -367,6 +367,12 @@ func (p *printer) printSlice() {
 		return
 	}
 
+	if p.value.Type().Elem().Kind() == reflect.Uint8 {
+		// []byte
+		p.printf("%s", p.value.Interface().([]byte))
+		return
+	}
+
 	p.println(p.typeString() + "{")
 	p.indented(func() {
 		groupsize := 0
