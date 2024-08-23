@@ -1,5 +1,5 @@
-github.com/bingoohuang/ngg/unit v0.0.0-20240822090839-f6300a37a609 h1:FVxh31v0ql6nZURxr8nEDO8Uxj+PmKQPBOG/DuraLQU=
-github.com/bingoohuang/ngg/unit v0.0.0-20240822090839-f6300a37a609/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
+github.com/bingoohuang/ngg/unit v0.0.0-20240822144737-c2076964aa98 h1:IEMU2ZBPmU4ghq6LDosT3WF2gJjK4V2v3nG4nLeCyQU=
+github.com/bingoohuang/ngg/unit v0.0.0-20240822144737-c2076964aa98/go.mod h1:p6UKurVIaM5kz/lhpFYKT8ejT5iAQz90qPbXlVtqgHQ=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 h1:pKjmNHL7BCXhgsnSlN6Ov3WAN2jbJMCx6IvrMN9GNfc=

@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bingoohuang/ngg/dur"
 	"github.com/bingoohuang/ngg/rt"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/bingoohuang/ngg/unit"
 )
 
@@ -28,14 +28,14 @@ func Watch(ctx context.Context, dir string, debug bool, checkInterval time.Durat
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			tick(ctx, dir, debug)
+			tickBusy(ctx, dir, debug)
 		}
 	}
 }
 
 const DogBusy = "Dog.busy"
 
-func tick(ctx context.Context, dir string, debug bool) {
+func tickBusy(ctx context.Context, dir string, debug bool) {
 	var file File
 	name := filepath.Join(dir, DogBusy)
 	if err := ReadDeleteFile(name, debug, &file); err != nil {
@@ -100,11 +100,11 @@ func controlMem(ctx context.Context, fileMem string) {
 }
 
 type File struct {
-	Mem          string  `json:"mem,omitempty"`          // 最大内存
-	Cores        int     `json:"cores,omitempty"`        // cpu 使用核数
-	Cpu          int     `json:"cpu,omitempty"`          // cpu 每核百分比, 0-100
-	LockOsThread bool    `json:"lockOsThread,omitempty"` // lockOsThread: 是否在 CPU 耗用时锁定 OS 线程
-	Pprof        dur.Dur `json:"pprof,omitempty"`        // 指定时间后，生成 pprof 文件
+	Mem          string   `json:"mem,omitempty"`          // 最大内存
+	Cores        int      `json:"cores,omitempty"`        // cpu 使用核数
+	Cpu          int      `json:"cpu,omitempty"`          // cpu 每核百分比, 0-100
+	LockOsThread bool     `json:"lockOsThread,omitempty"` // lockOsThread: 是否在 CPU 耗用时锁定 OS 线程
+	Pprof        tick.Dur `json:"pprof,omitempty"`        // 指定时间后，生成 pprof 文件
 }
 
 func ReadDeleteFile(filename string, debug bool, v any) error {

@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/bingoohuang/ngg/dur"
-	"github.com/bingoohuang/ngg/unit"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,6 +14,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bingoohuang/ngg/tick"
+	"github.com/bingoohuang/ngg/unit"
 
 	"github.com/bingoohuang/ngg/sqlrun"
 	"github.com/bingoohuang/ngg/ss"
@@ -96,7 +97,7 @@ func ToDBFieldValue(x any) any {
 }
 
 func Tick[T any](interval, jitter time.Duration, ch chan T, chItemFn func(T) error, tickFn func() error) error {
-	t := time.NewTimer(dur.Jitter(interval, jitter))
+	t := time.NewTimer(tick.Jitter(interval, jitter))
 	defer t.Stop()
 
 	if tickFn == nil {
@@ -115,7 +116,7 @@ func Tick[T any](interval, jitter time.Duration, ch chan T, chItemFn func(T) err
 			if err := tickFn(); err != nil {
 				return err
 			}
-			t.Reset(dur.Jitter(interval, jitter))
+			t.Reset(tick.Jitter(interval, jitter))
 		}
 	}
 }

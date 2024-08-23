@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/bingoohuang/ngg/dur"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/bingoohuang/ngg/unit"
 	"github.com/golang-module/carbon/v2"
 	"go.uber.org/multierr"
@@ -45,7 +45,7 @@ func (q *Sqliter) Recycle(before string) (rr RecycleResult) {
 	var err error
 	timeSpan := *q.TimeSeriesKeep
 	if before != "" {
-		rr.BeforeTime, err = dur.ParseTime(before)
+		rr.BeforeTime, err = tick.ParseTime(before)
 		if err != nil {
 			rr.Error = err.Error()
 			return rr

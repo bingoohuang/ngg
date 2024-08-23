@@ -3,7 +3,7 @@
 跟时间相关
 
 
-1. 支持 JSON 序列化的 Duration: dur.Dur
+1. 支持 JSON 序列化的 Duration: tick.Dur
 2. 解析 天/d/周/w/月/month 等标准库不支持的单位
 3. Round 规整，100秒以下最多3位数字
 
