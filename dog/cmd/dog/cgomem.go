@@ -38,7 +38,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/bingoohuang/ngg/unit"
+	"github.com/bingoohuang/ngg/ss"
 )
 
 func cgoMemDemo(cgoMemSize uint64) {
@@ -54,7 +54,7 @@ func cgoDemo() {
 		return
 	}
 
-	if cgoMemSize, err := unit.ParseBytes(*cgoMem); err != nil {
+	if cgoMemSize, err := ss.ParseBytes(*cgoMem); err != nil {
 		log.Fatalf("parse cgoMem %s error: %v", *cgoMem, err)
 	} else if cgoMemSize > 0 {
 		cgoMemDemo(cgoMemSize)

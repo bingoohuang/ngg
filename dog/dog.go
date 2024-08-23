@@ -9,9 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bingoohuang/ngg/rt"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/unit"
 	"github.com/shirou/gopsutil/v4/process"
 )
 
@@ -87,7 +86,7 @@ func (w *Dog) statRSS(p *process.Process, state *thresholdState) (debugMessage s
 		state.setReached(w.Debug, rss)
 
 		if w.Debug {
-			debugMessage = fmt.Sprintf("current RSS: %s", unit.IBytes(rss))
+			debugMessage = fmt.Sprintf("current RSS: %s", ss.IBytes(rss))
 		}
 	} else if w.Debug {
 		log.Printf("E! get memory %d error: %v", p.Pid, err)
@@ -150,7 +149,7 @@ type thresholdState struct {
 	statFn
 
 	profile string
-	prof    rt.Prof
+	prof    ss.Prof
 	Dir     string
 	Pid     int
 }
@@ -193,12 +192,12 @@ func (t *thresholdState) reached(maxTimes int, debug bool) (r reachResult) {
 func (t *thresholdState) setReached(debug bool, value uint64) {
 	if reached := value > t.Threshold; reached {
 		if t.prof == nil {
-			t.prof = rt.NoopProfile
+			t.prof = ss.NoopProfile
 			timestamp := time.Now().Format(`20060102150405`)
 			switch t.Type {
 			case CPU:
 				name := filepath.Join(t.Dir, fmt.Sprintf("Dog.cpu.%d.%s.pprof", t.Pid, timestamp))
-				p, err := rt.StartCPUProf(name)
+				p, err := ss.StartCPUProf(name)
 				if err == nil {
 					t.prof = p
 					t.profile = name
@@ -207,7 +206,7 @@ func (t *thresholdState) setReached(debug bool, value uint64) {
 				}
 			case RSS:
 				name := filepath.Join(t.Dir, fmt.Sprintf("Dog.mem.%d.%s.pprof", t.Pid, timestamp))
-				p, err := rt.StartMemProf(name)
+				p, err := ss.StartMemProf(name)
 				if err == nil {
 					t.prof = p
 					t.profile = name

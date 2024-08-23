@@ -9,7 +9,6 @@ import (
 	"github.com/bingoohuang/ngg/dog"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/unit"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -18,7 +17,7 @@ func init() {
 		Pid:                 os.Getpid(),
 		Dir:                 os.Getenv("DOG_DIR"),
 		Debug:               os.Getenv("DOG_DEBUG") == "1",
-		RSSThreshold:        ss.Must(unit.GetEnvBytes("DOG_RSS", uint64(dog.DefaultRSSThreshold))),
+		RSSThreshold:        ss.Must(ss.GetenvBytes("DOG_RSS", uint64(dog.DefaultRSSThreshold))),
 		CPUPercentThreshold: ss.Must(ss.Getenv[uint64]("DOG_CPU", dog.DefaultCPUThreshold)),
 		Interval:            ss.Must(tick.Getenv("DOG_INTERVAL", dog.DefaultInterval)),
 		Jitter:              ss.Must(tick.Getenv("DOG_JITTER", dog.DefaultJitter)),

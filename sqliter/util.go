@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/unit"
 
 	"github.com/bingoohuang/ngg/sqlrun"
 	"github.com/bingoohuang/ngg/ss"
@@ -315,7 +314,7 @@ func RemoveFilesPrefix(prefix string, debug bool) (removeFiles []file, totalSize
 		} else {
 			totalSize += f.size
 			if debug {
-				log.Printf("removeFile: %s, size: %s", f.path, unit.IBytes(uint64(f.size)))
+				log.Printf("removeFile: %s, size: %s", f.path, ss.IBytes(uint64(f.size)))
 			}
 		}
 	}

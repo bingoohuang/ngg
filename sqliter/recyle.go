@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/unit"
 	"github.com/golang-module/carbon/v2"
 	"go.uber.org/multierr"
 )
@@ -166,7 +165,7 @@ func (q *Sqliter) tickRecycleDbFiles(recycled []*DbFile) (totalRecycledSize int6
 
 	if q.Debug {
 		log.Printf("recycleFiles: %d, size: %s", len(recycled),
-			unit.IBytes(uint64(totalRecycledSize)))
+			ss.IBytes(uint64(totalRecycledSize)))
 	}
 
 	return
