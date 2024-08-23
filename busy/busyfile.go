@@ -12,9 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bingoohuang/ngg/rt"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/unit"
 )
 
 const DefaultCheckBusyInterval = 10 * time.Second
@@ -62,12 +61,12 @@ func tickBusy(ctx context.Context, dir string, debug bool) {
 		pid := os.Getpid()
 		timestamp := time.Now().Format(`20060102150405`)
 		name := filepath.Join(dir, fmt.Sprintf("Dog.mem.%d.%s.pprof", pid, timestamp))
-		ppMem, err := rt.StartMemProf(name)
+		ppMem, err := ss.StartMemProf(name)
 		if err != nil {
 			log.Printf("E! create file mem profile error: %v", err)
 		}
 		name = filepath.Join(dir, fmt.Sprintf("Dog.cpu.%d.%s.pprof", pid, timestamp))
-		ppCpu, err := rt.StartCPUProf(name)
+		ppCpu, err := ss.StartCPUProf(name)
 		if err != nil {
 			log.Printf("E! create file cpu profile error: %v", err)
 		}
@@ -89,7 +88,7 @@ func Close(objs ...io.Closer) {
 }
 
 func controlMem(ctx context.Context, fileMem string) {
-	maxMem, err := unit.ParseBytes(fileMem)
+	maxMem, err := ss.ParseBytes(fileMem)
 	if err != nil {
 		log.Printf("humanizeBytes error: %v", err)
 		return
