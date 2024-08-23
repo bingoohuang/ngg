@@ -1,11 +1,11 @@
-package dur_test
+package tick_test
 
 import (
 	"math/rand"
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/dur"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -93,7 +93,7 @@ var parseDurationTests = []struct {
 
 func TestParseDuration(t *testing.T) {
 	for _, tc := range parseDurationTests {
-		d, _, err := dur.Parse(tc.in)
+		d, _, err := tick.Parse(tc.in)
 		if tc.ok && (err != nil || d != tc.want) {
 			t.Errorf("ParseDuration(%q) = %v, %v, want %v, nil", tc.in, d, err, tc.want)
 		} else if !tc.ok && err == nil {
@@ -103,22 +103,22 @@ func TestParseDuration(t *testing.T) {
 }
 
 func TestParseDurationAllow(t *testing.T) {
-	d, frac, err := dur.Parse("1天", "天")
+	d, frac, err := tick.Parse("1天", "天")
 	assert.Nil(t, err)
 	assert.Equal(t, 24*time.Hour, d)
-	assert.Equal(t, []dur.Fraction{
+	assert.Equal(t, []tick.Fraction{
 		{Unit: "天", Value: 1},
 	}, frac)
 
-	d, frac, err = dur.Parse("1周3天", "天", "周")
+	d, frac, err = tick.Parse("1周3天", "天", "周")
 	assert.Nil(t, err)
 	assert.Equal(t, 10*24*time.Hour, d)
-	assert.Equal(t, []dur.Fraction{
+	assert.Equal(t, []tick.Fraction{
 		{Unit: "周", Value: 1},
 		{Unit: "天", Value: 3},
 	}, frac)
 
-	_, _, err = dur.Parse("1天", "周")
+	_, _, err = tick.Parse("1天", "周")
 	assert.NotNil(t, err)
 }
 
@@ -128,7 +128,7 @@ func TestParseDurationRoundTrip(t *testing.T) {
 		// imprecise round-trips.
 		d0 := time.Duration(rand.Int31()) * time.Millisecond
 		s := d0.String()
-		d1, _, err := dur.Parse(s)
+		d1, _, err := tick.Parse(s)
 
 		if err != nil || d0 != d1 {
 			t.Errorf("round-trip failed: %d => %q => %d, %v", d0, s, d1, err)

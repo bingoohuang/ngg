@@ -1,4 +1,4 @@
-package dur_test
+package tick_test
 
 import (
 	"fmt"
@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/dur"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/stretchr/testify/assert"
 )
 
 func ExampleRound() {
 	for i := 0; i < 15; i++ {
 		d := time.Duration(3.455555 * math.Pow(10, float64(i)))
-		fmt.Printf("%2d  %12v  %6s\n", i, d, dur.Round(d))
+		fmt.Printf("%2d  %12v  %6s\n", i, d, tick.Round(d))
 
 		//         original formatted
 
@@ -37,7 +37,7 @@ func ExampleRound() {
 }
 
 func TestRound(t *testing.T) {
-	assert.Equal(t, "3s", dur.Round(3*time.Second).String())
-	assert.Equal(t, "3.1s", dur.Round(3*time.Second+100*time.Millisecond).String())
-	assert.Equal(t, "3.12s", dur.Round(3*time.Second+123*time.Millisecond).String())
+	assert.Equal(t, "3s", tick.Round(3*time.Second).String())
+	assert.Equal(t, "3.1s", tick.Round(3*time.Second+100*time.Millisecond).String())
+	assert.Equal(t, "3.12s", tick.Round(3*time.Second+123*time.Millisecond).String())
 }

@@ -1,4 +1,4 @@
-package dur_test
+package tick_test
 
 import (
 	"encoding/json"
@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/dur"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/stretchr/testify/assert"
 )
 
 type Ex struct {
-	S dur.Dur
-	I dur.Dur
+	S tick.Dur
+	I tick.Dur
 }
 
 func TestJSON(t *testing.T) {
@@ -22,8 +22,8 @@ func TestJSON(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, Ex{
-		S: dur.MakeDur(15*time.Second + 350*time.Millisecond),
-		I: dur.MakeDur(400000),
+		S: tick.MakeDur(15*time.Second + 350*time.Millisecond),
+		I: tick.MakeDur(400000),
 	}, ex)
 
 	out, err := json.Marshal(ex)

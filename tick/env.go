@@ -1,4 +1,4 @@
-package dur
+package tick
 
 import (
 	"os"
