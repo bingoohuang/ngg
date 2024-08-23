@@ -3,7 +3,7 @@ module github.com/bingoohuang/ngg/dog
 go 1.21
 
 require (
-	github.com/bingoohuang/ngg/busy v0.0.0-20240822144737-c2076964aa98
+	github.com/bingoohuang/ngg/busy v0.0.0-20240823010158-7de5538cac98
 	github.com/bingoohuang/ngg/rt v0.0.0-20240822144737-c2076964aa98
 	github.com/bingoohuang/ngg/ss v0.0.0-20240823005101-77a64a194291
 	github.com/bingoohuang/ngg/tick v0.0.0-20240823005101-77a64a194291
@@ -13,7 +13,6 @@ require (
 )
 
 require (
-	github.com/bingoohuang/ngg/dur v0.0.0-20240822144737-c2076964aa98 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240819163618-b1d8f4d146e7 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect

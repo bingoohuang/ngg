@@ -1,7 +1,5 @@
-github.com/bingoohuang/ngg/busy v0.0.0-20240822144737-c2076964aa98 h1:OOaWQ39QTkbYnZraoCtkCYpxmwUn9AJdYBsDUfsL1oM=
-github.com/bingoohuang/ngg/busy v0.0.0-20240822144737-c2076964aa98/go.mod h1:HkdVq5wzzU6C3UuL46YL2IZQcrGkUKB+hw/urmBUxaQ=
-github.com/bingoohuang/ngg/dur v0.0.0-20240822144737-c2076964aa98 h1:dG9aLTrzewpwuui3NJhJ719lQ0FhkHVuRyPCB7II07I=
-github.com/bingoohuang/ngg/dur v0.0.0-20240822144737-c2076964aa98/go.mod h1:5VfLBF9QOJzxucq7dDIHfk2Ve91ksRJ4I5I+0TOw9xg=
+github.com/bingoohuang/ngg/busy v0.0.0-20240823010158-7de5538cac98 h1:Igun0AFLYLqyqkvrnq/gEUGJJOcqcztIdwm0OdzwdRw=
+github.com/bingoohuang/ngg/busy v0.0.0-20240823010158-7de5538cac98/go.mod h1:K8MAqjxWIAwwkaE0HjVI7QMOoCDhegPsaZZp7d6r2qM=
 github.com/bingoohuang/ngg/rt v0.0.0-20240822144737-c2076964aa98 h1:DYdtuMKchmuVj6nDbaC0Id+r8n89Akbpc9/2DVowOKA=
 github.com/bingoohuang/ngg/rt v0.0.0-20240822144737-c2076964aa98/go.mod h1:rPnw0GmfpDupaMK8nAmhkfQf7V+9shgQab+x7JDEY/o=
 github.com/bingoohuang/ngg/ss v0.0.0-20240823005101-77a64a194291 h1:PmOcHmkJHjMhMdnpeJZP8HlXuFiYJ+2bmtjdwVbMMI4=
