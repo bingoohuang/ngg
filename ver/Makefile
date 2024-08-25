@@ -101,6 +101,7 @@ fmt-update:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install go.uber.org/nilaway/cmd/nilaway@latest
+	# go install github.com/atotto/clipboard/
 
 fmt:
 	gofumpt -l -w .

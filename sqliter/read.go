@@ -56,9 +56,13 @@ func (q *Sqliter) getReadDB(table, dividedBy string) (*readTable, error) {
 		return nil, err
 	}
 
-	return &readTable{
-		db: debugDB,
-	}, nil
+	rdb := &readTable{
+		db:   debugDB,
+		Last: time.Now(),
+	}
+
+	q.readDbs[dbFile] = rdb
+	return rdb, nil
 }
 
 type readTable struct {
