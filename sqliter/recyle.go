@@ -206,6 +206,20 @@ func (q *Sqliter) tickRecycleReadDbs() {
 	for dbFile, db := range q.readDbs {
 		if time.Since(db.Last) > q.MaxIdle {
 			db.Close()
+			delete(q.readDbs, dbFile)
+		}
+	}
+}
+
+// tickRecycleWriteDbs 回收写库，关闭过期写库（早于当前时间划分，或者超过空闲期）
+func (q *Sqliter) tickRecycleWriteDbs(dividedBy string) {
+	q.writeDbsLock.Lock()
+	defer q.writeDbsLock.Unlock()
+
+	for dbFile, db := range q.writeDbs {
+		// 早于当前时间划分，或者超过空闲期
+		if db.DividedBy < dividedBy || time.Since(db.Last) > q.MaxIdle {
+			db.Close()
 			delete(q.writeDbs, dbFile)
 		}
 	}
@@ -221,20 +235,6 @@ type DbStat struct {
 	DividedBy string `json:"dividedBy"`
 	// ReadOnly 是否只读
 	ReadOnly bool `json:"readOnly"`
-}
-
-// tickRecycleWriteDbs 回收写库，关闭过期写库（早于当前时间划分，或者超过空闲期）
-func (q *Sqliter) tickRecycleWriteDbs(dividedBy string) {
-	q.writeDbsLock.Lock()
-	defer q.writeDbsLock.Unlock()
-
-	for dbFile, db := range q.writeDbs {
-		// 早于当前时间划分，或者超过空闲期
-		if db.DividedBy < dividedBy || time.Since(db.Last) > q.MaxIdle {
-			db.Close()
-			delete(q.writeDbs, dbFile)
-		}
-	}
 }
 
 // StatDbs 统计读写库
