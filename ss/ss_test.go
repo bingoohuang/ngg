@@ -18,6 +18,9 @@ func ExampleIf() {
 
 func TestSplit(t *testing.T) {
 	assert.Equal(t, []string{"a", "b"}, ss.Split(" a ,b , ,", ","))
+
+	assert.Equal(t, []string{"a", "b"}, ss.SplitSeps(",a;b,", ",;", -1))
+
 }
 
 func TestAbbreviate(t *testing.T) {

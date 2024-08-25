@@ -194,6 +194,22 @@ func SplitN(s, sep string, n int, f func(idx int, sub, subSep string, cur []stri
 	return a
 }
 
+func SplitSeps(s string, seps string, n int) []string {
+	var v []string
+
+	ff := FieldsFunc(s, n, func(r rune) bool {
+		return strings.ContainsRune(seps, r)
+	})
+
+	for _, f := range ff {
+		if f = strings.TrimSpace(f); f != "" {
+			v = append(v, f)
+		}
+	}
+
+	return v
+}
+
 func HasPrefix(s string, prefix ...string) bool {
 	for _, fix := range prefix {
 		if strings.HasPrefix(s, fix) {
