@@ -211,6 +211,18 @@ func (q *Sqliter) tickRecycleReadDbs() {
 	}
 }
 
+// DbStat 库状态统计
+type DbStat struct {
+	// DSN 数据源名字
+	DSN string `json:"dsn"`
+	// LastVisit 最后访问时间
+	LastVisit time.Time `json:"lastVisit"`
+	// DividedBy 时间划分字符串
+	DividedBy string `json:"dividedBy"`
+	// ReadOnly 是否只读
+	ReadOnly bool `json:"readOnly"`
+}
+
 // tickRecycleWriteDbs 回收写库，关闭过期写库（早于当前时间划分，或者超过空闲期）
 func (q *Sqliter) tickRecycleWriteDbs(dividedBy string) {
 	q.writeDbsLock.Lock()
@@ -223,6 +235,44 @@ func (q *Sqliter) tickRecycleWriteDbs(dividedBy string) {
 			delete(q.writeDbs, dbFile)
 		}
 	}
+}
+
+// StatDbs 统计读写库
+func (q *Sqliter) StatDbs() (dbStats []DbStat) {
+	dbStats = append(dbStats, q.statReadDbs()...)
+	dbStats = append(dbStats, q.statWriteDbs()...)
+	return
+}
+
+// statReadDbs 统计读库
+func (q *Sqliter) statReadDbs() (dbStats []DbStat) {
+	q.readDbsLock.Lock()
+	defer q.readDbsLock.Unlock()
+
+	for _, db := range q.readDbs {
+		dbStats = append(dbStats, DbStat{
+			DSN:       db.db.DSN,
+			LastVisit: db.Last,
+			DividedBy: db.DividedBy,
+			ReadOnly:  true,
+		})
+	}
+	return
+}
+
+// statWriteDbs 统计写库
+func (q *Sqliter) statWriteDbs() (dbStats []DbStat) {
+	q.writeDbsLock.Lock()
+	defer q.writeDbsLock.Unlock()
+
+	for _, db := range q.writeDbs {
+		dbStats = append(dbStats, DbStat{
+			DSN:       db.db.DSN,
+			LastVisit: db.Last,
+			DividedBy: db.DividedBy,
+		})
+	}
+	return
 }
 
 // Close 关闭 SqlitePlus 所有操作，包括关闭库文件、退出回收协程等

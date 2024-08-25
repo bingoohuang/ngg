@@ -57,8 +57,9 @@ func (q *Sqliter) getReadDB(table, dividedBy string) (*readTable, error) {
 	}
 
 	rdb := &readTable{
-		db:   debugDB,
-		Last: time.Now(),
+		db:        debugDB,
+		Last:      time.Now(),
+		DividedBy: dividedBy,
 	}
 
 	q.readDbs[dbFile] = rdb
@@ -70,6 +71,9 @@ type readTable struct {
 
 	// Last 上次读写时间
 	Last time.Time
+
+	// DividedBy 时间划分
+	DividedBy string
 
 	// LastError 记录上次操作错误，便于在下一次操作师进行识别，是否需要删除坏库文件
 	LastError
