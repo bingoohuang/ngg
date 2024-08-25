@@ -14,3 +14,9 @@ new gg
 12. [gnet](gnet) 网络相关
 13. [q](q) is a better way to do print statement debugging.
 14. [pp](pp) Colored pretty printer for Go language
+
+
+
+utilities
+
+1. [gops](gops) 根据 pid 获取进程详细信息，监控内存CPU等
