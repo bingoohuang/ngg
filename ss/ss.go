@@ -43,6 +43,17 @@ func Contains(s string, subs ...string) bool {
 	return false
 }
 
+func ContainsFold(s string, subs ...string) bool {
+	s = strings.ToUpper(s)
+	for _, sub := range subs {
+		if strings.Contains(s, strings.ToUpper(sub)) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func Must[A any](a A, err error) A {
 	if err != nil {
 		panic(err)

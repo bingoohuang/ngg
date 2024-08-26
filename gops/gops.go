@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"gops/choose"
 	"log"
 	"net"
 	"os"
@@ -20,6 +21,7 @@ import (
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	"github.com/bingoohuang/ngg/ss"
+	"github.com/bingoohuang/ngg/ver"
 	"github.com/glebarez/sqlite"
 	"github.com/klauspost/cpuid/v2"
 	ps "github.com/mitchellh/go-ps"
@@ -39,13 +41,26 @@ var (
 	includingChildren = flag.Bool("children", false, "including children processes")
 	showDisk          = flag.Bool("disk", false, "only disk")
 	showCpu           = flag.Bool("cpu", false, "only cpu")
+	showVersion       = flag.Bool("version", false, "show version and exit")
 )
 
 func main() {
 	flag.Parse()
 
+	if *showVersion {
+		fmt.Println(ver.Version())
+		os.Exit(0)
+	}
+
+	ctx, cancel := context.WithCancel(context.TODO())
+	defer cancel()
+
 	if *pid == 0 && len(flag.Args()) > 0 {
-		*pid, _ = strconv.Atoi(flag.Args()[0])
+		if argPid, err := ss.Parse[int](flag.Args()[0]); err == nil {
+			*pid = argPid
+		} else {
+			*pid = chooseProcess(ctx, flag.Args())
+		}
 	}
 
 	if *pid > 0 && *watchInterval > 0 {
@@ -69,6 +84,39 @@ func main() {
 	}
 
 	printSystemInfo()
+}
+
+func chooseProcess(ctx context.Context, args []string) int {
+	pss, _ := process.ProcessesWithContext(ctx)
+	var selectedProcesses []*process.Process
+	for _, p := range pss {
+		if p.Pid == int32(os.Getpid()) {
+			continue
+		}
+
+		cmdLine, _ := p.Cmdline()
+		if ss.ContainsFold(cmdLine, args...) {
+			selectedProcesses = append(selectedProcesses, p)
+		}
+	}
+	switch len(selectedProcesses) {
+	case 0:
+		return 0
+	case 1:
+		return int(selectedProcesses[0].Pid)
+	default:
+		var chooseItems []string
+		for _, p := range selectedProcesses {
+			chooseItems = append(chooseItems, fmt.Sprintf("%d\t%s", p.Pid, ss.Pick1(p.Cmdline())))
+		}
+		result, _ := choose.Choose(chooseItems, 1)
+		if len(result) > 0 {
+			pid, _ := ss.Parse[int](ss.Fields(result[0], 2)[0])
+			return pid
+		}
+	}
+
+	return 0
 }
 
 var printf = func(format string, a ...any) {

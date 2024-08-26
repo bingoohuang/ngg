@@ -133,6 +133,13 @@ install: init
 	${goinstall}
 	${LS_BIN}
 
+linux1: init
+	GOOS=linux GOARCH=amd64 ${goinstall}
+	ls -lh  ${gobin}/linux_amd64/${app}*
+linux-upx1: linux1
+	upx --best --lzma ${gobin}/linux_amd64/${app}*
+	ls -lh  ${gobin}/linux_amd64/${app}*
+
 linux: init
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC="zig cc -target x86_64-linux-musl" CXX="zig c++ -target x86_64-linux-musl" ${goinstall}
 	ls -lh  ${gobin}/linux_amd64/${app}*
