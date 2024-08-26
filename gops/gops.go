@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"gops/choose"
 	"log"
 	"net"
 	"os"
@@ -20,6 +19,7 @@ import (
 	"unicode"
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
+	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
 	"github.com/glebarez/sqlite"
@@ -109,7 +109,7 @@ func chooseProcess(ctx context.Context, args []string) int {
 		for _, p := range selectedProcesses {
 			chooseItems = append(chooseItems, fmt.Sprintf("%d\t%s", p.Pid, ss.Pick1(p.Cmdline())))
 		}
-		result, _ := choose.Choose(chooseItems, 1)
+		result, _ := gum.Choose(chooseItems, 1)
 		if len(result) > 0 {
 			pid, _ := ss.Parse[int](ss.Fields(result[0], 2)[0])
 			return pid

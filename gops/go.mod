@@ -5,13 +5,10 @@ go 1.23
 replace github.com/bingoohuang/ngg/ss => ../ss
 
 require (
-	github.com/alecthomas/kong v0.9.0
 	github.com/bingoohuang/ngg/daemon v0.0.0-20240823074751-d338446ed887
+	github.com/bingoohuang/ngg/gum v0.0.0-20240826032954-679736387572
 	github.com/bingoohuang/ngg/ss v0.0.0-20240825010828-3f8fb808ad53
 	github.com/bingoohuang/ngg/ver v0.0.0-20240825131033-d1f8680cc26b
-	github.com/charmbracelet/gum v0.14.4
-	github.com/charmbracelet/huh v0.5.3
-	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/klauspost/cpuid/v2 v2.2.8
 	github.com/mitchellh/go-ps v1.0.0
@@ -21,14 +18,18 @@ require (
 )
 
 require (
+	github.com/alecthomas/kong v0.9.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bingoohuang/ngg/q v0.0.0-20240823035053-0eafc8675645 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.19.0 // indirect
-	github.com/charmbracelet/bubbletea v0.27.0 // indirect
-	github.com/charmbracelet/x/ansi v0.2.2 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240722160745-212f7b056ed0 // indirect
+	github.com/charmbracelet/bubbletea v0.27.1 // indirect
+	github.com/charmbracelet/gum v0.14.4 // indirect
+	github.com/charmbracelet/huh v0.5.3 // indirect
+	github.com/charmbracelet/lipgloss v0.13.0 // indirect
+	github.com/charmbracelet/x/ansi v0.2.3 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240823163159-c7af7c9754f2 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
