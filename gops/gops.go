@@ -95,6 +95,14 @@ func chooseProcess(ctx context.Context, args []string) int {
 		}
 
 		cmdLine, _ := p.Cmdline()
+		if !strings.HasPrefix(cmdLine, "/") {
+			// 忽略 tail/less 等命令行
+			continue
+		}
+		if ss.HasPrefix(cmdLine, "/bin/bash", "bin/sh") {
+			continue
+		}
+
 		if ss.ContainsFold(cmdLine, args...) {
 			selectedProcesses = append(selectedProcesses, p)
 		}

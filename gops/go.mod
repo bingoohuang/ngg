@@ -2,13 +2,11 @@ module gops
 
 go 1.23
 
-replace github.com/bingoohuang/ngg/ss => ../ss
-
 require (
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240823074751-d338446ed887
-	github.com/bingoohuang/ngg/gum v0.0.0-20240826032954-679736387572
-	github.com/bingoohuang/ngg/ss v0.0.0-20240825010828-3f8fb808ad53
-	github.com/bingoohuang/ngg/ver v0.0.0-20240825131033-d1f8680cc26b
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240826044035-7f964d262d0b
+	github.com/bingoohuang/ngg/gum v0.0.0-20240826044035-7f964d262d0b
+	github.com/bingoohuang/ngg/ss v0.0.0-20240826044035-7f964d262d0b
+	github.com/bingoohuang/ngg/ver v0.0.0-20240826044035-7f964d262d0b
 	github.com/glebarez/sqlite v1.11.0
 	github.com/klauspost/cpuid/v2 v2.2.8
 	github.com/mitchellh/go-ps v1.0.0
@@ -21,7 +19,7 @@ require (
 	github.com/alecthomas/kong v0.9.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240823035053-0eafc8675645 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240826044035-7f964d262d0b // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.19.0 // indirect
 	github.com/charmbracelet/bubbletea v0.27.1 // indirect
@@ -55,7 +53,7 @@ require (
 	github.com/muesli/termenv v0.15.3-0.20240618155329-98d742f6907a // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
