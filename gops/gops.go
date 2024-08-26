@@ -61,6 +61,10 @@ func main() {
 		} else {
 			*pid = chooseProcess(ctx, flag.Args())
 		}
+		if *pid == 0 {
+			fmt.Printf("unable to find process by %v\n", flag.Args())
+			os.Exit(1)
+		}
 	}
 
 	if *pid > 0 && *watchInterval > 0 {
