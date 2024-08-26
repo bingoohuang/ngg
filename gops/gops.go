@@ -338,6 +338,7 @@ func printProcessInfo(ctx context.Context, pid int) {
 		printf("process %d not found", pid)
 		return
 	}
+	printf("Pid:\t%d", pid)
 	printf("Ppid:\t%v", GetParentPIDs(pid))
 	printf("Executable:\t%s", p.Executable())
 
