@@ -32,21 +32,21 @@ type Arg struct {
 
 // Usage is optional for customized show.
 func (a Arg) Usage() string {
-	return fmt.Sprintf(`
+	return `
 Usage of goup:
-  -b    string Bearer token for client or server, auto for server to generate a random one
-  -c    string Chunk size for client (default 10MB, 0 to disable chunks), upload limit size for server.
-  -t    int    Threads (go-routines) for client
-  -f    string Upload file path for client
-  -p    int    Listening port for server
-  -r    string Rename to another filename
-  -u    string Server upload url for client to connect to
-  -P    string Password for PAKE
-  -L    string Limit rate /s, like 10K for limit 10K/s
-  -C    string Cipher AES256: AES-256 GCM, C20P1305: ChaCha20 Poly1305
-  -v    bool   Show version
-  -path /short=/short.zip Short URLs
-  -init bool   Create init ctl shell script`)
+  -b     string Bearer token for client or server, auto for server to generate a random one
+  -c     string Chunk size for client (default 10MB, 0 to disable chunks), upload limit size for server.
+  -t     int    Threads (go-routines) for client
+  -f     string Upload file path for client
+  -p     int    Listening port for server
+  -r     string Rename to another filename
+  -u     string Server upload url for client to connect to
+  -P     string Password for PAKE
+  -L     string Limit rate /s, like 10K for limit 10K/s
+  -C     string Cipher AES256: AES-256 GCM, C20P1305: ChaCha20 Poly1305
+  -v     bool   Show version
+  --path /short=/short.zip Short URLs
+`
 }
 
 // VersionInfo is optional for customized version.

@@ -43,7 +43,6 @@ Usage of goup:
   -P    string Password for PAKE
   -C    string Cipher AES256: AES-256 GCM, C20P1305: ChaCha20 Poly1305
   -v    bool   Show version
-  -init bool   Create init ctl shell script
 ```
 
 1. Installation `go install https://github.com/bingoohuang/ngg/goup`

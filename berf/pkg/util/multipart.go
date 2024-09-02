@@ -141,7 +141,7 @@ func PrepareMultipartPayload(fields map[string]interface{}) *Multipart {
 			parts = append(parts, header+crlf+crlf, vf, crlf)
 			totalSize += len(header) + len(crlf+crlf) + int(vf.FileSize()) + len(crlf)
 		default:
-			log.Printf("Ignore unsupported multipart Payload type %T", v)
+			log.Printf("Ignore unsupported multipart Payload type %t", v)
 		}
 	}
 
