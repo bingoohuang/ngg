@@ -221,6 +221,26 @@ func SplitSeps(s string, seps string, n int) []string {
 	return v
 }
 
+// SplitToMap 将字符串 s 分割成 map, 其中 key 和 value 之间的间隔符是 kvSep, kv 和 kv 之间的分隔符是 kkSep
+func SplitToMap(s string, kkSep, kvSep string) map[string]string {
+	var m map[string]string
+
+	ss := strings.Split(s, kkSep)
+	m = make(map[string]string)
+
+	for _, pair := range ss {
+		p := strings.TrimSpace(pair)
+		if p == "" {
+			continue
+		}
+
+		k, v := Split2(p, kvSep)
+		m[k] = v
+	}
+
+	return m
+}
+
 func HasPrefix(s string, prefix ...string) bool {
 	for _, fix := range prefix {
 		if strings.HasPrefix(s, fix) {
