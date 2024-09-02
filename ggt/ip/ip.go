@@ -1,5 +1,3 @@
-//go:build all || ip
-
 package ip
 
 import (
