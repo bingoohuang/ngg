@@ -599,6 +599,36 @@ func (c *Client) CloseIdleConnections() {
 	c.mLock.RUnlock()
 }
 
+type HostStat struct {
+	Host          string `json:"host"`
+	ConnsCount    int    `json:"connsCount"`
+	MapConnsCount int    `json:"mapConnsCount"`
+	TLS           bool   `json:"tls"`
+}
+
+func (c *Client) Stat() (stats []HostStat) {
+	c.mLock.RLock()
+	defer c.mLock.RUnlock()
+
+	for k, v := range c.m {
+		stats = append(stats, HostStat{
+			Host:          k,
+			ConnsCount:    v.connsCount,
+			MapConnsCount: len(v.conns),
+		})
+	}
+
+	for k, v := range c.ms {
+		stats = append(stats, HostStat{
+			TLS:           true,
+			Host:          k,
+			ConnsCount:    v.connsCount,
+			MapConnsCount: len(v.conns),
+		})
+	}
+
+	return stats
+}
 func (c *Client) mCleaner(m map[string]*HostClient) {
 	mustStop := false
 
