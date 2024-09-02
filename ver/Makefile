@@ -131,6 +131,7 @@ install-upx: init
 
 install: init
 	${goinstall}
+	@if [ ! -d cmd ]; then mv ${gobin}/main ${gobin}/${app}; fi
 	${LS_BIN}
 
 linux1: init
