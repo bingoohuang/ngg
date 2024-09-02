@@ -221,6 +221,12 @@ type Client struct {
 	// Default client name is used if not set.
 	Name string
 
+	// Maximum number of greedy connections per each host which may be established
+	// before reusing idle connections in the pool.
+	//
+	// By default, MaxGreedyConnsPerHost is 0.
+	MaxGreedyConnsPerHost int
+
 	// Maximum number of connections per each host which may be established.
 	//
 	// DefaultMaxConnsPerHost is used if not set.
@@ -533,6 +539,7 @@ func (c *Client) Do(req *Request, resp *Response) error {
 				DialDualStack:                 c.DialDualStack,
 				IsTLS:                         isTLS,
 				TLSConfig:                     c.TLSConfig,
+				MaxGreedyConns:                c.MaxGreedyConnsPerHost,
 				MaxConns:                      c.MaxConnsPerHost,
 				MaxIdleConnDuration:           c.MaxIdleConnDuration,
 				MaxConnDuration:               c.MaxConnDuration,
@@ -771,6 +778,15 @@ type HostClient struct {
 
 	conns []*clientConn
 	addrs []string
+
+	// Maximum number of greedy connections which may be established to all hosts
+	// listed in Addr.
+	// If it is set, the HostClient.acquireConn with create new connection
+	// other than reusing idle connections in the pool until the MaxGreedyConns
+	//
+	// You can change this value while the HostClient is being used
+	// with HostClient.SetMaxGreedyConns(value)
+	MaxGreedyConns int
 
 	// Maximum number of connections which may be established to all hosts
 	// listed in Addr.
@@ -1505,6 +1521,13 @@ func (e *timeoutError) Timeout() bool {
 // ErrTimeout is returned from timed out calls.
 var ErrTimeout = &timeoutError{}
 
+// SetMaxGreedyConns sets up the maximum greedy number of connections which may be established to all hosts listed in Addr.
+func (c *HostClient) SetMaxGreedyConns(newGreedyMaxConns int) {
+	c.connsLock.Lock()
+	c.MaxGreedyConns = newGreedyMaxConns
+	c.connsLock.Unlock()
+}
+
 // SetMaxConns sets up the maximum number of connections which may be established to all hosts listed in Addr.
 func (c *HostClient) SetMaxConns(newMaxConns int) {
 	c.connsLock.Lock()
@@ -1519,7 +1542,9 @@ func (c *HostClient) acquireConn(reqTimeout time.Duration, connectionClose bool)
 	var n int
 	c.connsLock.Lock()
 	n = len(c.conns)
-	if n == 0 {
+	shouldBeGreedy := c.MaxGreedyConns > 0 && c.connsCount < c.MaxGreedyConns
+
+	if n == 0 || shouldBeGreedy {
 		maxConns := c.MaxConns
 		if maxConns <= 0 {
 			maxConns = DefaultMaxConnsPerHost
@@ -1532,7 +1557,9 @@ func (c *HostClient) acquireConn(reqTimeout time.Duration, connectionClose bool)
 				c.connsCleanerRun = true
 			}
 		}
-	} else {
+	}
+
+	if n > 0 && !createConn {
 		switch c.ConnPoolStrategy {
 		case LIFO:
 			n--
@@ -3003,6 +3030,11 @@ func (t *transport) RoundTrip(hc *HostClient, req *Request, resp *Response) (ret
 	if err == nil {
 		err = bw.Flush()
 	}
+
+	if req.ConnAcquiredCallback != nil {
+		req.ConnAcquiredCallback(conn)
+	}
+
 	hc.releaseWriter(bw)
 
 	// Return ErrTimeout on any timeout.
