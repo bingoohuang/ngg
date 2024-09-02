@@ -26,8 +26,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bingoohuang/goup"
 	"github.com/bingoohuang/ngg/gnet"
+	"github.com/bingoohuang/ngg/goup"
 	"github.com/bingoohuang/ngg/gurl/certinfo"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"

@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"gitee.com/Trisia/gotlcp/tlcp"
-	"github.com/bingoohuang/goup/shapeio"
+	"github.com/bingoohuang/ngg/goup/shapeio"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 )

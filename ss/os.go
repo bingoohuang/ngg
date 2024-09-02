@@ -12,8 +12,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/bingoohuang/gg/pkg/iox"
 )
 
 var Home string
@@ -158,7 +156,7 @@ func LinesChan(filePath string, chSize int) (ch chan string, err error) {
 	s.Split(ScanLines)
 	ch = make(chan string, chSize)
 	go func() {
-		defer iox.Close(f)
+		defer Close(f)
 		defer close(ch)
 
 		for s.Scan() {

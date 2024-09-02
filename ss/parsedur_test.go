@@ -1,16 +1,16 @@
-package tick_test
+package ss_test
 
 import (
 	"math/rand"
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/tick"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/stretchr/testify/assert"
 )
 
 // nolint:lll,gochecknoglobals
-var parseDurationTests = []struct {
+var ParseDurTests = []struct {
 	in   string
 	ok   bool
 	want time.Duration
@@ -91,44 +91,44 @@ var parseDurationTests = []struct {
 	{"-9223372036854775808ns", false, 0},
 }
 
-func TestParseDuration(t *testing.T) {
-	for _, tc := range parseDurationTests {
-		d, _, err := tick.Parse(tc.in)
+func TestParseDur(t *testing.T) {
+	for _, tc := range ParseDurTests {
+		d, _, err := ss.ParseDur(tc.in)
 		if tc.ok && (err != nil || d != tc.want) {
-			t.Errorf("ParseDuration(%q) = %v, %v, want %v, nil", tc.in, d, err, tc.want)
+			t.Errorf("ParseDur(%q) = %v, %v, want %v, nil", tc.in, d, err, tc.want)
 		} else if !tc.ok && err == nil {
-			t.Errorf("ParseDuration(%q) = _, nil, want _, non-nil", tc.in)
+			t.Errorf("ParseDur(%q) = _, nil, want _, non-nil", tc.in)
 		}
 	}
 }
 
-func TestParseDurationAllow(t *testing.T) {
-	d, frac, err := tick.Parse("1天", "天")
+func TestParseDurAllow(t *testing.T) {
+	d, frac, err := ss.ParseDur("1天", "天")
 	assert.Nil(t, err)
 	assert.Equal(t, 24*time.Hour, d)
-	assert.Equal(t, []tick.Fraction{
+	assert.Equal(t, []ss.DurFraction{
 		{Unit: "天", Value: 1},
 	}, frac)
 
-	d, frac, err = tick.Parse("1周3天", "天", "周")
+	d, frac, err = ss.ParseDur("1周3天", "天", "周")
 	assert.Nil(t, err)
 	assert.Equal(t, 10*24*time.Hour, d)
-	assert.Equal(t, []tick.Fraction{
+	assert.Equal(t, []ss.DurFraction{
 		{Unit: "周", Value: 1},
 		{Unit: "天", Value: 3},
 	}, frac)
 
-	_, _, err = tick.Parse("1天", "周")
+	_, _, err = ss.ParseDur("1天", "周")
 	assert.NotNil(t, err)
 }
 
-func TestParseDurationRoundTrip(t *testing.T) {
+func TestParseDurRoundTrip(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		// Resolutions finer than milliseconds will result in
 		// imprecise round-trips.
 		d0 := time.Duration(rand.Int31()) * time.Millisecond
 		s := d0.String()
-		d1, _, err := tick.Parse(s)
+		d1, _, err := ss.ParseDur(s)
 
 		if err != nil || d0 != d1 {
 			t.Errorf("round-trip failed: %d => %q => %d, %v", d0, s, d1, err)

@@ -1,0 +1,7 @@
+dist/
+.tmp/
+files/
+.DS_Store
+.goup*
+/ctl
+.vscode

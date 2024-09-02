@@ -1,4 +1,4 @@
-package tick
+package ss
 
 import (
 	"errors"
@@ -37,18 +37,23 @@ var unitMap = map[string]int64{
 	"months": int64(30 * 24 * time.Hour), // 月
 }
 
-type Fraction struct {
+type DurFraction struct {
 	Unit  string
 	Value int64
 }
 
-// Parse parses a duration string(add d and w to standard time.Parse).
+func ParseDuration(s string) time.Duration {
+	d, _, _ := ParseDur(s)
+	return d
+}
+
+// ParseDur parses a duration string(add d and w to standard time.Parse).
 // A duration string is a possibly signed sequence of
 // decimal numbers, each with optional fraction and a unit suffix,
 // such as "300ms", "-1.5h" or "2h45m".
 // Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h", "d", "w".
 // allowUnits 允许的单位, 不传，使用上面的 unitMap 中的默认单位
-func Parse(s string, allowUnits ...string) (time.Duration, []Fraction, error) {
+func ParseDur(s string, allowUnits ...string) (time.Duration, []DurFraction, error) {
 	var allowUnitMap = unitMap
 	if len(allowUnits) > 0 {
 		allowUnitMap = make(map[string]int64)
@@ -87,7 +92,7 @@ func Parse(s string, allowUnits ...string) (time.Duration, []Fraction, error) {
 		return 0, nil, errors.New("time: invalid duration " + orig)
 	}
 
-	var fractions []Fraction
+	var fractions []DurFraction
 
 	for s != "" {
 		var (
@@ -151,7 +156,7 @@ func Parse(s string, allowUnits ...string) (time.Duration, []Fraction, error) {
 			return 0, nil, errors.New("time: invalid duration " + orig)
 		}
 
-		fractions = append(fractions, Fraction{Unit: u, Value: v})
+		fractions = append(fractions, DurFraction{Unit: u, Value: v})
 
 		v *= unit
 

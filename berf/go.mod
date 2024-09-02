@@ -17,7 +17,7 @@ require (
 	github.com/bingoohuang/ngg/ss v0.0.0-20240902071909-c0508bd4afac
 	github.com/bingoohuang/ngg/tick v0.0.0-20240902071909-c0508bd4afac
 	github.com/bingoohuang/ngg/tsid v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902100331-51d6704d242d
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902130105-ffbdf8efd571
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
@@ -46,10 +46,11 @@ require (
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/gg v0.0.0-20240822023057-9d953357a953 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902152100-74a104d7794d // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -60,6 +61,7 @@ require (
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240819163618-b1d8f4d146e7 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
@@ -84,6 +86,7 @@ require (
 	golang.org/x/image v0.19.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
