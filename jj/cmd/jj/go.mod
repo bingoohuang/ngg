@@ -1,4 +1,4 @@
-module main
+module jj
 
 replace github.com/bingoohuang/ngg/jj => ../../
 

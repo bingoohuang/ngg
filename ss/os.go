@@ -48,6 +48,20 @@ func ExpandFilename(file string) (string, error) {
 	return filename, nil
 }
 
+// ReadFile reads a file content, if it's a .gz, decompress it.
+func ReadFile(filename string) ([]byte, error) {
+	f, err := ExpandFilename(filename)
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(f)
+	if err != nil {
+		return nil, fmt.Errorf("read file %s failed: %w", f, err)
+	}
+
+	return data, nil
+}
+
 // WriteTempFile writes the content to a temporary file.
 func WriteTempFile(tempDir, pattern string, data []byte, errorPanic bool) (name string, err error) {
 	if tempDir == "" {
