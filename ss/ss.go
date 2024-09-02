@@ -241,6 +241,15 @@ func SplitToMap(s string, kkSep, kvSep string) map[string]string {
 	return m
 }
 
+func IsDigits(s string) bool {
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 func HasPrefix(s string, prefix ...string) bool {
 	for _, fix := range prefix {
 		if strings.HasPrefix(s, fix) {

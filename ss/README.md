@@ -23,6 +23,7 @@
 9. `ExpandFilename` 扩展文件名中的主目录，以及解析符号文件实际实际指向
 10. `OpenInBrowser` 在默认浏览器中打开链接
 11. `SplitToMap` 将字符串 s 分割成 map
+12. `IsDigits` 判断字符串是否全部是数字组成
 
 ## 中国身份证等随机信息
 

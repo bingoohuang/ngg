@@ -1,14 +1,19 @@
 package ss
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/bingoohuang/gg/pkg/iox"
 )
 
 var Home string
@@ -129,4 +134,83 @@ func OpenInBrowser(addr string, paths ...string) (string, error) {
 	}
 
 	return addr, nil
+}
+
+func ExitIfErr(err error) {
+	if err != nil {
+		Exit(err.Error(), 1)
+	}
+}
+
+func Exit(msg string, code int) {
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(code)
+}
+
+// LinesChan read file into lines.
+func LinesChan(filePath string, chSize int) (ch chan string, err error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	s := bufio.NewScanner(f)
+	s.Split(ScanLines)
+	ch = make(chan string, chSize)
+	go func() {
+		defer iox.Close(f)
+		defer close(ch)
+
+		for s.Scan() {
+			t := s.Text()
+			t = strings.TrimSpace(t)
+			if len(t) > 0 {
+				ch <- t
+			}
+		}
+
+		if err := s.Err(); err != nil {
+			log.Printf("E! scan file %s lines  error: %v", filePath, err)
+		}
+	}()
+
+	return ch, nil
+}
+
+// ScanLines is a split function for a Scanner that returns each line of
+// text, with end-of-line marker. The returned line may
+// be empty. The end-of-line marker is one optional carriage return followed
+// by one mandatory newline. In regular expression notation, it is `\r?\n`.
+// The last non-empty line of input will be returned even if it has no
+// newline.
+func ScanLines(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+	if i := bytes.IndexByte(data, '\n'); i >= 0 {
+		// We have a full newline-terminated line.
+		return i + 1, data[0 : i+1], nil
+	}
+	// If we're at EOF, we have a final, non-terminated line. Return it.
+	if atEOF {
+		return len(data), data, nil
+	}
+	// Request more data.
+	return 0, nil, nil
+}
+
+// Lines read file into lines.
+func Lines(filePath string) (lines []string, err error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		lines = append(lines, s.Text())
+	}
+
+	return lines, s.Err()
 }

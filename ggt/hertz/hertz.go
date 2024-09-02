@@ -1,5 +1,3 @@
-//go:build all || hertz
-
 package hertz
 
 import (
@@ -40,6 +38,8 @@ func (f *Cmd) run(_ []string) error {
 	}
 
 	var trace tracer.Tracer = &Trace{}
+
+	stdlog.Init()
 
 	hlog.SetLogger(&defaultLogger{
 		Writer: stdlog.RotateWriter,

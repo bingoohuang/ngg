@@ -1,5 +1,3 @@
-//go:build all || hertz
-
 package hertz
 
 import (
@@ -73,59 +71,59 @@ func (ll *defaultLogger) Logf(ctx context.Context, lv hlog.Level, format *string
 }
 
 func (ll *defaultLogger) Fatal(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelFatal, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelFatal, nil, v...)
 }
 
 func (ll *defaultLogger) Error(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelError, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelError, nil, v...)
 }
 
 func (ll *defaultLogger) Warn(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelWarn, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelWarn, nil, v...)
 }
 
 func (ll *defaultLogger) Notice(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelNotice, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelNotice, nil, v...)
 }
 
 func (ll *defaultLogger) Info(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelInfo, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelInfo, nil, v...)
 }
 
 func (ll *defaultLogger) Debug(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelDebug, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelDebug, nil, v...)
 }
 
 func (ll *defaultLogger) Trace(v ...interface{}) {
-	ll.Logf(nil, hlog.LevelTrace, nil, v...)
+	ll.Logf(context.TODO(), hlog.LevelTrace, nil, v...)
 }
 
 func (ll *defaultLogger) Fatalf(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelFatal, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelFatal, &format, v...)
 }
 
 func (ll *defaultLogger) Errorf(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelError, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelError, &format, v...)
 }
 
 func (ll *defaultLogger) Warnf(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelWarn, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelWarn, &format, v...)
 }
 
 func (ll *defaultLogger) Noticef(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelNotice, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelNotice, &format, v...)
 }
 
 func (ll *defaultLogger) Infof(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelInfo, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelInfo, &format, v...)
 }
 
 func (ll *defaultLogger) Debugf(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelDebug, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelDebug, &format, v...)
 }
 
 func (ll *defaultLogger) Tracef(format string, v ...interface{}) {
-	ll.Logf(nil, hlog.LevelTrace, &format, v...)
+	ll.Logf(context.TODO(), hlog.LevelTrace, &format, v...)
 }
 
 func (ll *defaultLogger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
