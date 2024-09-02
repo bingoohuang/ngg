@@ -7,7 +7,7 @@ ifneq ($(wildcard vendor/.),)
     VENDOR_FLAG := -mod=vendor
 endif
 
-export TAGS := all
+TAGS := $(if $(TAGS),$(TAGS),all)
 app=$(notdir $(shell pwd))
 appVersion := 1.0.0
 goVersion := $(shell go version | sed 's/go version //'|sed 's/ /_/')
