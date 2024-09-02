@@ -94,3 +94,17 @@ Latency Histogram:
 3. [Vegeta](https://github.com/tsenart/vegeta) is a versatile HTTP load testing tool built out of a need to drill HTTP
    services with a constant request rate. It can be used both as a command line utility and a library.
 
+## 测试最大并发连接数
+
+1. `MAX_GREEDY_CONNS_PER_HOST=30000 MAX_IDLE_CONN_DURATION=1h berf --qps 1000 --url 192.168.126.224:12123 -v` MAX_IDLE_CONN_DURATION 默认10s， qps 过低时，会导致空闲连接超过 10s 被释放
+2. 大量报错 `connect: cannot assign requested address` 时，增加可用端口范围， 参考 [文章](https://www.cnblogs.com/thatsit/p/cannot-assign-requested-address.html)：
+    ```sh
+    # 确认port_range范围
+    # sysctl -a |grep port_range
+    net.ipv4.ip_local_port_range = 50000    65000
+    # 修改配置
+    # vi /etc/sysctl.conf
+    net.ipv4.ip_local_port_range = 1024     65535
+    # 改完后，执行命令“sysctl -p”使参数生效。
+    ```
+3. `netstat -ant | grep 12123 | grep ESTABLISHED | wc -l`

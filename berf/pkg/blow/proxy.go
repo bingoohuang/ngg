@@ -66,8 +66,8 @@ var dialer = func() Dialer {
 }()
 
 const (
-	httpsScheme = "https"
-	httpScheme  = "http"
+	schemeHTTPS = "https"
+	schemeHTTP  = "http"
 )
 
 func getEnvAny(names ...string) string {
@@ -84,9 +84,9 @@ var proxyFunc = func() func(host string, tls bool) (*url.URL, error) {
 	proxyFunc := httpproxy.FromEnvironment().ProxyFunc()
 	if proxy == "" {
 		return func(host string, tls bool) (*url.URL, error) {
-			reqURL := &url.URL{Host: host, Scheme: httpScheme}
+			reqURL := &url.URL{Host: host, Scheme: schemeHTTP}
 			if tls {
-				reqURL.Scheme = httpsScheme
+				reqURL.Scheme = schemeHTTPS
 			}
 			return proxyFunc(reqURL)
 		}

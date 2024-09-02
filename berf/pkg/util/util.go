@@ -16,30 +16,6 @@ import (
 	"go.uber.org/multierr"
 )
 
-func EnvFloat(name string) (float32, bool) {
-	if e := os.Getenv(name); e != "" {
-		if v, err := strconv.ParseFloat(e, 32); err != nil || v < 0 {
-			log.Fatalf("W! env $%s = %s is invalid for float32", name, e)
-		} else {
-			return float32(v), true
-		}
-	}
-
-	return 0, false
-}
-
-func EnvDuration(name string, defaultValue time.Duration) time.Duration {
-	if e := os.Getenv(name); e != "" {
-		if v, err := time.ParseDuration(e); err != nil || v < 0 {
-			log.Fatalf("W! env $%s = %s is invalid for time duration", name, e)
-		} else {
-			return v
-		}
-	}
-
-	return defaultValue
-}
-
 type Float64 float64
 
 func (f Float64) MarshalJSON() ([]byte, error) {
@@ -239,16 +215,12 @@ func gzipFile(name string) error {
 	}
 
 	reader := bufio.NewReader(f)
-	content, err := io.ReadAll(reader)
-	if err != nil {
-		return err
-	}
 
 	if f, err = os.Create(name + ".gz"); err != nil {
 		return err
 	}
 	w := gzip.NewWriter(f)
-	_, _ = w.Write(content)
+	_, err = io.Copy(w, reader)
 	if err := w.Close(); err == nil {
 		_ = f.Close()
 		_ = os.Remove(name)
@@ -460,7 +432,7 @@ func mergeCodes(merged string, n int, last string) string {
 	if n > 1 {
 		merged += fmt.Sprintf("%sx%d", last, n)
 	} else {
-		merged += fmt.Sprintf("%s", last)
+		merged += last
 	}
 	return merged
 }

@@ -17,6 +17,7 @@ require (
 	github.com/bingoohuang/ngg/ss v0.0.0-20240902071909-c0508bd4afac
 	github.com/bingoohuang/ngg/tick v0.0.0-20240902071909-c0508bd4afac
 	github.com/bingoohuang/ngg/tsid v0.0.0-20240902071909-c0508bd4afac
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902100331-51d6704d242d
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0

@@ -20,6 +20,8 @@ github.com/bingoohuang/ngg/tick v0.0.0-20240902071909-c0508bd4afac h1:FZlfbLjSR/
 github.com/bingoohuang/ngg/tick v0.0.0-20240902071909-c0508bd4afac/go.mod h1:5WtOPRZZkt/Ch0yEYVzdqaYw3B67h5VYGJsurHfNSqM=
 github.com/bingoohuang/ngg/tsid v0.0.0-20240902071909-c0508bd4afac h1:VKKsxLfH6QRWH2vGSmEcHCZvyxh6C8Ra7UMJCfT1L9k=
 github.com/bingoohuang/ngg/tsid v0.0.0-20240902071909-c0508bd4afac/go.mod h1:3rWpFvYXe2TVdYDHXGYq6kZV6tMiz5ZHwaTbu22Y2u4=
+github.com/bingoohuang/ngg/ver v0.0.0-20240902100331-51d6704d242d h1:YBgn8jTCi9EhGCSb+qjMiWPF3GvXBdm9T833Zu9FSV8=
+github.com/bingoohuang/ngg/ver v0.0.0-20240902100331-51d6704d242d/go.mod h1:AMbGjgUESq+WgEcYZU4K+SAGU/7OzTRMDCBjovNL56c=
 github.com/bmatcuk/doublestar/v4 v4.6.1 h1:FH9SifrbvJhnlQpztAx++wlkk70QBf0iBWDwNy7PA4I=
 github.com/bmatcuk/doublestar/v4 v4.6.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/brianvoe/gofakeit/v6 v6.28.0 h1:Xib46XXuQfmlLS2EXRuJpqcw8St6qSZz75OUo0tgAW4=

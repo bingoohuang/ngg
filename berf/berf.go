@@ -14,6 +14,7 @@ import (
 	"github.com/bingoohuang/ngg/berf/pkg/util"
 	_ "github.com/bingoohuang/ngg/berf/plugins/all" // import all plugins
 	"github.com/bingoohuang/ngg/ss"
+	"github.com/bingoohuang/ngg/tick"
 	"github.com/spf13/pflag"
 )
 
@@ -183,7 +184,7 @@ func (c *Config) serveCharts(report *StreamReport, wg *sync.WaitGroup) {
 func (c *Config) collectChartData(ctx context.Context, chartsFn func() *ChartsReport, charts *Charts, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	ticker := time.NewTicker(util.EnvDuration("BERF_TICK", 15*time.Second))
+	ticker := time.NewTicker(ss.Must(tick.Getenv("BERF_TICK", 15*time.Second)))
 	defer ticker.Stop()
 
 	c.PlotsHandle = util.NewJsonLogFile(c.PlotsFile)

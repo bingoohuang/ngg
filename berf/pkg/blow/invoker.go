@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"mime"
 	"net"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -26,7 +27,6 @@ import (
 
 	"github.com/bingoohuang/ngg/berf"
 	"github.com/bingoohuang/ngg/berf/pkg/blow/internal"
-	"github.com/bingoohuang/ngg/berf/pkg/util"
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
@@ -240,6 +240,23 @@ func (r *Invoker) buildRequestClient(ctx context.Context, opt *Opt) (*fasthttp.R
 		}
 	}
 
+	// 内部状态 http 监听地址, e.g. :2888
+	if stateAddr := os.Getenv("STATE_ADDR"); stateAddr != "" {
+		mux := http.NewServeMux()
+		mux.HandleFunc("/stat", func(w http.ResponseWriter, r *http.Request) {
+			stat := cli.Stat()
+			json.NewEncoder(w).Encode(stat)
+		})
+
+		go func() {
+			// 启动 HTTP 服务器
+			log.Printf("Starting server on %s\n", stateAddr)
+			if err := http.ListenAndServe(stateAddr, mux); err != nil {
+				log.Fatal("ListenAndServe error: ", err)
+			}
+		}()
+	}
+
 	return &h, nil
 }
 
@@ -423,8 +440,8 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 }
 
 var samplingFunc = func() func() bool {
-	sampleRate, exits := util.EnvFloat("SAMPLING_RATE")
-	if !exits {
+	sampleRate, err := ss.Getenv[float32]("SAMPLING_RATE", 0)
+	if err != nil {
 		return func() bool { return true }
 	}
 
