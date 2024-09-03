@@ -83,15 +83,14 @@ func ParseArgs(a interface{}, args []string, optionFns ...FlagParseOptionsFn) {
 		p := fv.Addr().Interface()
 		ft := fi.Type
 		if reflect.PointerTo(ft).Implements(flagValueType) {
-			f.VarP(p.(pflag.Value), name, short, usage)
+			pp := p.(pflag.Value)
+			if val != "" {
+				pp.Set(val)
+			}
+			f.VarP(pp, name, short, usage)
 			continue
 		} else if ft == timeDurationType {
 			f.DurationVarP(p.(*time.Duration), name, short, ParseDuration(val), usage)
-			continue
-		} else if ft == sizeType {
-			defaultVal, _ := Parse[uint64](val)
-			*(p.(*Size)) = Size(defaultVal)
-			f.VarP(p.(*Size), name, short, usage)
 			continue
 		}
 
@@ -120,10 +119,14 @@ func ParseArgs(a interface{}, args []string, optionFns ...FlagParseOptionsFn) {
 			}
 
 		case reflect.Int:
+			pp := p.(*int)
 			if count := t("count"); count == "true" {
-				f.CountVarP(p.(*int), name, short, usage)
+				if val != "" {
+					*pp, _ = Parse[int](val)
+				}
+				f.CountVarP(pp, name, short, usage)
 			} else {
-				f.IntVarP(p.(*int), name, short, Pick1(Parse[int](val)), usage)
+				f.IntVarP(pp, name, short, Pick1(Parse[int](val)), usage)
 			}
 		case reflect.Int32:
 			f.Int32VarP(p.(*int32), name, short, Pick1(Parse[int32](val)), usage)
@@ -244,7 +247,6 @@ func createOptions(fns []FlagParseOptionsFn) *FlagParseOptions {
 
 var (
 	timeDurationType = reflect.TypeOf(time.Duration(0))
-	sizeType         = reflect.TypeOf(Size(0))
 	flagValueType    = reflect.TypeOf((*pflag.Value)(nil)).Elem()
 )
 
