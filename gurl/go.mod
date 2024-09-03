@@ -2,22 +2,15 @@ module github.com/bingoohuang/ngg/gurl
 
 go 1.23
 
-replace (
-	github.com/bingoohuang/ngg/gnet => ../gnet
-	github.com/bingoohuang/ngg/goup => ../goup
-	github.com/bingoohuang/ngg/jj => ../jj
-	github.com/bingoohuang/ngg/ss => ../ss
-)
-
 require (
 	gitee.com/Trisia/gotlcp v1.3.22
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240902152100-74a104d7794d
-	github.com/bingoohuang/ngg/goup v0.0.0-20231205021806-3d76ee343e0d
-	github.com/bingoohuang/ngg/jj v0.0.0-20240902004522-9a48943d2742
-	github.com/bingoohuang/ngg/ss v0.0.0-20240902130105-ffbdf8efd571
-	github.com/bingoohuang/ngg/tick v0.0.0-20240902004522-9a48943d2742
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902130105-ffbdf8efd571
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/goup v0.0.0-20240903003353-40f67441694d
+	github.com/bingoohuang/ngg/jj v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
 	github.com/chzyer/readline v1.5.1
 	github.com/emmansun/gmsm v0.28.0
 	github.com/fatih/color v1.17.0
@@ -31,8 +24,8 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240902004522-9a48943d2742 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902152100-74a104d7794d // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240903004003-8be91e460338 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect

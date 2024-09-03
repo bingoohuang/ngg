@@ -4,9 +4,9 @@ go 1.23.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240902023852-6c11788430b8
-	github.com/bingoohuang/ngg/jj v0.0.0-20240902023852-6c11788430b8
-	github.com/bingoohuang/ngg/ss v0.0.0-20240902023852-6c11788430b8
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/jj v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/ss v0.0.0-20240902222726-508418d80f56
 	github.com/bingoohuang/rotatefile v0.0.0-20240515073220-9670d767908f
 	github.com/cloudwego/hertz v0.9.2
 	github.com/hertz-contrib/gzip v0.0.3
@@ -22,8 +22,10 @@ require (
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/ngg/tick v0.0.0-20240902023852-6c11788430b8 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240902023852-6c11788430b8 // indirect
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903003353-40f67441694d // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/bingoohuang/q v0.0.0-20240327074618-3ac50e6530c2 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
@@ -34,6 +36,7 @@ require (
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/netpoll v0.6.3 // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/pprof v0.0.0-20240829160300-da1f7e9f2b25 // indirect
@@ -47,6 +50,8 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/kortschak/goroutine v1.1.2 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nyaruka/phonenumbers v1.4.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.20.2 // indirect
@@ -85,6 +90,7 @@ require (
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

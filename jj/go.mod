@@ -4,9 +4,9 @@ go 1.21.0
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
-	github.com/bingoohuang/ngg/ss v0.0.0-20240826080022-bcfa99fd03ec
-	github.com/bingoohuang/ngg/tick v0.0.0-20240826080022-bcfa99fd03ec
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240826080022-bcfa99fd03ec
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240903004003-8be91e460338
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/google/uuid v1.6.0
 	github.com/segmentio/ksuid v1.0.4
@@ -14,11 +14,16 @@ require (
 )
 
 require (
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
@@ -37,6 +42,7 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

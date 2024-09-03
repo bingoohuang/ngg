@@ -1,12 +1,12 @@
 module github.com/bingoohuang/ngg/sqliter
 
-go 1.21
+go 1.21.0
 
 require (
-	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240823084034-023381ee0dec
-	github.com/bingoohuang/ngg/ss v0.0.0-20240823084034-023381ee0dec
-	github.com/bingoohuang/ngg/tick v0.0.0-20240823084034-023381ee0dec
-	github.com/bingoohuang/ngg/ver v0.0.0-20240823084034-023381ee0dec
+	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240903003353-40f67441694d
+	github.com/bingoohuang/ngg/ss v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903003353-40f67441694d
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
 	github.com/elliotchance/pie/v2 v2.9.0
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/mattn/go-sqlite3 v1.14.22
@@ -18,14 +18,18 @@ require (
 )
 
 require (
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -40,6 +44,7 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

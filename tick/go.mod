@@ -1,6 +1,6 @@
 module github.com/bingoohuang/ngg/tick
 
-go 1.21
+go 1.21.0
 
 require (
 	github.com/bingoohuang/ngg/ss v0.0.0-20240902222726-508418d80f56
@@ -8,8 +8,8 @@ require (
 )
 
 require (
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902130105-ffbdf8efd571 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902152100-74a104d7794d // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -20,7 +20,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect

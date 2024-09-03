@@ -3,15 +3,15 @@ module gops
 go 1.23
 
 require (
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240826044035-7f964d262d0b
-	github.com/bingoohuang/ngg/gum v0.0.0-20240826044035-7f964d262d0b
-	github.com/bingoohuang/ngg/ss v0.0.0-20240826044035-7f964d262d0b
-	github.com/bingoohuang/ngg/ver v0.0.0-20240826044035-7f964d262d0b
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/gum v0.0.0-20240903003353-40f67441694d
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
 	github.com/glebarez/sqlite v1.11.0
 	github.com/klauspost/cpuid/v2 v2.2.8
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/samber/lo v1.47.0
-	github.com/shirou/gopsutil/v4 v4.24.7
+	github.com/shirou/gopsutil/v4 v4.24.8
 	gorm.io/gorm v1.25.11
 )
 
@@ -19,18 +19,20 @@ require (
 	github.com/alecthomas/kong v0.9.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240826044035-7f964d262d0b // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.19.0 // indirect
-	github.com/charmbracelet/bubbletea v0.27.1 // indirect
+	github.com/charmbracelet/bubbletea v1.1.0 // indirect
 	github.com/charmbracelet/gum v0.14.4 // indirect
 	github.com/charmbracelet/huh v0.5.3 // indirect
 	github.com/charmbracelet/lipgloss v0.13.0 // indirect
 	github.com/charmbracelet/x/ansi v0.2.3 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240823163159-c7af7c9754f2 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240829200707-9a7bd603a0d7 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -43,6 +45,7 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240819163618-b1d8f4d146e7 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
@@ -78,9 +81,10 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.59.9 // indirect
+	modernc.org/libc v1.60.1 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.32.0 // indirect

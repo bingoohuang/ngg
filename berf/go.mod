@@ -2,22 +2,19 @@ module github.com/bingoohuang/ngg/berf
 
 go 1.23
 
-replace (
-	github.com/bingoohuang/ngg/ss => ../ss
-	github.com/valyala/fasthttp => ../fasthttp
-)
+replace github.com/valyala/fasthttp => github.com/bingoohuang/ngg/fasthttp v0.0.0-20240903004003-8be91e460338
 
 require (
 	gitee.com/Trisia/gotlcp v1.3.22
 	github.com/AdhityaRamadhanus/fasthttpcors v0.0.0-20170121111917-d4c07198763a
 	github.com/axiomhq/hyperloglog v0.2.0
 	github.com/beorn7/perks v1.0.1
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/jj v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/ss v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/tick v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240902071909-c0508bd4afac
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902130105-ffbdf8efd571
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/jj v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903003353-40f67441694d
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
@@ -46,7 +43,7 @@ require (
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902152100-74a104d7794d // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect

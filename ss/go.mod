@@ -1,10 +1,12 @@
 module github.com/bingoohuang/ngg/ss
 
-go 1.21
+go 1.21.0
+
+toolchain go1.23.0
 
 require (
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902130105-ffbdf8efd571
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902152100-74a104d7794d
+	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567
 	github.com/spf13/pflag v1.0.5
@@ -22,7 +24,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect

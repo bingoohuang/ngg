@@ -7,7 +7,7 @@ for dir in */ ; do
     
     # 执行 go mod tidy 命令
     echo "Running 'go mod tidy' in $dir"
-    rm go.sum
+    rm -fr go.sum
     go get -u -t ./...
     go mod tidy
     
