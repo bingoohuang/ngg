@@ -5,13 +5,13 @@ go 1.23
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/alitto/pond v1.9.2
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240903031113-92e334c95f97
-	github.com/bingoohuang/ngg/httpretty v0.0.0-20240903031630-4a0a27763938
-	github.com/bingoohuang/ngg/jj v0.0.0-20240903030340-bb61e148597b
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903030340-bb61e148597b
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903030340-bb61e148597b
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903031630-4a0a27763938
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903030340-bb61e148597b
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/httpretty v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/jj v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903070457-fbf9f75e769a
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/chromedp/cdproto v0.0.0-20240810084448-b931b754e476
 	github.com/chromedp/chromedp v0.10.0
@@ -38,9 +38,9 @@ require (
 	github.com/antchfx/htmlquery v1.3.2 // indirect
 	github.com/antchfx/xmlquery v1.4.1 // indirect
 	github.com/antchfx/xpath v1.3.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240903021717-5e30f17a454d // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240903031630-4a0a27763938 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240903021717-5e30f17a454d // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240903070457-fbf9f75e769a // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240903070457-fbf9f75e769a // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240903070457-fbf9f75e769a // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.5.2 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
@@ -117,7 +117,7 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

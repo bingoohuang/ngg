@@ -193,7 +193,7 @@ func parseExport(randomID string, c *Config) (limit int, conds []any) {
 
 func (c *Config) expandDBFile() {
 	var err error
-	if c.db, err = ss.ExpandAtFile(c.db); err != nil {
+	if c.db, err = ss.ExpandFilename(c.db); err != nil {
 		if !os.IsNotExist(err) {
 			log.Panicf("Expand %s error: %v", c.db, err)
 		}
