@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 设置图片容器的样式 */
+        .images-container {
+            text-align: center; /* 居中对齐 */
+        }
+
+        /* 设置图片样式 */
+        .images-container img {
+            /*max-width: 100%; !* 图片最大宽度为容器宽度 *!*/
+            height: auto; /* 保持宽高比 */
+            margin-bottom: 10px; /* 图片之间的间距 */
+            {{.ImageStyle}}
+        }
+
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 浮动内容 */
+        .floating-left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px;
+        }
+
+        /* 浮动内容 */
+        .floating-right {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px;
+        }
+
+        .bottom-left {
+            position: absolute;
+            padding: 20px; /* 设置文字的内边距，可选 */
+            bottom: 0;
+            left: 0;
+        }
+
+        .bottom-right {
+            position: absolute;
+            padding: 20px; /* 设置文字的内边距，可选 */
+            bottom: 0;
+            right: 0;
+        }
+
+        .heart-rating {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+
+        .heart {
+            font-size: 2em;
+            color: lightgray;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .heart.active {
+            color: red;
+        }
+    </style>
+    <title>{{.Title}}</title>
+</head>
+<body>
+<div class="images-container">
+    {{range $idx, $img := .Images}}
+    <div id="image-div-{{$idx}}" class="image-container" data-image-id="{{$img.XxHash}}"
+         data-favorite="{{$img.Favorite}}">
+        <img data-src="{{$.BasicURL}}/x/{{$img.XxHash}}" class="lazyload"
+             title="{{$img.Seq}}/{{$img.Total}} {{$img.Title}} {{$img.Type}} {{$img.Size}}/{{$img.HumanizeSize}} {{$img.CreatedTime}}">
+        <div class="floating-left">
+            <a href="{{$img.PageLink}}" target="_blank">原</a>
+        </div>
+        <div class="floating-right">
+            <a href="javascript:deleteImage('{{$img.XxHash}}', 'image-div-{{$idx}}')">X</a>
+        </div>
+        <div class="bottom-left"><a href="{{$.BasicURL}}/p/{{$img.PageID}}" target="_blank">P</a></div>
+        <div class="bottom-right"><a href="{{$.BasicURL}}/x/{{$img.XxHash}}" target="_blank">单</a></div>
+        <div class="heart-rating">
+            <span class="heart" data-value="1">♡</span>
+            <span class="heart" data-value="2">♡</span>
+            <span class="heart" data-value="3">♡</span>
+            <span class="heart" data-value="4">♡</span>
+            <span class="heart" data-value="5">♡</span>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- https://github.com/aFarkas/lazysizes -->
+<script src="{{$.BasicURL}}/static/lazysizes.min.js" async></script>
+<script src="{{$.BasicURL}}/static/jquery-3.6.0.min.js"></script>
+
+<script>
+    function deleteImage(xxHash, imageDiv) {
+        let xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                let div = document.getElementById(imageDiv)
+                div.parentNode.removeChild(div);
+            }
+        }
+        xhr.open("POST", '{{$.BasicURL}}/delete/x/' + xxHash, true)
+        xhr.send()
+    }
+
+    $(document).ready(function () {
+        $('.image-container').each(function () {
+            const $container = $(this);
+            const imageId = $container.data('image-id');
+            const imageFavorite = $container.data('favorite');
+            setRating($container, imageFavorite)
+
+            $container.find('.heart').on('click', function () {
+                var rating = $(this).data('value');
+                rating = setRating($container, rating);
+                saveRating(imageId, rating);
+            });
+
+            function setRating($container, rating) {
+                var lastRating = 0
+                $container.find('.heart').each(function () {
+                    const heartValue = $(this).data('value');
+                    if ($(this).hasClass('active')) {
+                        lastRating++;
+                    }
+
+                    if (heartValue <= rating) {
+                        $(this).text('❤️').addClass('active');
+                    } else {
+                        $(this).text('♡').removeClass('active');
+                    }
+                });
+
+                if (rating == 1 && lastRating == 1) {
+                    // 只有1❤️并且再次点击，表示归零
+                    $container.find('.heart').eq(0).text('♡').removeClass('active');
+                    return 0
+                }
+
+                return rating
+            }
+
+            function saveRating(imageId, rating) {
+                $.ajax({
+                    url: '{{$.BasicURL}}/favorite/x/' + imageId + "/" + rating,
+                    method: 'POST',
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

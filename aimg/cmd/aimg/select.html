@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 设置图片容器的样式 */
+        .image-container {
+            text-align: center; /* 居中对齐 */
+        }
+
+        /* 设置图片样式 */
+        .image-container img {
+            max-width: 100%; /* 图片最大宽度为容器宽度 */
+            height: auto; /* 保持宽高比 */
+            margin-bottom: 10px; /* 图片之间的间距 */
+        }
+
+        /* CSS for the div */
+        .image-div {
+            border: 2px dashed #999; /* 虚框样式，2像素的虚线边框，颜色为 #999 */
+            padding: 20px; /* 内边距，这里设置为20像素，可以根据需要调整 */
+            background-color: #f0f0f0; /* 默认背景颜色 */
+        }
+
+        /* CSS for the selected state */
+        .image-div-selected {
+            background-color: #aeeaea; /* 选中状态的背景颜色，可以根据需要调整 */
+        }
+
+    </style>
+    <title>{{.Title}}</title>
+</head>
+<body>
+<div class="image-container">
+    {{range $index, $element := .Images}}
+    <div id="image-div-{{$index}}">
+        <div><img src="{{.ImageURL}}"></div>
+        <input type="checkbox" id="image-checkbox-{{$index}}" name="options[]" value="{{.ImageURL}}"
+               onchange="toggleShadow('$index')">中
+    </div>
+    {{end}}
+</div>
+</body>
+</html>
