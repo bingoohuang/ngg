@@ -17,7 +17,6 @@ import (
 	"github.com/alitto/pond"
 	"github.com/bingoohuang/aimg/tmpjson"
 	"github.com/bingoohuang/ngg/daemon"
-	"github.com/bingoohuang/ngg/httpretty"
 	"github.com/bingoohuang/ngg/jj"
 	_ "github.com/bingoohuang/ngg/rotatefile/stdlog/autoload"
 	"github.com/bingoohuang/ngg/ss"
@@ -217,7 +216,7 @@ func (c *Config) reuseTodayPageID() {
 	}
 
 	if c.pageID == "" {
-		c.pageID = httpretty.Ksuid()
+		c.pageID = ksuid.New().String()
 		_ = tmpjson.Write("aimg.json", AimgState{PageID: c.pageID})
 	}
 }

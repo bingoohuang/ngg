@@ -16,12 +16,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bingoohuang/ngg/httpretty"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/karrick/godirwalk"
 	"github.com/mholt/archiver/v4"
 	"github.com/mitchellh/go-homedir"
+	"github.com/segmentio/ksuid"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"gorm.io/gorm"
@@ -229,7 +229,7 @@ func (w *DirWalker) processImage(addr string, body []byte, fileName string) erro
 	}
 
 	w.imgs = append(w.imgs, Img{
-		ID:          httpretty.Ksuid(),
+		ID:          ksuid.New().String(),
 		CreatedAt:   w.createTime,
 		Xxhash:      xh,
 		Body:        body,
@@ -244,7 +244,7 @@ func (w *DirWalker) processImage(addr string, body []byte, fileName string) erro
 	w.batchNo++
 	if w.batchNo > batchSize || (w.maxFiles > 0 && w.okCount >= w.maxFiles) {
 		w.batchNo = 0
-		w.pageID = httpretty.Ksuid()
+		w.pageID = ksuid.New().String()
 	}
 	if w.batchNo == 0 {
 		log.Printf("pageID: %s, batchSize: %d", w.pageID, batchSize)
