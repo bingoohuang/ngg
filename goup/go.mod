@@ -3,9 +3,9 @@ module github.com/bingoohuang/ngg/goup
 go 1.21.0
 
 require (
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240903005822-0e10d7708a01
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903021528-f40c91cc9874
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903005822-0e10d7708a01
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240903005822-0e10d7708a01 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

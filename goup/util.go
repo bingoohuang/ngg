@@ -404,6 +404,22 @@ type PbReader struct {
 	Adder
 }
 
+type UnWrapper interface {
+	Unwrap() any
+}
+
+func Unwrap(a any) any {
+	for {
+		uw, ok := a.(UnWrapper)
+		if !ok {
+			return a
+		}
+		a = uw.Unwrap()
+	}
+}
+
+func (r *PbReader) Unwrap() any { return r.Reader }
+
 func (r *PbReader) Read(p []byte) (n int, err error) {
 	n, err = r.Reader.Read(p)
 	if r.Adder != nil {
@@ -509,7 +525,8 @@ func PrepareMultipartPayload(fields map[string]interface{}) *MultipartPayload {
 			parts = append(parts, str(header+crlf+crlf), str(v.(string)), str(crlf))
 			totalSize += len(header) + len(crlf+crlf) + len(v.(string)) + len(crlf)
 		case io.Reader:
-			if pf, ok := vf.(PayloadFileReader); ok {
+			uvf := Unwrap(vf)
+			if pf, ok := uvf.(PayloadFileReader); ok {
 				fileName := pf.FileName()
 				header := strings.Join([]string{
 					fmt.Sprintf(`Content-Disposition: form-data; name="%s"; filename="%s"`, k, filepath.Base(fileName)),
@@ -518,11 +535,7 @@ func PrepareMultipartPayload(fields map[string]interface{}) *MultipartPayload {
 				}, crlf)
 				parts = append(parts, str(header+crlf+crlf), vf, str(crlf))
 				totalSize += len(header) + len(crlf+crlf) + int(pf.FileSize()) + len(crlf)
-			} else {
-				log.Printf("Ignore unsupported multipart payload type %t", v)
 			}
-		default:
-			log.Printf("Ignore unsupported multipart payload type %t", v)
 		}
 	}
 

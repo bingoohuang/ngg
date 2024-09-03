@@ -49,7 +49,7 @@ Usage of goup:
 `
 }
 
-// VersionInfo is optional for customized version.
+// VersionInfo is optional for a customized version.
 func (a Arg) VersionInfo() string { return ver.Version() }
 
 func main() {

@@ -46,8 +46,8 @@ Usage of goup:
 ```
 
 1. Installation `go install https://github.com/bingoohuang/ngg/goup`
-1. At the server, `goup`
-1. At the client, `goup -u http://a.b.c:2110/ -f 246.png`
+2. At the server, `goup`
+3. At the client, `goup -u http://a.b.c:2110/ -f 246.png`
 
 ```sh
 $ goup
@@ -89,7 +89,7 @@ $ sha256sum 246.png
 32677ca3a5b19ee5590a75d423b3fc2d754bd76900d50c26e0525681985189f8  246.png
 ```
 
-As you can see, even if you terminate the client uploading, you can resume uploading from last breakpoint.
+As you can see, even if you terminate the client uploading, you can resume uploading from the last breakpoint.
 
 ```sh
 $ goup -u http://127.0.0.1:2110/246.png
@@ -102,7 +102,7 @@ $ goup -u http://127.0.0.1:2110/246.png
 
 upload:
 
-1. Start the server without chunk: `goup -c0`
+1. Start the server without a chunk: `goup -c0`
 2. Test the upload: `curl -F "file:=@a.mp4" localhost:2110`
 
 download:
