@@ -12,8 +12,8 @@ import (
 
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/jj"
+	"github.com/bingoohuang/ngg/rotatefile/stdlog"
 	"github.com/bingoohuang/ngg/ss"
-	"github.com/bingoohuang/rotatefile/stdlog"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/basic_auth"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
@@ -38,8 +38,6 @@ func (f *Cmd) run(_ []string) error {
 	}
 
 	var trace tracer.Tracer = &Trace{}
-
-	stdlog.Init()
 
 	hlog.SetLogger(&defaultLogger{
 		Writer: stdlog.RotateWriter,

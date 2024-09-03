@@ -4,10 +4,10 @@ go 1.23.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240902222726-508418d80f56
-	github.com/bingoohuang/ngg/jj v0.0.0-20240902222726-508418d80f56
-	github.com/bingoohuang/ngg/ss v0.0.0-20240902222726-508418d80f56
-	github.com/bingoohuang/rotatefile v0.0.0-20240515073220-9670d767908f
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240903021717-5e30f17a454d
+	github.com/bingoohuang/ngg/jj v0.0.0-20240903021717-5e30f17a454d
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903030340-bb61e148597b
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903021717-5e30f17a454d
 	github.com/cloudwego/hertz v0.9.2
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/imroc/req/v3 v3.43.7
@@ -22,11 +22,11 @@ require (
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903003353-40f67441694d // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240902222726-508418d80f56 // indirect
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
-	github.com/bingoohuang/q v0.0.0-20240327074618-3ac50e6530c2 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240903021717-5e30f17a454d // indirect
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903021717-5e30f17a454d // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240903021717-5e30f17a454d // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903021717-5e30f17a454d // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240903021717-5e30f17a454d // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect

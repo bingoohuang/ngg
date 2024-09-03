@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/bingoohuang/rotatefile/stdlog"
+	"github.com/bingoohuang/ngg/rotatefile/stdlog"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
