@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "tlscert"
+version = "0.1.0"
+description = "Generate TLS certificate chain"
+authors = ["Tomás Gutiérrez L. <tomas@0x00.cl>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+cryptography = "^42.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "ANN", "COM812", "ISC001", "E501"]
+
+[tool.poe.tasks]
+run = "python tlscert.py"
+check = "ruff check --fix tlscert.py"
+format = "ruff format tlscert.py"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
