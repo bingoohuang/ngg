@@ -17,6 +17,7 @@ import (
 
 	"github.com/bingoohuang/ngg/httpretty/internal/color"
 	"github.com/bingoohuang/ngg/httpretty/internal/header"
+	"github.com/bingoohuang/ngg/tsid"
 )
 
 func newPrinter(l *Logger, printReqID bool) printer {
@@ -25,7 +26,7 @@ func newPrinter(l *Logger, printReqID bool) printer {
 	return printer{
 		logger:     l,
 		flusher:    l.flusher,
-		id:         "[" + Ksuid() + "]",
+		id:         "[" + tsid.Fast().ToString() + "]",
 		printReqID: printReqID,
 	}
 }
