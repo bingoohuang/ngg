@@ -1,0 +1,21 @@
+procs:
+  go.mod.tidy:
+    shell: go mod tidy
+    autostart: false
+  local:
+    shell: make -f $GG_MAKEFILE
+    autostart: false
+  linux-upx:
+    shell: make -f $GG_MAKEFILE linux-upx
+    autostart: false
+  linux-arm-upx:
+    shell: make -f $GG_MAKEFILE arm-upx
+    autostart: false
+  git-push:
+    shell: git push
+    env:
+      https_proxy: http://127.0.0.1:7890
+      http_proxy: http://127.0.0.1:7890
+      all_proxy: socks5://127.0.0.1:7890
+      GOPROXY: https://goproxy.cn
+    autostart: false
