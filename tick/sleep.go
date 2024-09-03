@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 	"time"
+
+	"github.com/bingoohuang/ngg/ss"
 )
 
 // SleepRandom will sleep for a random amount of time up to max.
@@ -53,7 +55,7 @@ func ParseTime(tm string) (t time.Time, err error) {
 		return t, nil
 	}
 
-	if tt, _, err := Parse(tm); err == nil {
+	if tt, _, err := ss.ParseDur(tm); err == nil {
 		return time.Now().Add(tt), nil
 	}
 
@@ -65,7 +67,7 @@ func ParseTimeMilli(tm string) (unixMilli int64, err error) {
 		return t.UnixMilli(), nil
 	}
 
-	if tt, _, err := Parse(tm); err == nil {
+	if tt, _, err := ss.ParseDur(tm); err == nil {
 		return tt.Milliseconds() + time.Now().UnixMilli(), nil
 	}
 

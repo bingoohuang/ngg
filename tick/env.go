@@ -3,6 +3,8 @@ package tick
 import (
 	"os"
 	"time"
+
+	"github.com/bingoohuang/ngg/ss"
 )
 
 func Getenv(str string, defaultValue time.Duration) (time.Duration, error) {
@@ -11,7 +13,7 @@ func Getenv(str string, defaultValue time.Duration) (time.Duration, error) {
 		return defaultValue, nil
 	}
 
-	val, _, err := Parse(env)
+	val, _, err := ss.ParseDur(env)
 	if err != nil {
 		return 0, err
 	}
