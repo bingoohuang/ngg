@@ -36,9 +36,9 @@ func (o Option) Daemonize() {
 	ctx := &godaemon.Context{
 		WorkDir:     workDir,
 		LogFileName: o.LogFileName,
-		Env: []string{
+		Env: append(os.Environ(),
 			fmt.Sprintf("%s=%d", MarkParentPID, os.Getpid()),
-		},
+		),
 		Credential: o.Credential,
 	}
 

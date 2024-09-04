@@ -8,6 +8,7 @@ require (
 	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
 	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0

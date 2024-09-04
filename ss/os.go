@@ -9,23 +9,19 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/mitchellh/go-homedir"
 )
 
-var Home string
-
-func init() {
-	Home, _ = os.UserHomeDir()
-}
-
 func ExpandHome(s string) string {
-	if strings.HasPrefix(s, "~") {
-		return filepath.Join(Home, s[1:])
+	expanded, err := homedir.Expand(s)
+	if err != nil {
+		log.Printf("ExpandHome error: %v", err)
+		return s
 	}
-
-	return s
+	return expanded
 }
 
 // ExpandFilename first expand ~, then expand symbol link
