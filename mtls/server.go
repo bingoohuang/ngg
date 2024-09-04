@@ -25,7 +25,7 @@ func StartServer(serverPath, certsPath string, port, sslPort int) error {
 		}
 		fmt.Printf("(HTTP) Listen on :%d\n", port)
 		if err := server.ListenAndServe(); err != nil {
-			log.Fatalf("(HTTP) error listening to port: %w", err)
+			log.Fatalf("(HTTP) error listening to port: %v", err)
 		}
 	}()
 

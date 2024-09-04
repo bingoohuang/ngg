@@ -3,14 +3,14 @@ module github.com/bingoohuang/ngg/gurl
 go 1.23
 
 require (
-	gitee.com/Trisia/gotlcp v1.3.22
+	gitee.com/Trisia/gotlcp v1.3.23
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/goup v0.0.0-20240903003353-40f67441694d
-	github.com/bingoohuang/ngg/jj v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240903124631-45f5d595827c
+	github.com/bingoohuang/ngg/goup v0.0.0-20240903124631-45f5d595827c
+	github.com/bingoohuang/ngg/jj v0.0.0-20240903124631-45f5d595827c
+	github.com/bingoohuang/ngg/ss v0.0.0-20240903124631-45f5d595827c
+	github.com/bingoohuang/ngg/tick v0.0.0-20240903124631-45f5d595827c
+	github.com/bingoohuang/ngg/ver v0.0.0-20240903124631-45f5d595827c
 	github.com/chzyer/readline v1.5.1
 	github.com/emmansun/gmsm v0.28.0
 	github.com/fatih/color v1.17.0
@@ -24,8 +24,8 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240903004003-8be91e460338 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240903124631-45f5d595827c // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240903124631-45f5d595827c // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -63,7 +63,7 @@ require (
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
