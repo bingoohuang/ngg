@@ -40,8 +40,8 @@ github.com/antchfx/xpath v1.1.6/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNY
 github.com/antchfx/xpath v1.1.8/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
 github.com/antchfx/xpath v1.3.1 h1:PNbFuUqHwWl0xRjvUPjJ95Agbmdj2uzzIwmQKgu4oCk=
 github.com/antchfx/xpath v1.3.1/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
-github.com/bingoohuang/ngg/daemon v0.0.0-20240903070457-fbf9f75e769a h1:Mc0VEfxR6SpawXYZaimlK6CjqmpFGZY4Uo4hVI7tydQ=
-github.com/bingoohuang/ngg/daemon v0.0.0-20240903070457-fbf9f75e769a/go.mod h1:bNS+516EoaHd8V6FtfQeoECsmVilCvrK8B6wWJYuUO4=
+github.com/bingoohuang/ngg/daemon v0.0.0-20240904115738-b3c9f6b1ef96 h1:JuuNGglssud2VAjwbajDNmSWQIcc7gGR/o9+eJtWYz0=
+github.com/bingoohuang/ngg/daemon v0.0.0-20240904115738-b3c9f6b1ef96/go.mod h1:bNS+516EoaHd8V6FtfQeoECsmVilCvrK8B6wWJYuUO4=
 github.com/bingoohuang/ngg/httpretty v0.0.0-20240903124243-b24966c79245 h1:SjXjm1DJTSPwUkhEYZ36zm2PioU6piqQpSshs1qrXjY=
 github.com/bingoohuang/ngg/httpretty v0.0.0-20240903124243-b24966c79245/go.mod h1:JE7oO284VrgA6Jbe7XgDUrOOyWCTlUhNhQ7jxjJch1w=
 github.com/bingoohuang/ngg/jj v0.0.0-20240903070457-fbf9f75e769a h1:HOv/CUZNyUAgdldt606wt7BPGUdzwvtj9C0YRSs/S40=
@@ -50,8 +50,8 @@ github.com/bingoohuang/ngg/q v0.0.0-20240903070457-fbf9f75e769a h1:HoFSEY5oRaHPA
 github.com/bingoohuang/ngg/q v0.0.0-20240903070457-fbf9f75e769a/go.mod h1:XQOFCRuJHQYRBVaOK/IF08scnC/eGDFyVqI+cYeqye0=
 github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903070457-fbf9f75e769a h1:ZifhvyYxyiAQiO+OvkLlHIkv+RlWArqTxlKu3VSqDdo=
 github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903070457-fbf9f75e769a/go.mod h1:kPgQw9TDbWY0UJBRMhbKcW5C1D0aJlwYqea7PRzBx6Y=
-github.com/bingoohuang/ngg/ss v0.0.0-20240903070457-fbf9f75e769a h1:DLCYmQntVuRiy/Z+hluOIfuojoZiVyf00ZStzZKbWuE=
-github.com/bingoohuang/ngg/ss v0.0.0-20240903070457-fbf9f75e769a/go.mod h1:08IdHfmf3skrWdzJnaCpcTruWWNg99mGy7wXQvK4pfI=
+github.com/bingoohuang/ngg/ss v0.0.0-20240904115738-b3c9f6b1ef96 h1:3Dpll6COWAQugFnQOzo1gH0USGep2rHoI6eB3D9iQvQ=
+github.com/bingoohuang/ngg/ss v0.0.0-20240904115738-b3c9f6b1ef96/go.mod h1:fDY6qQeEgAp+YvJofttKjw1Ri2fRl+9yttuySkrp09M=
 github.com/bingoohuang/ngg/tick v0.0.0-20240903070457-fbf9f75e769a h1:8YbjYB47wBAg1bWlFtZJP5P/X5t0HTzsnL8M67S82VI=
 github.com/bingoohuang/ngg/tick v0.0.0-20240903070457-fbf9f75e769a/go.mod h1:MIyICaT8iVlTUlMbUWP7XXhDqrF4MiMT94xl2ZQ0MBc=
 github.com/bingoohuang/ngg/tsid v0.0.0-20240903070457-fbf9f75e769a h1:XdU8b8IuMOOYX8ID6JxwgtenZSRtcx+mF0aXj2sOmYg=

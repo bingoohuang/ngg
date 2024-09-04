@@ -5,11 +5,11 @@ go 1.23
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/alitto/pond v1.9.2
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240904115738-b3c9f6b1ef96
 	github.com/bingoohuang/ngg/httpretty v0.0.0-20240903124243-b24966c79245
 	github.com/bingoohuang/ngg/jj v0.0.0-20240903070457-fbf9f75e769a
 	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903070457-fbf9f75e769a
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/ss v0.0.0-20240904115738-b3c9f6b1ef96
 	github.com/bingoohuang/ngg/tick v0.0.0-20240903070457-fbf9f75e769a
 	github.com/bingoohuang/ngg/ver v0.0.0-20240903070457-fbf9f75e769a
 	github.com/cespare/xxhash/v2 v2.3.0
