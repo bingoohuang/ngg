@@ -1,0 +1,1 @@
+original from https://github.com/kjk/dailyrotate

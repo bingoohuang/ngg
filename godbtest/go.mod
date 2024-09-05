@@ -8,17 +8,17 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alecthomas/chroma v0.10.0
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240903032247-bf269c754a49
-	github.com/bingoohuang/ngg/jj v0.0.0-20240903005822-0e10d7708a01
-	github.com/bingoohuang/ngg/pp v0.0.0-20240903032247-bf269c754a49
-	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240903032247-bf269c754a49
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903043818-64350848c85b
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903032247-bf269c754a49
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903032247-bf269c754a49
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/jj v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/pp v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/ss v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/tick v0.0.0-20240904120001-9257d44cc2e7
+	github.com/bingoohuang/ngg/ver v0.0.0-20240904120001-9257d44cc2e7
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/creasty/defaults v1.8.0
-	github.com/deatil/go-cryptobin v1.0.3030
+	github.com/deatil/go-cryptobin v1.0.4001
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-sql-driver/mysql v1.8.1
@@ -31,7 +31,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-shellwords v1.0.12
-	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/samber/lo v1.47.0
 	github.com/sijms/go-ora/v2 v2.8.19
@@ -49,9 +49,9 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240903032247-bf269c754a49 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240903032247-bf269c754a49 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240903032247-bf269c754a49 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240904120001-9257d44cc2e7 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240904120001-9257d44cc2e7 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240904120001-9257d44cc2e7 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/chzyer/test v1.0.0 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/pprof v0.0.0-20240829160300-da1f7e9f2b25 // indirect
+	github.com/google/pprof v0.0.0-20240903155634-a8630aee4ab9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -82,6 +82,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/onsi/ginkgo/v2 v2.20.2 // indirect
@@ -107,14 +108,14 @@ require (
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
-	golang.org/x/mod v0.20.0 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	modernc.org/gc/v3 v3.0.0-20240801135723-a856999a2e4a // indirect
 	modernc.org/libc v1.60.1 // indirect
