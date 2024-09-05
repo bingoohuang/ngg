@@ -2,8 +2,6 @@ module github.com/bingoohuang/ngg/ss
 
 go 1.21.0
 
-toolchain go1.23.0
-
 require (
 	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
 	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56
