@@ -63,6 +63,7 @@ type TargetConfig struct {
 	Listen     string // TCP 监听 ip:port, e.g. :3001
 	ProxyAddr  string // 代理地址, e.g. 127.0.0.1:6001
 	TargetAddr string // 目标地址, e.g. 192.168.1.5:8090
+	Desc       string // 描述, e.g. gitlab, jenkins, etc.
 }
 
 type Config struct {
@@ -137,7 +138,7 @@ func (t *TargetConfig) Serve() error {
 	}
 	defer listener.Close()
 
-	log.Printf("Listening on port: %d", listener.Addr().(*net.TCPAddr).Port)
+	log.Printf("Listening on port: %d, desc: %s", listener.Addr().(*net.TCPAddr).Port, t.Desc)
 
 	if strings.HasPrefix(t.TargetAddr, "http") {
 		return serveHTTP(listener, t.ProxyAddr, t.TargetAddr)
