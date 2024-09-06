@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bingoohuang/ngg/ver"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,9 @@ func create() *RootCmd {
 		Use:   "ggt",
 		Short: "golang tools",
 	}
+
+	rootCmd.Version = "version"
+	rootCmd.SetVersionTemplate(ver.Version() + "\n")
 
 	r := &RootCmd{Command: rootCmd}
 	return r
