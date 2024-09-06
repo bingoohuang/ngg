@@ -27,7 +27,7 @@ var pretty = func() *httpretty.Logger {
 	return p
 }()
 
-func handle(baseURL, pageID, dbName string, w http.ResponseWriter, r *http.Request) error {
+func handle(baseURL, pageID, dbName string, httprettyLog bool, w http.ResponseWriter, r *http.Request) error {
 	if !strings.HasPrefix(r.URL.Path, "/") {
 		r.URL.Path = "/" + r.URL.Path
 	}
@@ -38,8 +38,13 @@ func handle(baseURL, pageID, dbName string, w http.ResponseWriter, r *http.Reque
 	}
 
 	h := &handler{dbName: dbName, baseURL: baseURL, pageID: pageID}
-	ph := pretty.Middleware(h, true)
-	ph.ServeHTTP(w, r)
+	var handler http.Handler = h
+	if httprettyLog {
+		handler = pretty.Middleware(handler, true)
+	}
+
+	handler.ServeHTTP(w, r)
+
 	return h.error
 }
 

@@ -38,6 +38,7 @@ type Config struct {
 	dryRun     bool
 	foreground bool
 	version    bool
+	debug      bool
 
 	page    int
 	workers int
@@ -95,6 +96,7 @@ func parseFlags() (c *Config) {
 	flag.BoolVar(&c.foreground, "fg", false, "run in foreground")
 	flag.BoolVar(&c.dryRun, "dry", false, "dry run in image importing (for debug)")
 	flag.BoolVar(&c.version, "version", false, "print version")
+	flag.BoolVar(&c.debug, "debug", false, "enable debug moed")
 	flag.IntVar(&c.page, "page", 1, "page no (for pixabay/wallhaven)")
 	flag.IntVar(&c.workers, "workers", 10, "goroutine workers")
 
@@ -267,7 +269,7 @@ func dealListen(c *Config, listen, db string) {
 	log.Printf("listen on %s", listen)
 
 	f := func(w http.ResponseWriter, r *http.Request) {
-		if err := handle(c.baseURL, c.pageID, db, w, r); err != nil {
+		if err := handle(c.baseURL, c.pageID, db, c.debug, w, r); err != nil {
 			log.Printf("handle error: %v", err)
 		}
 	}
