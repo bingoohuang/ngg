@@ -1,7 +1,7 @@
 # changes
 
 1. 2024年01月17日 国密双向认证测试
-2. 2023年12月19日 支持 unix socket, 例: `gurl -s $TMPDIR/test.sock http://unix/status -pa`
+2. 2023年12月19日 支持 unix socket, 例: `gurl -s $TMPDIR/a.sock http://unix/status -pa`, 服务端 httplive -p unix:$TMPDIR/a.sock
 3. 2023年05月19日 文件上传时支持请求头 `Beefs-Hash: sm3:xxx`，用法 `BEEFS_HASH=sm3 gurl :9335 -auth scott:tiger -F stock-photo-1069484432.jpg` 
 4. 2023年04月10日 支持 TLS SESSION REUSE
 
