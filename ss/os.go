@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -27,24 +28,15 @@ func ExpandHome(s string) string {
 // ExpandFilename first expand ~, then expand symbol link
 func ExpandFilename(file string) (string, error) {
 	filename := ExpandHome(file)
-	fi, err := os.Lstat(filename)
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return "", err
+	}
+
+	s, err := filepath.EvalSymlinks(filename)
 	if err != nil {
-		if _, err2 := os.Stat(filename); os.IsNotExist(err2) {
-			return filename, err2
-		}
-
-		return filename, fmt.Errorf("lstat %s: %w", filename, err)
+		return "", fmt.Errorf("EvalSymlinks %s: %w", filename, err)
 	}
-
-	if fi.Mode()&os.ModeSymlink != 0 {
-		s, err := os.Readlink(filename)
-		if err != nil {
-			return filename, fmt.Errorf("readlink %s: %w", filename, err)
-		}
-		return s, nil
-	}
-
-	return filename, nil
+	return s, nil
 }
 
 // ReadFile reads a file content, if it's a .gz, decompress it.
