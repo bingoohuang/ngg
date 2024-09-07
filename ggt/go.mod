@@ -4,13 +4,13 @@ go 1.22.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/gum v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/jj v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/ss v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/ver v0.0.0-20240906025849-fbceadf04109
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240906025849-fbceadf04109
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/gum v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cloudwego/hertz v0.9.3
 	github.com/emmansun/gmsm v0.28.0
@@ -30,22 +30,22 @@ require (
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240906025849-fbceadf04109 // indirect
-	github.com/bingoohuang/ngg/tick v0.0.0-20240906025849-fbceadf04109 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240906025849-fbceadf04109 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
 	github.com/bytedance/sonic v1.12.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
-	github.com/charmbracelet/bubbles v0.19.0 // indirect
+	github.com/charmbracelet/bubbles v0.20.0 // indirect
 	github.com/charmbracelet/bubbletea v1.1.0 // indirect
-	github.com/charmbracelet/gum v0.14.4 // indirect
-	github.com/charmbracelet/huh v0.5.3 // indirect
+	github.com/charmbracelet/gum v0.14.5 // indirect
+	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.0 // indirect
 	github.com/charmbracelet/x/ansi v0.2.3 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240904165849-e8e43e13f84b // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240906161213-162f3037fef5 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/pion/logging v0.2.2 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
-	github.com/quic-go/qpack v0.5.0 // indirect
+	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.46.0 // indirect
 	github.com/refraction-networking/utls v1.6.7 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

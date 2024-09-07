@@ -595,8 +595,8 @@ func (r *Invoker) dump(b *bytes.Buffer, bx io.Writer, ignoreBody bool, rsp *fast
 
 	maxBody := 4096
 	if envValue := os.Getenv("MAX_BODY"); envValue != "" {
-		if envValue, err := ss.ParseBytes(envValue); err == nil {
-			maxBody = int(envValue)
+		if bytesValue, err := ss.ParseBytes(envValue); err == nil {
+			maxBody = int(bytesValue)
 		} else {
 			log.Printf("bad environment value format: %s", envValue)
 		}

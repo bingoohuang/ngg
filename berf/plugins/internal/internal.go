@@ -10,7 +10,7 @@ import (
 // and returns the exit status and true
 // if error is not exit status, will return 0 and false
 func ExitStatus(err error) (int, bool) {
-	var e exec.ExitError
+	var e *exec.ExitError
 	if errors.As(err, &e) {
 		if status, ok := e.Sys().(syscall.WaitStatus); ok {
 			return status.ExitStatus(), true

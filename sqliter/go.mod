@@ -1,24 +1,26 @@
 module github.com/bingoohuang/ngg/sqliter
 
-go 1.21.0
+go 1.22
+
+toolchain go1.23.1
 
 require (
-	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240903003353-40f67441694d
-	github.com/bingoohuang/ngg/ss v0.0.0-20240902222726-508418d80f56
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903003353-40f67441694d
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/elliotchance/pie/v2 v2.9.0
 	github.com/golang-module/carbon/v2 v2.3.12
-	github.com/mattn/go-sqlite3 v1.14.22
+	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/nxadm/tail v1.4.11
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.11
 	go.uber.org/multierr v1.11.0
 )
 
 require (
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -27,6 +29,7 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
@@ -39,12 +42,12 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

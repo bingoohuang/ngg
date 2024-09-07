@@ -3,15 +3,15 @@ module github.com/bingoohuang/aimg
 go 1.23
 
 require (
-	github.com/PuerkitoBio/goquery v1.9.2
+	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/alitto/pond v1.9.2
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240904115738-b3c9f6b1ef96
-	github.com/bingoohuang/ngg/httpretty v0.0.0-20240903124243-b24966c79245
-	github.com/bingoohuang/ngg/jj v0.0.0-20240903070457-fbf9f75e769a
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240903070457-fbf9f75e769a
-	github.com/bingoohuang/ngg/ss v0.0.0-20240904115738-b3c9f6b1ef96
-	github.com/bingoohuang/ngg/tick v0.0.0-20240903070457-fbf9f75e769a
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903070457-fbf9f75e769a
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/httpretty v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/chromedp/cdproto v0.0.0-20240810084448-b931b754e476
 	github.com/chromedp/chromedp v0.10.0
@@ -19,15 +19,15 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang-module/carbon/v2 v2.3.12
-	github.com/imroc/req/v3 v3.43.7
+	github.com/imroc/req/v3 v3.44.0
 	github.com/jedib0t/go-pretty/v6 v6.5.9
 	github.com/karrick/godirwalk v1.17.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/muesli/cache2go v0.0.0-20221011235721-518229cd8021
 	github.com/segmentio/ksuid v1.0.4
-	golang.org/x/image v0.19.0
-	golang.org/x/text v0.17.0
+	golang.org/x/image v0.20.0
+	golang.org/x/text v0.18.0
 	gorm.io/gorm v1.25.11
 )
 
@@ -38,9 +38,9 @@ require (
 	github.com/antchfx/htmlquery v1.3.2 // indirect
 	github.com/antchfx/xmlquery v1.4.1 // indirect
 	github.com/antchfx/xpath v1.3.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240903070457-fbf9f75e769a // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240903070457-fbf9f75e769a // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240903070457-fbf9f75e769a // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.5.2 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
@@ -60,7 +60,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/pprof v0.0.0-20240829160300-da1f7e9f2b25 // indirect
+	github.com/google/pprof v0.0.0-20240903155634-a8630aee4ab9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -87,7 +87,7 @@ require (
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
-	github.com/quic-go/qpack v0.5.0 // indirect
+	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.46.0 // indirect
 	github.com/refraction-networking/utls v1.6.7 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
@@ -109,13 +109,13 @@ require (
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
-	golang.org/x/mod v0.20.0 // indirect
-	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/mod v0.21.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/appengine v1.6.8 // indirect

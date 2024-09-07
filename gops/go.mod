@@ -3,10 +3,10 @@ module gops
 go 1.23
 
 require (
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/gum v0.0.0-20240903003353-40f67441694d
-	github.com/bingoohuang/ngg/ss v0.0.0-20240903004003-8be91e460338
-	github.com/bingoohuang/ngg/ver v0.0.0-20240903004003-8be91e460338
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/gum v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/glebarez/sqlite v1.11.0
 	github.com/klauspost/cpuid/v2 v2.2.8
 	github.com/mitchellh/go-ps v1.0.0
@@ -19,16 +19,16 @@ require (
 	github.com/alecthomas/kong v0.9.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240902222726-508418d80f56 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
-	github.com/charmbracelet/bubbles v0.19.0 // indirect
+	github.com/charmbracelet/bubbles v0.20.0 // indirect
 	github.com/charmbracelet/bubbletea v1.1.0 // indirect
-	github.com/charmbracelet/gum v0.14.4 // indirect
-	github.com/charmbracelet/huh v0.5.3 // indirect
+	github.com/charmbracelet/gum v0.14.5 // indirect
+	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.0 // indirect
 	github.com/charmbracelet/x/ansi v0.2.3 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240829200707-9a7bd603a0d7 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240906161213-162f3037fef5 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
@@ -49,6 +49,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
@@ -75,13 +76,13 @@ require (
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.60.1 // indirect

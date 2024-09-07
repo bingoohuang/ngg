@@ -3,8 +3,8 @@ module github.com/bingoohuang/ngg/ss
 go 1.21.0
 
 require (
-	github.com/bingoohuang/ngg/ver v0.0.0-20240902222726-508418d80f56
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240902222726-508418d80f56
+	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567
@@ -32,12 +32,12 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
