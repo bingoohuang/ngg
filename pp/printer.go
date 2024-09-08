@@ -3,6 +3,7 @@ package pp
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"math"
 	"math/big"
@@ -32,6 +33,7 @@ func (pp *PrettyPrinter) format(object interface{}) string {
 		pp.thousandsSeparator,
 		pp.omitempty,
 		pp.ignoreFields,
+		pp.byteSliceMode,
 	).String()
 }
 
@@ -45,6 +47,7 @@ func newPrinter(
 	thousandsSeparator bool,
 	omitempty bool,
 	ignoreFields map[string]bool,
+	byteSliceMode ByteSliceMode,
 ) *printer {
 	buffer := bytes.NewBufferString("")
 	tw := new(tabwriter.Writer)
@@ -64,6 +67,7 @@ func newPrinter(
 		thousandsSeparator: thousandsSeparator,
 		omitempty:          omitempty,
 		ignoreFields:       ignoreFields,
+		byteSliceMode:      byteSliceMode,
 	}
 
 	if thousandsSeparator {
@@ -88,7 +92,17 @@ type printer struct {
 	omitempty          bool
 	localizedPrinter   *message.Printer
 	ignoreFields       map[string]bool
+	byteSliceMode      ByteSliceMode
 }
+
+type ByteSliceMode int
+
+const (
+	_ ByteSliceMode = iota
+	ByteSliceAsString
+	ByteSliceAsHex
+	ByteSliceAsBase64
+)
 
 func (p *printer) String() string {
 	switch p.value.Kind() {
@@ -368,9 +382,17 @@ func (p *printer) printSlice() {
 	}
 
 	if p.value.Type().Elem().Kind() == reflect.Uint8 {
-		// []byte
-		p.printf("%s", p.value.Interface().([]byte))
-		return
+		switch p.byteSliceMode {
+		case ByteSliceAsString:
+			p.printf("%s", p.value.Interface().([]byte))
+			return
+		case ByteSliceAsHex:
+			p.printf("%x", p.value.Interface().([]byte))
+			return
+		case ByteSliceAsBase64:
+			p.printf("%s", base64.StdEncoding.EncodeToString(p.value.Interface().([]byte)))
+			return
+		}
 	}
 
 	p.println(p.typeString() + "{")
@@ -563,6 +585,7 @@ func (p *printer) format(object interface{}) string {
 		p.thousandsSeparator,
 		p.omitempty,
 		p.ignoreFields,
+		p.byteSliceMode,
 	)
 	pp.depth = p.depth
 	pp.visited = p.visited

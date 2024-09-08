@@ -50,6 +50,8 @@ type PrettyPrinter struct {
 	exportedOnly bool
 	omitempty    bool
 	ignoreFields map[string]bool
+
+	byteSliceMode ByteSliceMode
 }
 
 // New creates a new PrettyPrinter that can be used to pretty print values
@@ -136,6 +138,11 @@ func (pp *PrettyPrinter) Fatalf(format string, a ...interface{}) {
 func (pp *PrettyPrinter) Fatalln(a ...interface{}) {
 	fmt.Fprintln(pp.out, pp.formatAll(a)...)
 	os.Exit(1)
+}
+
+func (pp *PrettyPrinter) SetByteSliceMode(mode ByteSliceMode) *PrettyPrinter {
+	pp.byteSliceMode = mode
+	return pp
 }
 
 func (pp *PrettyPrinter) SetOmitEmpty(enabled bool) *PrettyPrinter {
