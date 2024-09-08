@@ -25,8 +25,8 @@ github.com/bingoohuang/ngg/daemon v0.0.0-20240907082044-e6fedc0af4e8 h1:T7yr/mLM
 github.com/bingoohuang/ngg/daemon v0.0.0-20240907082044-e6fedc0af4e8/go.mod h1:bNS+516EoaHd8V6FtfQeoECsmVilCvrK8B6wWJYuUO4=
 github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8 h1:kqZS9MT31sqvx7G4m0m0WsgxVmKmBZYDLdJU9GCh/zM=
 github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8/go.mod h1:LcCLqqdPJ97NJiq5dK8IeJiEJ1HvyYpOKzRMpdewmZA=
-github.com/bingoohuang/ngg/pp v0.0.0-20240907082044-e6fedc0af4e8 h1:lW9CsH7SvqvH8jA+o5I+dj2YHgJK0Y7icyQ1iW0+JtA=
-github.com/bingoohuang/ngg/pp v0.0.0-20240907082044-e6fedc0af4e8/go.mod h1:6xGe+J442PHDXstt5rO/WGmhzTR+tn2AwfGvmuRz5NI=
+github.com/bingoohuang/ngg/pp v0.0.0-20240908113515-204c97199e1d h1:AVtb70LVjetVkKmf9fem/JNMjcD3y6rKA4X+Fq9yrJw=
+github.com/bingoohuang/ngg/pp v0.0.0-20240908113515-204c97199e1d/go.mod h1:H8bLiXrwOx2TqimhSJ7HtY4oB0hKlV9zup8YlB/L9IY=
 github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8 h1:6hjTTmlQMiAX7tJ2u57BgenaDYMTuUL/Jmw7WMWNekk=
 github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8/go.mod h1:XQOFCRuJHQYRBVaOK/IF08scnC/eGDFyVqI+cYeqye0=
 github.com/bingoohuang/ngg/sqlparser v0.0.0-20240907082044-e6fedc0af4e8 h1:51x6f8iBCbGljMyDDnnG7rssyvU0dG9CcR/yc1XwjGM=

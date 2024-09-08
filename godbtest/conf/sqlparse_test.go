@@ -59,7 +59,7 @@ func TestInsert3(t *testing.T) {
 	parsedQuery1, subEvals, err := ParseSQL(dialectFn, query1)
 
 	var b1, b2 bytes.Buffer
-	pn := pp.New().SetOmitEmpty(true).SetColoring(false)
+	pn := pp.New().SetOmitEmpty(true).SetByteSliceMode(pp.ByteSliceAsString).SetColoring(false)
 	pn.Fprint(&b1, parsedQuery)
 	pn.Fprint(&b2, parsedQuery1)
 	t.Log("b1: ", b1.String())

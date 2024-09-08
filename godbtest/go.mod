@@ -10,7 +10,7 @@ require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/bingoohuang/ngg/daemon v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/pp v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/pp v0.0.0-20240908113515-204c97199e1d
 	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8
