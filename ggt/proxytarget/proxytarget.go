@@ -72,6 +72,13 @@ type Config struct {
 }
 
 func (f *Cmd) run(args []string) error {
+	// 如果没有指定配置文件，并且没有指定监听地址，则尝试从 ~/.proxytarget.yaml 中读取
+	if f.yamlConfigFile == "" && f.listen == "" {
+		if y, err := ss.ExpandFilename("~/.proxytarget.yaml"); err == nil && y != "" {
+			f.yamlConfigFile = y
+		}
+	}
+
 	if f.yamlConfigFile != "" {
 		yamlFile, err := ss.ExpandFilename(f.yamlConfigFile)
 		if err != nil {
