@@ -220,13 +220,18 @@ func (t *TableRowsScanner) StartExecute(string) { t.start = time.Now() }
 
 func (t *TableRowsScanner) StartRows(_ string, header []string, options int) {
 	t.options = options
+	t.showRowIndex = t.options&sqlmap.ShowRowIndex == sqlmap.ShowRowIndex
 	if t.RowVertical {
 		t.Header = header
 		return
 	}
 
-	headers := lo.Map(header, func(item string, index int) any { return item })
-	t.showRowIndex = t.options&sqlmap.ShowRowIndex == sqlmap.ShowRowIndex
+	headers := lo.Map(header, func(item string, index int) any {
+		if t.showRowIndex {
+			return fmt.Sprintf("%d: %s", index, item)
+		}
+		return item
+	})
 
 	if t.showRowIndex {
 		headers = append(table.Row{"#"}, headers...)
@@ -297,16 +302,6 @@ func FormatFloat64(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-// isTrailingZeros checks if the given string consists only of zeros.
-func isTrailingZeros(s string) bool {
-	for _, ch := range s {
-		if ch != '0' {
-			return false
-		}
-	}
-	return true
-}
-
 func writeTempFile(content, extension string) {
 	if temp, _ := os.CreateTemp("", "*"+extension); temp != nil {
 		_, _ = temp.WriteString(content + "\n")
@@ -317,7 +312,9 @@ func writeTempFile(content, extension string) {
 
 func (t TableRowsScanner) Complete() {
 	if t.options&sqlmap.ShowCost == sqlmap.ShowCost {
-		defer log.Printf("Cost %s", time.Since(t.start))
+		defer func() {
+			log.Printf("Cost %s", time.Since(t.start))
+		}()
 	}
 	if t.RowVertical {
 		return

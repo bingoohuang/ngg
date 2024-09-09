@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/ss"
-
 	"github.com/spf13/pflag"
 	"github.com/xo/dburl"
 )
@@ -81,7 +80,7 @@ func parseSetArgs(name string, options *replOptions, args []string, pureArg stri
 	f.DurationVarP(&options.timeout, "timeout", "", 0, "SQL执行超时时间, e.g. 30s")
 	f.StringVarP(&options.rawFileDir, "writeLob", "", "", "保存lob到目录中，e.g. /tmp")
 	f.StringVarP(&options.rawFileExt, "lobExt", "", "", "lob 后缀名，e.g. .jpg")
-	f.BoolVarP(&options.ShowRowIndex, "showNumber", "", false, "结果添加行索引号")
+	f.BoolVarP(&options.ShowRowIndex, "showNumber", "i", false, "结果添加行索引号")
 	f.BoolVarP(&options.NoEvalSQL, "noEvalSQL", "", false, "不求值 SQL 表达式")
 	f.BoolVarP(&options.clearSetting, "clear", "", false, "清空设置")
 	f.Float64Var(&options.qps, "qps", 0, "QPS rate limit")
