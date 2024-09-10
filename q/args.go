@@ -143,7 +143,7 @@ func getCallerInfo(callDepth int) (funcName, file string, line int, err error) {
 	if !ok {
 		// This error is not exported. It is only used internally in the q
 		// package. The error message isn't even used by the caller.
-		return "", "", 0, fmt.Errorf("get caller !ok") // nolint: goerr113
+		return "", "", 0, fmt.Errorf("get caller !ok")
 	}
 
 	funcName = runtime.FuncForPC(pc).Name()

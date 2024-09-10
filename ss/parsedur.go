@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// nolint:gomnd,gochecknoglobals
 var unitMap = map[string]int64{
 	"ns":     int64(time.Nanosecond),
 	"纳秒":     int64(time.Nanosecond),

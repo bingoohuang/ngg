@@ -45,7 +45,6 @@ func (s *SSHCmd) Exec(gs *GoSSH, h *Host, stdout io.Writer, eo ExecOption) error
 	return h.SSH(cmds, s.resultVar, stdout, eo)
 }
 
-// nolint:unparam
 func (g *GoSSH) buildSSHCmd(hostPart, realCmd string) (*SSHCmd, error) {
 	c, v := cmdtype.ParseResultVar(realCmd)
 

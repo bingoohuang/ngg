@@ -56,7 +56,7 @@ func MakeClientConfig(username string, auth []ssh.AuthMethod) *ssh.ClientConfig 
 	return &ssh.ClientConfig{
 		User:            username,
 		Auth:            auth,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // nolint:G106
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         timeout,
 	}
 }

@@ -14,7 +14,6 @@ import (
 
 // TestHeader verifies that logger.header() returns a header line with the
 // expected filename, function name, and line number.
-// nolint: funlen
 func TestHeader(t *testing.T) {
 	testCases := []struct {
 		lastFile, lastFunc string

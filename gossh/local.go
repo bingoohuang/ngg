@@ -28,7 +28,6 @@ func (g *GoSSH) buildLocalCmd(cmd string) HostsCmd {
 }
 
 // LocalHost means the local host.
-// nolint:gochecknoglobals
 var LocalHost = &Host{ID: "localhost", Addr: "localhost", resultVars: make(map[string]string)}
 
 // TargetHosts returns target hosts for the command.

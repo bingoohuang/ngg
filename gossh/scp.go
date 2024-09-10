@@ -73,7 +73,7 @@ func (u *UlDl) TargetHosts(hostGroup string) Hosts {
 func (g *GoSSH) buildUlCmd(hostPart, realCmd string) (HostsCmd, error) {
 	fields := ss.Fields(realCmd, 2)
 	if len(fields) < 2 {
-		return nil, fmt.Errorf("bad format for %s", realCmd) // nolint:goerr113
+		return nil, fmt.Errorf("bad format for %s", realCmd)
 	}
 
 	return &UlCmd{UlDl: UlDl{
@@ -86,7 +86,7 @@ func (g *GoSSH) buildUlCmd(hostPart, realCmd string) (HostsCmd, error) {
 func (g *GoSSH) buildDlCmd(hostPart, realCmd string) (HostsCmd, error) {
 	fields := ss.Fields(realCmd, 2)
 	if len(fields) < 2 {
-		return nil, fmt.Errorf("bad format for %s", realCmd) // nolint:goerr113
+		return nil, fmt.Errorf("bad format for %s", realCmd)
 	}
 
 	return &DlCmd{UlDl: UlDl{

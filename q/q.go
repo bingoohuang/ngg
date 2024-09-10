@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-// nolint: gochecknoglobals
 var (
 	// std is the singleton logger.
 	std logger
