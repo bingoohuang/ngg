@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	_ "github.com/bingoohuang/ngg/ggt/ghash"
 	_ "github.com/bingoohuang/ngg/ggt/hertz"
 	_ "github.com/bingoohuang/ngg/ggt/ip"

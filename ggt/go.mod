@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240909145426-3d00f79a4fc6
 	github.com/bingoohuang/ngg/gnet v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/bingoohuang/ngg/gum v0.0.0-20240907082044-e6fedc0af4e8
 	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
@@ -63,6 +64,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/kortschak/goroutine v1.1.2 // indirect
@@ -94,6 +96,7 @@ require (
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
+	github.com/sevlyar/go-daemon v0.1.6 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
