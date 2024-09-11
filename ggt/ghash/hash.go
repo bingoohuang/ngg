@@ -94,7 +94,7 @@ func (f *Cmd) run() error {
 	if f.base64 {
 		s = base64.StdEncoding.EncodeToString(out)
 	} else {
-		s = fmt.Sprintf("%X", out)
+		s = fmt.Sprintf("%x", out)
 	}
 
 	if f.hmacKey != "" {
