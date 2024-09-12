@@ -6,7 +6,7 @@ require (
 	github.com/Jille/raft-grpc-transport v1.6.1
 	github.com/bingoohuang/ngg/gnet v0.0.0-20240911112036-2ef0f2d8ae1a
 	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240912061428-e60060deeb09
-	github.com/bingoohuang/ngg/ss v0.0.0-20240912061428-e60060deeb09
+	github.com/bingoohuang/ngg/ss v0.0.0-20240912082627-b94241753046
 	github.com/bingoohuang/ngg/tick v0.0.0-20240911112036-2ef0f2d8ae1a
 	github.com/bingoohuang/ngg/ver v0.0.0-20240911112036-2ef0f2d8ae1a
 	github.com/gin-gonic/gin v1.10.0
