@@ -16,6 +16,13 @@ func ExampleIf() {
 	// huang
 }
 
+func TestMapGet(t *testing.T) {
+	m := map[string]string{"a": "b"}
+	assert.Equal(t, "b", ss.MapGet(m, "a", nil))
+	assert.Equal(t, "c", ss.MapGet(m, "b", &ss.MapV[string]{F: func() string { return "c" }}))
+	assert.Equal(t, "d", ss.MapGet(m, "b", &ss.MapV[string]{V: "d"}))
+}
+
 func TestSplit(t *testing.T) {
 	assert.Equal(t, []string{"a", "b"}, ss.Split(" a ,b , ,", ","))
 

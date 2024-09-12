@@ -432,7 +432,28 @@ func ParseStructTag(rawTag string) StructTag {
 	return StructTag{Raw: rawTag, Main: mainPart, Opts: opts}
 }
 
-func JoinMap[K comparable, V any](m map[K]V, kkSep, kvSep string) string {
+type MapV[V any] struct {
+	V V
+	F func() V
+}
+
+func MapGet[K comparable, V any](m map[K]V, k K, mv *MapV[V]) V {
+	v, ok := m[k]
+	if ok {
+		return v
+	}
+
+	if mv != nil {
+		if mv.F != nil {
+			return mv.F()
+		}
+		return mv.V
+	}
+
+	return v
+}
+
+func MapJoin[K comparable, V any](m map[K]V, kkSep, kvSep string) string {
 	ss := make([]string, 0, len(m))
 	for k, v := range m {
 		ss = append(ss, fmt.Sprintf("%v%s%v", k, kkSep, v))
