@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+service Raft {
+  rpc ApplyLog(ApplyRequest) returns (ApplyResponse) {}
+  rpc GetDetails(GetDetailsRequest) returns (GetDetailsResponse) {}
+}
+
+message GetDetailsRequest {
+  string addr = 1;
+}
+
+message GetDetailsResponse {
+  string serverId = 1;
+  string raftState = 2;
+  string leader = 3;
+  int32 raftPort = 4;
+  int32 discoveryPort = 5;
+  int32 httpPort = 6;
+  string error = 7;
+  repeated string discoveryNodes = 8;
+  string startTime = 9;
+  string duration = 10;
+  uint64 rss = 11;
+  uint64 raftLogSum = 12;
+  uint64 pid = 13;
+  float pcpu = 14;
+  string bizData = 15;
+  repeated string addr = 16;
+  string leaderID = 17;
+  repeated string nodeIds = 18;
+}
+
+message ApplyRequest {
+  bytes request = 1;
+}
+
+message ApplyResponse {
+  bytes response = 1;
+}
