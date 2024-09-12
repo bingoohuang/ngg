@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"go.uber.org/multierr"
@@ -14,6 +15,10 @@ import (
 func Close[T io.Closer](closers ...T) error {
 	var err error
 	for _, closer := range closers {
+		c := reflect.ValueOf(closer)
+		if c.Kind() == reflect.Ptr && c.IsNil() {
+			continue
+		}
 		err = multierr.Append(err, closer.Close())
 	}
 	return err
