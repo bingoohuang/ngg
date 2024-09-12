@@ -267,7 +267,7 @@ func serveDownload(w http.ResponseWriter, r *http.Request, sessionID, cipher, co
 		log.Printf("E! CreateChunkReader %s failed: %v", fullPath, err)
 		return http.StatusInternalServerError
 	}
-	defer Close(chunkReader)
+	defer ss.Close(chunkReader)
 
 	salt := codec.GenSalt(8)
 	key, _, err := codec.Scrypt(getSessionKey(sessionID), salt)
@@ -303,7 +303,7 @@ func serveMultipartDownload(w http.ResponseWriter, r *http.Request, fullPath, fi
 	if err != nil {
 		return err
 	}
-	defer Close(chunkReader)
+	defer ss.Close(chunkReader)
 
 	var dst io.Writer = w
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") && !ss.HasSuffix(filename, ".gz", ".zip") {
@@ -328,7 +328,7 @@ func serveBodyAsFile(src io.Reader, contentFilename string) error {
 	if err != nil {
 		return fmt.Errorf("open file %s error: %w", fullPath, err)
 	}
-	defer Close(f)
+	defer ss.Close(f)
 
 	if _, err := io.Copy(f, src); err != nil {
 		return fmt.Errorf("write file %s error: %w", fullPath, err)
@@ -387,7 +387,7 @@ func serveUpload(w http.ResponseWriter, r *http.Request, contentRange, sessionID
 	if err != nil {
 		return err
 	}
-	defer Close(f)
+	defer ss.Close(f)
 
 	_, cipherSuites := parseCipherSuites(cipher)
 

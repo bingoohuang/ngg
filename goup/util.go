@@ -111,7 +111,7 @@ func openChunk(fullPath string, cr *chunkRange) (f *os.File, err error) {
 	}
 	defer func() {
 		if err != nil && f != nil {
-			Close(f)
+			ss.Close(f)
 			f = nil
 		}
 	}()
@@ -140,7 +140,7 @@ func writeChunk(fullPath string, progress Progress, chunk io.Reader, cr *chunkRa
 		return 0, err
 	}
 
-	defer Close(f)
+	defer ss.Close(f)
 
 	n, err := io.Copy(f, &PbReader{Reader: chunk, Adder: progress})
 	if err != nil {
@@ -188,7 +188,7 @@ func readChunkChecksum(fullPath string, partFrom, partTo uint64) (checksum strin
 	if err != nil {
 		return "", fmt.Errorf("open file %s error: %w", fullPath, err)
 	}
-	defer Close(f)
+	defer ss.Close(f)
 
 	if _, err := f.Seek(int64(partFrom), io.SeekStart); err != nil {
 		return "", fmt.Errorf("seek file %s to %d error: %w", fullPath, partFrom, err)
@@ -227,7 +227,7 @@ func CreateChunkReader(fullPath string, partFrom, partTo uint64, limitRate uint6
 
 	defer func() {
 		if err != nil && r != nil {
-			Close(r)
+			ss.Close(r)
 			r = nil
 		}
 	}()
@@ -389,13 +389,6 @@ func ensureDir(dirPath string) error {
 		return os.MkdirAll(dirPath, os.ModePerm)
 	}
 	return nil
-}
-
-// Close closes the io.Closer and log print if error occurs.
-func Close(c io.Closer) {
-	if err := c.Close(); err != nil {
-		log.Printf("close failed: %v", err)
-	}
 }
 
 // PbReader is a wrapper reader for Adder.

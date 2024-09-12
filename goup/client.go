@@ -286,7 +286,7 @@ func (c *Client) downloadChunk(i uint64) error {
 	if err != nil {
 		return err
 	}
-	defer Close(q.Body)
+	defer ss.Close(q.Body)
 
 	if q.StatusCode == http.StatusNotModified {
 		c.Progress.Add(partSize)
@@ -317,7 +317,7 @@ func (c *Client) downloadChunk(i uint64) error {
 
 	pr, pw := io.Pipe()
 	go func() {
-		defer Close(pw)
+		defer ss.Close(pw)
 
 		_, cipherSuites := parseCipherSuites(c.Cipher)
 		cfg := sio.Config{Key: key, CipherSuites: cipherSuites}
@@ -365,7 +365,7 @@ func (c *Client) uploadMultipartForm() error {
 	if err != nil {
 		return err
 	}
-	defer Close(fileReader)
+	defer ss.Close(fileReader)
 
 	up := PrepareMultipartPayload(map[string]interface{}{
 		"file": &PbReader{Reader: fileReader, Adder: c.Progress},
@@ -384,7 +384,7 @@ func (c *Client) uploadMultipartForm() error {
 	if err != nil {
 		return err
 	}
-	defer Close(q.Body)
+	defer ss.Close(q.Body)
 
 	_, _ = io.Copy(io.Discard, q.Body)
 	if q.StatusCode != http.StatusOK {
@@ -410,7 +410,7 @@ func (c *Client) uploadChunk(i uint64) error {
 	if err != nil {
 		return fmt.Errorf("CreateChunkReader %s: %w", c.FullPath, err)
 	}
-	defer Close(r)
+	defer ss.Close(r)
 
 	responseBody, err := c.chunkUpload(r, cr, chunkChecksum)
 	if err != nil {
@@ -495,14 +495,14 @@ func (c *Client) chunkTransfer(chunkBody io.Reader, contentRange string, err err
 
 	pr, pw := io.Pipe()
 	go func() {
-		defer Close(pw)
+		defer ss.Close(pw)
 
 		_, cipherSuites := parseCipherSuites(c.Cipher)
 		if n, err := sio.Encrypt(pw, chunkBody, sio.Config{Key: key, CipherSuites: cipherSuites}); err != nil {
 			log.Printf("E! encrypt data bytes: %d, failed: %v", n, err)
 		}
 	}()
-	defer Close(pr)
+	defer ss.Close(pr)
 
 	r, err := http.NewRequest(http.MethodPost, c.url, &PbReader{Reader: pr, Adder: c.Progress})
 	if err != nil {
@@ -519,7 +519,7 @@ func (c *Client) chunkTransfer(chunkBody io.Reader, contentRange string, err err
 	if err != nil {
 		return "", err
 	}
-	defer Close(q.Body)
+	defer ss.Close(q.Body)
 
 	body, err := io.ReadAll(q.Body)
 	if err != nil {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"math"
 	"os"
@@ -73,17 +72,8 @@ func tickBusy(ctx context.Context, dir string, debug bool) {
 
 		go func() {
 			time.Sleep(file.Pprof.Duration)
-			Close(ppMem, ppCpu)
+			ss.Close(ppMem, ppCpu)
 		}()
-	}
-}
-
-func Close(objs ...io.Closer) {
-	for _, obj := range objs {
-		if obj == nil {
-			continue
-		}
-		_ = obj.Close()
 	}
 }
 
