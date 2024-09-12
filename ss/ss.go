@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode/utf8"
+
+	"golang.org/x/exp/constraints"
 )
 
 func If[T any](condition bool, a, b T) T {
@@ -432,25 +435,61 @@ func ParseStructTag(rawTag string) StructTag {
 	return StructTag{Raw: rawTag, Main: mainPart, Opts: opts}
 }
 
-type MapV[V any] struct {
-	V V
-	F func() V
+func MapKeysSorted[K constraints.Ordered, V any](m map[K]V) []K {
+	keys := MapKeys(m)
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	return keys
 }
 
-func MapGet[K comparable, V any](m map[K]V, k K, mv *MapV[V]) V {
+func MapWalk[K comparable, V any](m map[K]V, walker func(k K, v V) bool) {
+	for k, v := range m {
+		if !walker(k, v) {
+			break
+		}
+	}
+}
+
+func MapValues[K comparable, V any](m map[K]V) []V {
+	values := make([]V, 0, len(m))
+	for _, v := range m {
+		values = append(values, v)
+	}
+
+	return values
+}
+
+func MapKeys[K comparable, V any](m map[K]V) []K {
+	keys := make([]K, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	return keys
+}
+
+func MapGetF[K comparable, V any](m map[K]V, k K, defaultF func() V) V {
 	v, ok := m[k]
 	if ok {
 		return v
 	}
 
-	if mv != nil {
-		if mv.F != nil {
-			return mv.F()
-		}
-		return mv.V
+	if defaultF != nil {
+		return defaultF()
 	}
 
 	return v
+}
+
+func MapGet[K comparable, V any](m map[K]V, k K, defaultVal V) V {
+	v, ok := m[k]
+	if ok {
+		return v
+	}
+
+	return defaultVal
 }
 
 func MapJoin[K comparable, V any](m map[K]V, kkSep, kvSep string) string {

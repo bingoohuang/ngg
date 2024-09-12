@@ -18,9 +18,9 @@ func ExampleIf() {
 
 func TestMapGet(t *testing.T) {
 	m := map[string]string{"a": "b"}
-	assert.Equal(t, "b", ss.MapGet(m, "a", nil))
-	assert.Equal(t, "c", ss.MapGet(m, "b", &ss.MapV[string]{F: func() string { return "c" }}))
-	assert.Equal(t, "d", ss.MapGet(m, "b", &ss.MapV[string]{V: "d"}))
+	assert.Equal(t, "b", ss.MapGet(m, "a", ""))
+	assert.Equal(t, "c", ss.MapGetF(m, "b", func() string { return "c" }))
+	assert.Equal(t, "d", ss.MapGet(m, "b", "d"))
 }
 
 func TestSplit(t *testing.T) {
