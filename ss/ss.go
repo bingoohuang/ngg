@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -429,4 +430,13 @@ func ParseStructTag(rawTag string) StructTag {
 	}
 
 	return StructTag{Raw: rawTag, Main: mainPart, Opts: opts}
+}
+
+func JoinMap[K comparable, V any](m map[K]V, kkSep, kvSep string) string {
+	ss := make([]string, 0, len(m))
+	for k, v := range m {
+		ss = append(ss, fmt.Sprintf("%v%s%v", k, kkSep, v))
+	}
+
+	return strings.Join(ss, kkSep)
 }

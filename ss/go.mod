@@ -1,10 +1,12 @@
 module github.com/bingoohuang/ngg/ss
 
-go 1.21.0
+go 1.22.0
+
+toolchain go1.23.1
 
 require (
-	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240911112036-2ef0f2d8ae1a
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240911112036-2ef0f2d8ae1a
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pbnjay/pixfont v0.0.0-20200714042608-33b744692567
@@ -33,7 +35,7 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/text v0.18.0 // indirect

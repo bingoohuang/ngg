@@ -1,6 +1,7 @@
 package stdlog
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -261,6 +262,15 @@ func ParseLevelByte(b byte) Level {
 	}
 }
 
+// RegisterCustomLevel customizes the log level key in the message, like [DEBUG] for debugging level.
+func RegisterCustomLevel(levelKey string, level Level) {
+	customizeLevelMap[levelKey] = level
+}
+
+var (
+	customizeLevelMap = map[string]Level{}
+)
+
 func parseLevelFromMsg(msg []byte) (level Level, s []byte, foundLevelTag bool) {
 	if l := regLevelTip.FindIndex(msg); len(l) > 0 {
 		x, y := l[0], l[1]
@@ -270,6 +280,13 @@ func parseLevelFromMsg(msg []byte) (level Level, s []byte, foundLevelTag bool) {
 		}
 		s = clearLevelFromMsg(msg, x, y)
 		return level, s, true
+	}
+
+	for custom, lvl := range customizeLevelMap {
+		if x := bytes.Index(msg, []byte(custom)); x >= 0 {
+			s = clearLevelFromMsg(msg, x, x+len(custom))
+			return lvl, s, true
+		}
 	}
 
 	return InfoLevel, msg, false

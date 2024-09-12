@@ -24,6 +24,8 @@
 10. `OpenInBrowser` 在默认浏览器中打开链接
 11. `SplitToMap` 将字符串 s 分割成 map
 12. `IsDigits` 判断字符串是否全部是数字组成
+13. `JoinMap` 将 map 中的 key 和 value 拼接成字符串
+14. `GetFuncName` 获取函数名
 
 ## 中国身份证等随机信息
 
