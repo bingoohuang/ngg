@@ -400,12 +400,12 @@ func PbeEncrypt(plainText, password string, iterations int) (string, error) {
 
 // PbeDecrypt PrintDecrypt the cipherText(result of Encrypt) based on password and iterations.
 func PbeDecrypt(cipherText, password string, iterations int) (string, error) {
-	msgBytes, err := Base64().Decode(cipherText)
-	if err != nil {
-		return "", err
+	p := Base64().Decode(cipherText)
+	if p.V2 != nil {
+		return "", p.V2
 	}
 
-	msgData := msgBytes.Bytes()
+	msgData := p.V1.Bytes()
 	salt := msgData[:8]
 	encText := msgData[8:]
 
@@ -427,15 +427,15 @@ func PbeEncryptSalt(plainText, password, fixedSalt string, iterations int) (stri
 
 // PbeDecryptSalt PrintDecrypt the cipherText(result of EncryptSalt) based on password and iterations.
 func PbeDecryptSalt(cipherText, password, fixedSalt string, iterations int) (string, error) {
-	msgBytes, err := Base64().Decode(cipherText)
-	if err != nil {
-		return "", err
+	p := Base64().Decode(cipherText)
+	if p.V2 != nil {
+		return "", p.V2
 	}
 
 	salt := make([]byte, 8)
 	copy(salt, fixedSalt)
 
-	return pbeDoDecrypt(msgBytes.Bytes(), password, salt, iterations)
+	return pbeDoDecrypt(p.V1.Bytes(), password, salt, iterations)
 }
 
 func pbeDoEncrypt(plainText, password string, salt []byte, iterations int) ([]byte, error) {

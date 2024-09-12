@@ -49,21 +49,26 @@ func (b *b64) EncodeBytes(src []byte, flags ...Base64Flags) (*bytes.Buffer, erro
 	return &buf, nil
 }
 
-// Encode encodes src into base64 string.
-func (b *b64) Encode(src string, flags ...Base64Flags) (*bytes.Buffer, error) {
-	var buf bytes.Buffer
-	if _, err := EncodeBase64(&buf, strings.NewReader(src), flags...); err != nil {
-		return nil, err
-	}
-	return &buf, nil
+type Pair[T1 any, T2 any] struct {
+	V1 T1
+	V2 T2
 }
 
-func (b *b64) Decode(src string) (*bytes.Buffer, error) {
+// Encode encodes src into base64 Pair.
+func (b *b64) Encode(src string, flags ...Base64Flags) Pair[*bytes.Buffer, error] {
+	var buf bytes.Buffer
+	if _, err := EncodeBase64(&buf, strings.NewReader(src), flags...); err != nil {
+		return Pair[*bytes.Buffer, error]{V2: err}
+	}
+	return Pair[*bytes.Buffer, error]{V1: &buf, V2: nil}
+}
+
+func (b *b64) Decode(src string) Pair[*bytes.Buffer, error] {
 	var buf bytes.Buffer
 	if _, err := DecodeBase64(&buf, strings.NewReader(src)); err != nil {
-		return nil, err
+		return Pair[*bytes.Buffer, error]{V2: err}
 	}
-	return &buf, nil
+	return Pair[*bytes.Buffer, error]{V1: &buf, V2: nil}
 }
 
 // DecodeBytes decode bytes which is in base64 format ( any one of StdEncoding/URLEncoding/RawStdEncoding/RawURLEncoding).
