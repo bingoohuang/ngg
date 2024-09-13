@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"sync"
@@ -674,6 +675,8 @@ func (n *Node) watchNodesDiff() {
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 
+	nodesState := &nodesState{}
+
 	for {
 		select {
 		case <-n.ctx.Done():
@@ -683,7 +686,7 @@ func (n *Node) watchNodesDiff() {
 				return
 			}
 
-			if n.checkNodesDiff() {
+			if n.checkNodesDiff(nodesState) {
 				n.Stop()
 				return
 			}
@@ -691,8 +694,24 @@ func (n *Node) watchNodesDiff() {
 	}
 }
 
+type nodesState struct {
+	nodes           []string
+	raftServerAddrs []string
+}
+
+func (s *nodesState) setState(nodes, raftServerAddrs []string) {
+	equals := slices.Equal(nodes, s.nodes) &&
+		slices.Equal(raftServerAddrs, s.raftServerAddrs)
+	if !equals {
+		s.nodes = nodes
+		s.raftServerAddrs = raftServerAddrs
+
+		log.Printf("dicoveried nodes: %v, raft nodes: %v", nodes, raftServerAddrs)
+	}
+}
+
 // 检查当前集群发现的处于稳态的节点，是否与 Raft 集群节点不匹配
-func (n *Node) checkNodesDiff() bool {
+func (n *Node) checkNodesDiff(state *nodesState) bool {
 	nodes, err := n.Conf.Discovery.Search()
 	if err != nil {
 		log.Printf("discovery search error: %v", err)
@@ -716,7 +735,8 @@ func (n *Node) checkNodesDiff() bool {
 
 		raftServerAddrs = append(raftServerAddrs, serverAddr)
 	}
-	log.Printf("dicovery search: %v, raft servers: %v", nodes, raftServerAddrs)
+
+	state.setState(nodes, raftServerAddrs)
 
 	// 检查稳态
 	connectableNodes := make(map[string]bool)
