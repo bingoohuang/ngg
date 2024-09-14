@@ -9,17 +9,17 @@ require (
 	github.com/AdhityaRamadhanus/fasthttpcors v0.0.0-20170121111917-d4c07198763a
 	github.com/axiomhq/hyperloglog v0.2.0
 	github.com/beorn7/perks v1.0.1
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/jj v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/ss v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/tick v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/ver v0.0.0-20240913025408-d6ad25d38d1c
 	github.com/bmatcuk/doublestar/v4 v4.6.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
 	github.com/gabriel-vasile/mimetype v1.4.5
-	github.com/go-echarts/go-echarts/v2 v2.4.1
+	github.com/go-echarts/go-echarts/v2 v2.4.2
 	github.com/gobwas/glob v0.2.3
 	github.com/jdxyw/generativeart v0.0.0-20220127024657-50049f153090
 	github.com/joho/godotenv v1.5.1
@@ -36,14 +36,14 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.29.0
 	golang.org/x/sys v0.25.0
-	google.golang.org/grpc v1.66.0
+	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.34.2
 )
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240913025408-d6ad25d38d1c // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/lufia/plan9stats v0.0.0-20240819163618-b1d8f4d146e7 // indirect
+	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/image v0.20.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/text v0.18.0 // indirect

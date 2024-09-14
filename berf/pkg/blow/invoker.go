@@ -217,10 +217,10 @@ func (r *Invoker) buildRequestClient(ctx context.Context, opt *Opt) (*fasthttp.R
 
 	if opt.auth != "" {
 		b := opt.auth
-		if c, err := ss.Base64().Decode(b); err != nil { // check if it is already set by base64 encoded
-			b = ss.Must(ss.Base64().Encode(b)).String()
+		if c := ss.Base64().Decode(b); c.V2 != nil { // check if it is already set by base64 encoded
+			b = ss.Base64().Encode(b).V1.String()
 		} else {
-			b = ss.Must(ss.Base64().Encode(c.String())).String()
+			b = ss.Base64().Encode(c.V1.String()).V1.String()
 		}
 
 		h.Set("Authorization", "Basic "+b)

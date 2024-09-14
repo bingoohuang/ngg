@@ -4,19 +4,19 @@ go 1.22.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240909145426-3d00f79a4fc6
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/gum v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/jj v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/gum v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/jj v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/ss v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/ver v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240913025408-d6ad25d38d1c
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cloudwego/hertz v0.9.3
 	github.com/emmansun/gmsm v0.28.0
 	github.com/hertz-contrib/gzip v0.0.3
-	github.com/imroc/req/v3 v3.44.0
+	github.com/imroc/req/v3 v3.46.0
 	github.com/pion/stun/v2 v2.0.0
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
@@ -26,14 +26,14 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/alecthomas/kong v0.9.0 // indirect
+	github.com/alecthomas/kong v1.2.1 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240907082044-e6fedc0af4e8 // indirect
-	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240913025408-d6ad25d38d1c // indirect
+	github.com/bingoohuang/ngg/tick v0.0.0-20240913025408-d6ad25d38d1c // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240913025408-d6ad25d38d1c // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
@@ -41,12 +41,12 @@ require (
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
-	github.com/charmbracelet/bubbletea v1.1.0 // indirect
+	github.com/charmbracelet/bubbletea v1.1.1 // indirect
 	github.com/charmbracelet/gum v0.14.5 // indirect
 	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.0 // indirect
-	github.com/charmbracelet/x/ansi v0.2.3 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240906161213-162f3037fef5 // indirect
+	github.com/charmbracelet/x/ansi v0.3.1 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240913162256-9ef7ff40e654 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -57,7 +57,7 @@ require (
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/google/pprof v0.0.0-20240903155634-a8630aee4ab9 // indirect
+	github.com/google/pprof v0.0.0-20240910150728-a0b0bb1d4134 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -89,7 +89,7 @@ require (
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
-	github.com/quic-go/quic-go v0.46.0 // indirect
+	github.com/quic-go/quic-go v0.47.0 // indirect
 	github.com/refraction-networking/utls v1.6.7 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
@@ -111,14 +111,14 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.10.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
-	golang.org/x/tools v0.24.0 // indirect
+	golang.org/x/tools v0.25.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
