@@ -1,13 +1,13 @@
 module github.com/bingoohuang/ngg/gossh
 
-go 1.21.0
+go 1.22.0
 
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240914015655-423ad09c7401
+	github.com/bingoohuang/ngg/ss v0.0.0-20240914022626-2a34acd0be26
+	github.com/bingoohuang/ngg/ver v0.0.0-20240914015655-423ad09c7401
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/chzyer/readline v1.5.1
@@ -20,7 +20,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/tkrajina/go-reflector v0.5.6
+	github.com/tkrajina/go-reflector v0.5.8
 	golang.org/x/crypto v0.27.0
 	golang.org/x/net v0.29.0
 	golang.org/x/sync v0.8.0
@@ -28,7 +28,7 @@ require (
 
 require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240914015655-423ad09c7401 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-test/deep v1.1.0 // indirect
@@ -51,7 +51,7 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	golang.org/x/text v0.18.0 // indirect

@@ -92,10 +92,10 @@ func EvalPass(pass string) (passEncodedAlgo, evaluated string) {
 		}
 	} else if strings.HasPrefix(pass, "{BASE64}") {
 		s := strings.TrimRight(pass[8:], "=")
-		if p, err := ss.Base64().Decode(s); err != nil {
-			log.Fatalf("failed to url decode %s, error: %v", pass, err)
+		if p := ss.Base64().Decode(s); p.V2 != nil {
+			log.Fatalf("failed to url decode %s, error: %v", pass, p.V2)
 		} else {
-			return "BASE64", p.String()
+			return "BASE64", p.V1.String()
 		}
 	}
 
