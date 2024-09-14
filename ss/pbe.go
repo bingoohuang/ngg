@@ -294,7 +294,7 @@ func PbePrintEncrypt(passStr string, plains ...string) {
 			fmt.Fprintf(os.Stderr, "pbe.Encrypt error %v", err)
 			os.Exit(1) // nolint gomnd
 		}
-		fmt.Fprintf(w, "%d\t%s\t%s\n", i+1, p, pbePrefix+pbed)
+		fmt.Fprintf(w, "%d\t%q\t%q\n", i+1, p, pbePrefix+pbed)
 	}
 
 	w.Flush()
@@ -320,7 +320,7 @@ func PbePrintDecrypt(passStr string, cipherText ...string) {
 			os.Exit(1) // nolint gomnd
 		}
 
-		fmt.Fprintf(w, "%d\t%s\t%s\n", i+1, ebp, p)
+		fmt.Fprintf(w, "%d\t%q\t%q\n", i+1, ebp, p)
 	}
 
 	w.Flush()
