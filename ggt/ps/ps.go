@@ -48,6 +48,7 @@ type Cmd struct {
 	Cpu         bool          `short:"u" help:"only cpu"`
 	Open        bool          `short:"o" help:"show open files of process"`
 	Connections bool          `short:"c" help:"show TCP connections of process"`
+	Env         bool          `short:"e" help:"show environment variables of process"`
 }
 
 func Register(rootCmd *root.RootCmd) {
@@ -83,7 +84,7 @@ func (r *Cmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	if r.Pid > 0 {
-		return printProcessInfo(context.TODO(), r.Pid, r.Open, r.Connections)
+		return r.printProcessInfo(context.TODO())
 	}
 
 	if r.Cpu {
@@ -350,7 +351,8 @@ func tickProcess(db *gorm.DB, p *process.Process, includingChildren bool) {
 	db.Save(t)
 }
 
-func printProcessInfo(ctx context.Context, pid int, showOpenFiles, showConnections bool) error {
+func (r *Cmd) printProcessInfo(ctx context.Context) error {
+	pid := r.Pid
 	p, err := ps.FindProcess(pid)
 	if err != nil {
 		return fmt.Errorf("find process %d: %w", pid, err)
@@ -411,20 +413,23 @@ func printProcessInfo(ctx context.Context, pid int, showOpenFiles, showConnectio
 	printf("Name:\t%s", Pick1(p2.Name()))
 	printf("Status:\t%v", Pick1(p2.Status()))
 
-	index := 0
-	envs := Pick1(p2.Environ())
-	width := len(strconv.Itoa(len(envs)))
-	for _, env := range envs {
-		if env != "" {
-			index++
-			printf("Environ:\t#%0*d %v", width, index, env)
+	if r.Env {
+		index := 0
+		envs := Pick1(p2.Environ())
+		width := len(strconv.Itoa(len(envs)))
+		for _, env := range envs {
+			if env != "" {
+				index++
+				printf("Environ:\t#%0*d %v", width, index, env)
+			}
 		}
 	}
+
 	printf("IsRunning:\t%v", Pick1(p2.IsRunning()))
 	printf("MemoryInfo:\t%+v", ToMemoryInfoStat(Pick1(p2.MemoryInfo())))
 	printf("NumFDs:\t%d", Pick1(p2.NumFDs()))
 
-	if showOpenFiles {
+	if r.Open {
 		openFiles, err := p2.OpenFilesWithContext(ctx)
 		if err != nil {
 			printf("OpenFiles: \t%s", err)
@@ -449,10 +454,10 @@ func printProcessInfo(ctx context.Context, pid int, showOpenFiles, showConnectio
 	)
 	printf("Children:\t%v (Total %d)", children, len(children))
 
-	if showConnections {
-		index = 0
+	if r.Connections {
+		index := 0
 		conns := Pick1(p2.Connections())
-		width = len(strconv.Itoa(len(conns)))
+		width := len(strconv.Itoa(len(conns)))
 		for _, c := range conns {
 			if c.Status != "NONE" {
 				index++
