@@ -224,6 +224,12 @@ func SplitSeps(s string, seps string, n int) []string {
 	return v
 }
 
+func PanicErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 // SplitToMap 将字符串 s 分割成 map, 其中 key 和 value 之间的间隔符是 kvSep, kv 和 kv 之间的分隔符是 kkSep
 func SplitToMap(s string, kkSep, kvSep string) map[string]string {
 	var m map[string]string
