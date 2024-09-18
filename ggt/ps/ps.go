@@ -17,7 +17,6 @@ import (
 	"time"
 	"unicode"
 
-	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
