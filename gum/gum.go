@@ -3,6 +3,7 @@ package gum
 import (
 	"github.com/alecthomas/kong"
 	"github.com/bingoohuang/ngg/gum/choose"
+	"github.com/bingoohuang/ngg/gum/confirm"
 	"github.com/bingoohuang/ngg/gum/input"
 )
 
@@ -22,6 +23,13 @@ var kongVars = kong.Vars{
 	"defaultFaint":            "false",
 	"defaultItalic":           "false",
 	"defaultStrikethrough":    "false",
+}
+
+func Confirm(prompt string) (bool, error) {
+	option := &confirm.Options{}
+	kongParse(option, kongVars)
+	option.Prompt = prompt
+	return option.Run()
 }
 
 func Choose(options []string, limit int) ([]string, error) {
