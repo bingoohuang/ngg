@@ -27,7 +27,7 @@ func init() {
 }
 
 type Cmd struct {
-	*root.RootCmd
+	*root.RootCmd `kong:"-"`
 
 	InstanceId string `short:"i" help:"InstanceId."`
 	File       string `short:"f" help:"防火墙规则JSON文件, e.g. firewall-xxx.json"`
@@ -41,16 +41,12 @@ func Register(rootCmd *root.RootCmd) {
 	}
 
 	fc := &Cmd{RootCmd: rootCmd}
-	c.Run = func(cmd *cobra.Command, args []string) {
-		if err := fc.run(args); err != nil {
-			fmt.Println(err)
-		}
-	}
-	root.InitFlags(fc, c.Flags())
+	c.RunE = fc.run
+	ss.PanicErr(root.InitFlags(fc, c.Flags()))
 	rootCmd.AddCommand(c)
 }
 
-func (r *Cmd) run([]string) error {
+func (r *Cmd) run(cmd *cobra.Command, args []string) error {
 	if r.File != "" {
 		return r.modifyRules(r.File)
 	}

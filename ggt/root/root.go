@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"time"
 
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
@@ -38,7 +39,7 @@ func Run() {
 	}
 }
 
-func InitFlags(f any, p *pflag.FlagSet) {
+func InitFlags(f any, p *pflag.FlagSet) error {
 	ptrVal := reflect.ValueOf(f)
 	structVal := ptrVal.Elem()
 	structType := structVal.Type()
@@ -47,7 +48,7 @@ func InitFlags(f any, p *pflag.FlagSet) {
 		field := structType.Field(i)
 		tags, err := ss.ParseStructTags(string(field.Tag))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if kong, _ := tags.Get("kong"); kong != nil && kong.Raw == "-" {
@@ -80,6 +81,20 @@ func InitFlags(f any, p *pflag.FlagSet) {
 			p.VarP(pf, ss.ToSnake(field.Name), short, usage)
 			continue
 		}
+
+		if field.Type == reflect.TypeOf(time.Duration(0)) {
+			var curDefault time.Duration
+			if defaultVal != "" {
+				if val, _, err := ss.ParseDur(defaultVal); err != nil {
+					return fmt.Errorf("parse duration %s: %w", defaultVal, err)
+				} else {
+					curDefault = val
+				}
+			}
+			p.DurationVarP(pp.(*time.Duration), ss.ToSnake(field.Name), short, curDefault, usage)
+			continue
+		}
+
 		switch field.Type.Kind() {
 		case reflect.String:
 			if aware, ok := f.(DefaultPlagValuesAware); ok {
@@ -110,8 +125,14 @@ func InitFlags(f any, p *pflag.FlagSet) {
 				}
 				p.StringSliceVarP(pp.(*[]string), ss.ToSnake(field.Name), short, curDefault, usage)
 			}
+		case reflect.Func:
+			// ignore
+		default:
+			return fmt.Errorf(`unsupported type: %s, use kong:"-" to ignore`, field.Type)
 		}
 	}
+
+	return nil
 }
 
 type DefaultPlagValuesAware interface {

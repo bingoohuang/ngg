@@ -69,12 +69,12 @@ var defaultStunServers = []string{
 }
 
 type Cmd struct {
-	*root.RootCmd
-	Iface   string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
-	Stun    []string `help:"STUN server"`
-	Verbose bool     `short:"v" help:"Verbose output for more details"`
-	V4      bool     `short:"4" help:"only show ipv4"`
-	V6      bool     `short:"6" help:"only show ipv6"`
+	*root.RootCmd `kong:"-"`
+	Iface         string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
+	Stun          []string `help:"STUN server"`
+	Verbose       bool     `short:"v" help:"Verbose output for more details"`
+	V4            bool     `short:"4" help:"only show ipv4"`
+	V6            bool     `short:"6" help:"only show ipv6"`
 }
 
 func (f *Cmd) DefaultPlagValues(name string) (any, bool) {

@@ -14,6 +14,7 @@ import (
 
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/cespare/xxhash/v2"
 	"github.com/emmansun/gmsm/sm3"
 	"github.com/spf13/cobra"
@@ -65,7 +66,7 @@ func init() {
 	Register(root.Cmd, func() hash.Hash { return xxhash.New() }, "xxhash")
 }
 
-func (f *Cmd) run() error {
+func (f *Cmd) run(cmd *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -102,8 +103,9 @@ func (f *Cmd) run() error {
 }
 
 type Cmd struct {
-	*root.RootCmd
-	Hasher func() hash.Hash
+	*root.RootCmd `kong:"-"`
+	Hasher        func() hash.Hash
+
 	Key    string `help:"Hmac Key (enable hmac), or $KEY" env:"KEY"`
 	Input  string `short:"i" help:"Input string, or filename"`
 	Name   string `kong:"-"`
@@ -118,11 +120,7 @@ func Register(rootCmd *root.RootCmd, hasher func() hash.Hash, name string) {
 	}
 
 	fc := &Cmd{RootCmd: rootCmd, Hasher: hasher, Name: name}
-	c.Run = func(cmd *cobra.Command, args []string) {
-		if err := fc.run(); err != nil {
-			fmt.Println(err)
-		}
-	}
-	root.InitFlags(fc, c.Flags())
+	c.RunE = fc.run
+	ss.PanicErr(root.InitFlags(fc, c.Flags()))
 	rootCmd.AddCommand(c)
 }

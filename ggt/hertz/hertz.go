@@ -31,7 +31,7 @@ func init() {
 	Register(root.Cmd)
 }
 
-func (f *Cmd) run(_ []string) error {
+func (f *Cmd) run(cmd *cobra.Command, args []string) error {
 	if f.Procs > 0 {
 		runtime.GOMAXPROCS(f.Procs)
 	}
@@ -138,16 +138,16 @@ func handle(h *server.Hertz, path string, methods []string, body, uploadPath str
 }
 
 type Cmd struct {
-	*root.RootCmd
-	Addr       string      `help:"listening address" default:":12123"`
-	MaxBody    ss.FlagSize `help:"Max request body Size" default:"4M"`
-	Gzip       bool        `help:"gzip"`
-	Methods    []string    `help:"methods" default:"GET"`
-	UploadPath string      `short:"u" help:"Upload path"`
-	Auth       string      `help:"basic auth like user:pass"`
-	Path       []string    `short:"p" help:"path" default:"/"`
-	Body       []string    `short:"b" help:"body"`
-	Procs      int         `short:"t" help:"maximum number of CPUs" default:"runtime.GOMAXPROCS(0)"`
+	*root.RootCmd `kong:"-"`
+	Addr          string      `help:"listening address" default:":12123"`
+	MaxBody       ss.FlagSize `help:"Max request body Size" default:"4M"`
+	Gzip          bool        `help:"gzip"`
+	Methods       []string    `help:"methods" default:"GET"`
+	UploadPath    string      `short:"u" help:"Upload path"`
+	Auth          string      `help:"basic auth like user:pass"`
+	Path          []string    `short:"p" help:"path" default:"/"`
+	Body          []string    `short:"b" help:"body"`
+	Procs         int         `short:"t" help:"maximum number of CPUs" default:"runtime.GOMAXPROCS(0)"`
 }
 
 func Register(rootCmd *root.RootCmd) {
@@ -158,12 +158,8 @@ func Register(rootCmd *root.RootCmd) {
 	}
 
 	fc := &Cmd{RootCmd: rootCmd}
-	c.Run = func(cmd *cobra.Command, args []string) {
-		if err := fc.run(args); err != nil {
-			fmt.Println(err)
-		}
-	}
-	root.InitFlags(fc, c.Flags())
+	c.RunE = fc.run
+	ss.PanicErr(root.InitFlags(fc, c.Flags()))
 	rootCmd.AddCommand(c)
 }
 

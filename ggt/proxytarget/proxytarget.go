@@ -27,7 +27,7 @@ func init() {
 }
 
 type Cmd struct {
-	*root.RootCmd
+	*root.RootCmd `kong:"-"`
 
 	Listen    string `short:"l" help:"Listen address, e.g. :3001"`
 	ProxyAddr string `short:"p" help:"Address of the proxy server to connect to" default:"127.0.0.1:6001"`
@@ -42,12 +42,8 @@ func Register(rootCmd *root.RootCmd) {
 	}
 
 	fc := &Cmd{RootCmd: rootCmd}
-	c.Run = func(cmd *cobra.Command, args []string) {
-		if err := fc.run(args); err != nil {
-			fmt.Println(err)
-		}
-	}
-	root.InitFlags(fc, c.Flags())
+	c.RunE = fc.run
+	ss.PanicErr(root.InitFlags(fc, c.Flags()))
 	rootCmd.AddCommand(c)
 }
 
@@ -63,7 +59,7 @@ type Config struct {
 	Proxies   []TargetConfig
 }
 
-func (f *Cmd) run(args []string) error {
+func (f *Cmd) run(cmd *cobra.Command, args []string) error {
 	// 如果没有指定配置文件，并且没有指定监听地址，则尝试从 ~/.proxytarget.yaml 中读取
 	if f.Config == "" && f.Listen == "" {
 		if y, err := ss.ExpandFilename("~/.proxytarget.yaml"); err == nil && y != "" {
