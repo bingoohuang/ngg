@@ -9,20 +9,19 @@ import (
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func init() {
 	Register(root.Cmd)
 }
 
-func (f *Cmd) run(args []string) error {
-	if !f.v4 && !f.v6 {
-		f.v4 = true
+func (f *Cmd) run([]string) error {
+	if !f.V4 && !f.V6 {
+		f.V4 = true
 	}
 	var ifaceNames []string
-	if f.iface != "" {
-		ifaceNames = append(ifaceNames, f.iface)
+	if f.Iface != "" {
+		ifaceNames = append(ifaceNames, f.Iface)
 	}
 
 	mainIP, ipList := gnet.MainIPv4(ifaceNames...)
@@ -32,27 +31,27 @@ func (f *Cmd) run(args []string) error {
 	log.Printf("Main IP: %s", mainIP)
 	log.Printf("Outbound IP: %v", gnet.OutboundIP())
 
-	if f.v4 {
+	if f.V4 {
 		allIPv4, _ := gnet.ListIPv4(ifaceNames...)
 		log.Printf("IPv4: %v", allIPv4)
 	}
 
-	if f.v6 {
+	if f.V6 {
 		allIPv6, _ := gnet.ListIPv6(ifaceNames...)
 		log.Printf("IPv6: %v", allIPv6)
 	}
 
 	log.Printf("Mac addresses: %v", gnet.GetMac())
 
-	if publicIP, err := StunPublicIP(f.stun); err != nil {
+	if publicIP, err := StunPublicIP(f.Stun); err != nil {
 		log.Printf("stun error: %v", err)
 	} else if len(publicIP) > 0 {
 		log.Printf("Stun IP: %v ✅", publicIP)
 		clipboard.WriteAll(publicIP[0])
 	}
 
-	if f.verbose {
-		ListIfaces(f.v4, f.v6, f.iface)
+	if f.Verbose {
+		ListIfaces(f.V4, f.V6, f.Iface)
 		CheckPublicIP()
 	}
 
@@ -69,20 +68,21 @@ var defaultStunServers = []string{
 	"stun.chat.bilibili.com",
 }
 
-func (f *Cmd) initFlags(p *pflag.FlagSet) {
-	p.BoolVarP(&f.v4, "v4", "4", false, "only show ipv4")
-	p.BoolVarP(&f.v6, "v6", "6", false, "only show ipv6")
-	p.BoolVarP(&f.verbose, "verbose", "v", false, "Verbose output for more details")
-	p.StringVarP(&f.iface, "iface", "i", "", "Interface name pattern specified(eg. eth0, eth*)")
-	p.StringSliceVar(&f.stun, "stun", defaultStunServers, "STUN server")
-}
-
 type Cmd struct {
 	*root.RootCmd
-	iface   string
-	stun    []string
-	verbose bool
-	v4, v6  bool
+	Iface   string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
+	Stun    []string `help:"STUN server"`
+	Verbose bool     `short:"v" help:"Verbose output for more details"`
+	V4      bool     `short:"4" help:"only show ipv4"`
+	V6      bool     `short:"6" help:"only show ipv6"`
+}
+
+func (f *Cmd) DefaultPlagValues(name string) (any, bool) {
+	switch name {
+	case "Stun":
+		return defaultStunServers, true
+	}
+	return nil, false
 }
 
 func Register(rootCmd *root.RootCmd) {
@@ -97,7 +97,7 @@ func Register(rootCmd *root.RootCmd) {
 			fmt.Println(err)
 		}
 	}
-	fc.initFlags(c.Flags())
+	root.InitFlags(fc, c.Flags())
 	rootCmd.AddCommand(c)
 }
 

@@ -25,7 +25,6 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func init() {
@@ -33,8 +32,8 @@ func init() {
 }
 
 func (f *Cmd) run(_ []string) error {
-	if f.goMaxProcs > 0 {
-		runtime.GOMAXPROCS(f.goMaxProcs)
+	if f.Procs > 0 {
+		runtime.GOMAXPROCS(f.Procs)
 	}
 
 	var trace tracer.Tracer = &Trace{}
@@ -46,33 +45,29 @@ func (f *Cmd) run(_ []string) error {
 
 	opts := []config.Option{
 		server.WithTracer(trace),
-		server.WithHostPorts(f.addr),
+		server.WithHostPorts(f.Addr),
 		server.WithStreamBody(true),
 	}
 
-	if f.maxBodySize != "" {
-		maxUploadSize, err := ss.ParseBytes(f.maxBodySize)
-		if err != nil {
-			return err
-		}
-		opts = append(opts, server.WithMaxRequestBodySize(int(maxUploadSize)))
+	if f.MaxBody.Val > 0 {
+		opts = append(opts, server.WithMaxRequestBodySize(int(f.MaxBody.Val)))
 	}
 
 	h := server.New(opts...)
 	h.Use(recovery.Recovery())
-	if f.gzip {
+	if f.Gzip {
 		h.Use(gzip.Gzip(gzip.DefaultCompression))
 	}
-	if f.basicAuth != "" {
-		user, pass := ss.Split2(f.basicAuth, ":")
+	if f.Auth != "" {
+		user, pass := ss.Split2(f.Auth, ":")
 		h.Use(basic_auth.BasicAuth(map[string]string{user: pass}))
 	}
 
 	count := 0
-	for i, path := range f.path {
-		if len(f.body) > i {
-			body := f.body[i]
-			if err := handle(h, path, f.methods, body, f.uploadPath); err != nil {
+	for i, path := range f.Path {
+		if len(f.Body) > i {
+			body := f.Body[i]
+			if err := handle(h, path, f.Methods, body, f.UploadPath); err != nil {
 				return err
 			}
 			count++
@@ -142,29 +137,17 @@ func handle(h *server.Hertz, path string, methods []string, body, uploadPath str
 	return nil
 }
 
-func (f *Cmd) initFlags(p *pflag.FlagSet) {
-	p.StringVarP(&f.addr, "addr", "", ":12123", "listening address")
-	p.StringVarP(&f.maxBodySize, "maxBodySize", "", "4M", "Max request body Size")
-	p.BoolVarP(&f.gzip, "gzip", "", false, "gzip")
-	p.StringArrayVarP(&f.methods, "methods", "m", []string{http.MethodGet}, "path")
-	p.StringVarP(&f.uploadPath, "uploadPath", "u", "", "Upload path")
-	p.StringVarP(&f.basicAuth, "auth", "a", "", "basic auth like user:pass")
-	p.StringArrayVarP(&f.path, "path", "p", []string{"/"}, "path")
-	p.StringArrayVarP(&f.body, "body", "b", nil, "body")
-	p.IntVarP(&f.goMaxProcs, "procs", "t", runtime.GOMAXPROCS(0), "maximum number of CPUs")
-}
-
 type Cmd struct {
 	*root.RootCmd
-	addr        string
-	uploadPath  string
-	basicAuth   string
-	methods     []string
-	path        []string
-	body        []string
-	maxBodySize string
-	gzip        bool
-	goMaxProcs  int
+	Addr       string      `help:"listening address" default:":12123"`
+	MaxBody    ss.FlagSize `help:"Max request body Size" default:"4M"`
+	Gzip       bool        `help:"gzip"`
+	Methods    []string    `help:"methods" default:"GET"`
+	UploadPath string      `short:"u" help:"Upload path"`
+	Auth       string      `help:"basic auth like user:pass"`
+	Path       []string    `short:"p" help:"path" default:"/"`
+	Body       []string    `short:"b" help:"body"`
+	Procs      int         `short:"t" help:"maximum number of CPUs" default:"runtime.GOMAXPROCS(0)"`
 }
 
 func Register(rootCmd *root.RootCmd) {
@@ -180,7 +163,7 @@ func Register(rootCmd *root.RootCmd) {
 			fmt.Println(err)
 		}
 	}
-	fc.initFlags(c.Flags())
+	root.InitFlags(fc, c.Flags())
 	rootCmd.AddCommand(c)
 }
 

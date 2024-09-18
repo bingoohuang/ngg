@@ -20,27 +20,19 @@ import (
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/yaml"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func init() {
 	Register(root.Cmd)
 }
 
-func (f *Cmd) initFlags(p *pflag.FlagSet) {
-	p.StringVarP(&f.listen, "listen", "l", "", "Listen address, e.g. :3001")
-	p.StringVarP(&f.proxyAddr, "proxy", "p", "127.0.0.1:6001", "Address of the proxy server to connect to")
-	p.StringVarP(&f.targetAddr, "target", "t", "", "Target address to send to the proxy server")
-	p.StringVarP(&f.yamlConfigFile, "config", "c", "", "YAML config file")
-}
-
 type Cmd struct {
 	*root.RootCmd
 
-	listen         string
-	proxyAddr      string
-	targetAddr     string
-	yamlConfigFile string
+	Listen    string `short:"l" help:"Listen address, e.g. :3001"`
+	ProxyAddr string `short:"p" help:"Address of the proxy server to connect to" default:"127.0.0.1:6001"`
+	Target    string `short:"t" help:"Target address to send to the proxy server"`
+	Config    string `short:"c" help:"YAML config file"`
 }
 
 func Register(rootCmd *root.RootCmd) {
@@ -55,7 +47,7 @@ func Register(rootCmd *root.RootCmd) {
 			fmt.Println(err)
 		}
 	}
-	fc.initFlags(c.Flags())
+	root.InitFlags(fc, c.Flags())
 	rootCmd.AddCommand(c)
 }
 
@@ -73,14 +65,14 @@ type Config struct {
 
 func (f *Cmd) run(args []string) error {
 	// 如果没有指定配置文件，并且没有指定监听地址，则尝试从 ~/.proxytarget.yaml 中读取
-	if f.yamlConfigFile == "" && f.listen == "" {
+	if f.Config == "" && f.Listen == "" {
 		if y, err := ss.ExpandFilename("~/.proxytarget.yaml"); err == nil && y != "" {
-			f.yamlConfigFile = y
+			f.Config = y
 		}
 	}
 
-	if f.yamlConfigFile != "" {
-		yamlFile, err := ss.ExpandFilename(f.yamlConfigFile)
+	if f.Config != "" {
+		yamlFile, err := ss.ExpandFilename(f.Config)
 		if err != nil {
 			return fmt.Errorf("expand yaml config file: %w", err)
 		}
@@ -117,9 +109,9 @@ func (f *Cmd) run(args []string) error {
 	}
 
 	t := &TargetConfig{
-		Listen:     f.listen,
-		ProxyAddr:  f.proxyAddr,
-		TargetAddr: f.targetAddr,
+		Listen:     f.Listen,
+		ProxyAddr:  f.ProxyAddr,
+		TargetAddr: f.Target,
 	}
 	if err := t.Serve(); err != nil {
 		log.Printf("Error serving proxy: %v", err)

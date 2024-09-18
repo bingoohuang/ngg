@@ -9,18 +9,15 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"hash"
+	"io"
 
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/cespare/xxhash/v2"
 	"github.com/emmansun/gmsm/sm3"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/zeebo/blake3"
-
-	"hash"
-	"io"
-	"os"
 )
 
 /*
@@ -69,15 +66,15 @@ func init() {
 }
 
 func (f *Cmd) run() error {
-	r, err := gterm.Option{Random: true}.Open(f.input)
+	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
 	defer r.Close()
 
 	h := f.Hasher()
-	if f.hmacKey != "" {
-		h = hmac.New(f.Hasher, []byte(f.hmacKey))
+	if f.Key != "" {
+		h = hmac.New(f.Hasher, []byte(f.Key))
 	}
 	if _, err := io.Copy(h, r); err != nil {
 		return fmt.Errorf("copy: %w", err)
@@ -85,40 +82,33 @@ func (f *Cmd) run() error {
 
 	out := h.Sum(nil)
 
-	if f.port {
+	if f.Port {
 		port := binary.BigEndian.Uint16(out[:2])
 		fmt.Printf("Port: %d\n", port)
 	}
 
 	var s string
-	if f.base64 {
+	if f.Base64 {
 		s = base64.StdEncoding.EncodeToString(out)
 	} else {
 		s = fmt.Sprintf("%x", out)
 	}
 
-	if f.hmacKey != "" {
+	if f.Key != "" {
 		fmt.Printf("hmac-")
 	}
 	fmt.Printf("%s %s => %s len:%d\n", f.Name, r.SourceTitle, s, len(s))
 	return nil
 }
 
-func (f *Cmd) initFlags(p *pflag.FlagSet) {
-	p.StringVarP(&f.hmacKey, "key", "k", os.Getenv("KEY"), "Hmac Key (enable hmac), or $KEY")
-	p.StringVarP(&f.input, "input", "i", "", "Input string, or filename")
-	p.BoolVarP(&f.base64, "base64", "b", false, "Base64 encode the output")
-	p.BoolVarP(&f.port, "port", "p", false, "First 2 byte as port number")
-}
-
 type Cmd struct {
 	*root.RootCmd
-	Hasher  func() hash.Hash
-	hmacKey string
-	input   string
-	Name    string
-	base64  bool
-	port    bool
+	Hasher func() hash.Hash
+	Key    string `help:"Hmac Key (enable hmac), or $KEY" env:"KEY"`
+	Input  string `short:"i" help:"Input string, or filename"`
+	Name   string `kong:"-"`
+	Base64 bool   `short:"b" help:"Base64 encode the output"`
+	Port   bool   `short:"p" help:"First 2 byte as port number"`
 }
 
 func Register(rootCmd *root.RootCmd, hasher func() hash.Hash, name string) {
@@ -133,6 +123,6 @@ func Register(rootCmd *root.RootCmd, hasher func() hash.Hash, name string) {
 			fmt.Println(err)
 		}
 	}
-	fc.initFlags(c.Flags())
+	root.InitFlags(fc, c.Flags())
 	rootCmd.AddCommand(c)
 }

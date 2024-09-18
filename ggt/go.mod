@@ -4,23 +4,27 @@ go 1.22.0
 
 require (
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/gum v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/jj v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/ss v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/ver v0.0.0-20240913025408-d6ad25d38d1c
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240913025408-d6ad25d38d1c
+	github.com/bingoohuang/ngg/cmd v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/gum v0.0.0-20240918053914-d499e1d521c8
+	github.com/bingoohuang/ngg/jj v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/ss v0.0.0-20240918053914-d499e1d521c8
+	github.com/bingoohuang/ngg/ver v0.0.0-20240914023713-5cf07fd6f6b8
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240914023713-5cf07fd6f6b8
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cloudwego/hertz v0.9.3
 	github.com/emmansun/gmsm v0.28.0
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/imroc/req/v3 v3.46.0
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pion/stun/v2 v2.0.0
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1004
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse v1.0.1004
 	github.com/zeebo/blake3 v0.2.4
 )
 
@@ -31,9 +35,9 @@ require (
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240913025408-d6ad25d38d1c // indirect
-	github.com/bingoohuang/ngg/tick v0.0.0-20240913025408-d6ad25d38d1c // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240913025408-d6ad25d38d1c // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240914023713-5cf07fd6f6b8 // indirect
+	github.com/bingoohuang/ngg/tick v0.0.0-20240914023713-5cf07fd6f6b8 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240914023713-5cf07fd6f6b8 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
@@ -45,8 +49,8 @@ require (
 	github.com/charmbracelet/gum v0.14.5 // indirect
 	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.13.0 // indirect
-	github.com/charmbracelet/x/ansi v0.3.1 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20240913162256-9ef7ff40e654 // indirect
+	github.com/charmbracelet/x/ansi v0.3.2 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240917172024-5e16699ed905 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -74,7 +78,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
