@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bingoohuang/ngg/goup/shapeio"
+	"github.com/bingoohuang/ngg/ggt/goup/shapeio"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/cespare/xxhash/v2"
 	"go.uber.org/multierr"

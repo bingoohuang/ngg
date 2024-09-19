@@ -35,12 +35,16 @@ import (
 )
 
 func init() {
-	Register(root.Cmd)
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:   "ps",
+		Short: "process info",
+		RunE:  fc.run,
+	}
+	root.AddCommand(c, fc)
 }
 
-type Cmd struct {
-	*root.RootCmd `kong:"-"`
-
+type subCmd struct {
 	Pid         int           `short:"p" help:"pid"`
 	Watch       time.Duration `short:"w" help:"watch interval"`
 	Children    bool          `short:"C" help:"including children processes"`
@@ -51,19 +55,7 @@ type Cmd struct {
 	Env         bool          `short:"e" help:"show environment variables of process"`
 }
 
-func Register(rootCmd *root.RootCmd) {
-	c := &cobra.Command{
-		Use:   "ps",
-		Short: "process info",
-	}
-
-	fc := &Cmd{RootCmd: rootCmd}
-	c.RunE = fc.run
-	ss.PanicErr(root.InitFlags(fc, c.Flags()))
-	rootCmd.AddCommand(c)
-}
-
-func (r *Cmd) run(cmd *cobra.Command, args []string) error {
+func (r *subCmd) run(cmd *cobra.Command, args []string) error {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
@@ -351,7 +343,7 @@ func tickProcess(db *gorm.DB, p *process.Process, includingChildren bool) {
 	db.Save(t)
 }
 
-func (r *Cmd) printProcessInfo(ctx context.Context) error {
+func (r *subCmd) printProcessInfo(ctx context.Context) error {
 	pid := r.Pid
 	p, err := ps.FindProcess(pid)
 	if err != nil {

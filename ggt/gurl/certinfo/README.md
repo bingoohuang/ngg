@@ -13,7 +13,7 @@ go get github.com/grantae/certinfo
 ### Print a certificate from a website
 
 ``` go
-package main
+package gurl
 
 import (
   "crypto/tls"
@@ -45,7 +45,7 @@ func main() {
 ### Print a PEM-encoded certificate from a file
 
 ``` go
-package main
+package gurl
 
 import (
   "crypto/x509"

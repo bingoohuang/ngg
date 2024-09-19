@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/goup/shapeio"
+	"github.com/bingoohuang/ngg/ggt/goup/shapeio"
 	"github.com/dustin/go-humanize"
 )
 

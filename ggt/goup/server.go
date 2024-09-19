@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bingoohuang/ngg/goup/codec"
-	"github.com/bingoohuang/ngg/goup/shapeio"
+	"github.com/bingoohuang/ngg/ggt/goup/codec"
+	"github.com/bingoohuang/ngg/ggt/goup/shapeio"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/minio/sio"
 	"github.com/schollz/pake/v3"
@@ -68,14 +68,14 @@ func ServerHandle(code, cipher string, chunkSize, limitRate uint64, paths []stri
 
 		switch {
 		case h.Filename != "" && r.Method == http.MethodPost:
-			// 明文上传（文件作为 Body)
+			log.Printf("明文上传（文件作为 Body) %s", h.Filename)
 			return serveBodyAsFile(r.Body, h.Filename)
 		case h.Session != "" && h.Curve != "" && r.Method == http.MethodPost:
-			// PAKE 生成会话秘钥
+			log.Printf("PAKE 生成会话秘钥 %s", h.Session)
 			return servePake(w, h.Session, code, h.Curve)
 		case h.Session != "" && r.URL.Path == "/" && h.Range != "" && ss.AnyOf(r.Method, http.MethodPost, http.MethodGet):
 			// 校验分块 checksum，返回 304 或 其它
-			// 分块加密上传（加密分块作为 Body)
+			log.Printf("分块加密上传（加密分块作为 Body) %s", h.Range)
 			return serveUpload(w, r, h.Range, h.Session, cipher, h.Checksum, h.Salt)
 		case r.URL.Path == "/" && r.Method == http.MethodGet:
 			// HTML JS 上传页面 / 服务端文件列表（Accept: application/json 时）
@@ -86,13 +86,18 @@ func ServerHandle(code, cipher string, chunkSize, limitRate uint64, paths []stri
 			_, err := w.Write(indexPage)
 			return err
 		case r.URL.Path != "/" && (r.Method == http.MethodGet || r.Method == http.MethodHead): // may be downloads
-			// 明文下载
+			log.Printf("明文下载 %s", r.URL.Path)
 			if status := serveDownload(w, r, h.Session, cipher, h.Range, h.Checksum, chunkSize, paths); status > 0 {
 				w.WriteHeader(status)
 			}
 		case r.Method == http.MethodPost:
-			// 明文上传（multipart-form)
-			return NetHTTPUpload(w, r, RootDir, chunkSize)
+			log.Printf("明文上传（multipart-form)")
+			r, err := NetHTTPUpload(w, r, RootDir, chunkSize)
+			if err != nil {
+				return err
+			} else {
+				return WriteJSON(w, r)
+			}
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -155,9 +160,9 @@ func getSessionKey(sessionID string) []byte {
 }
 
 func servePake(w http.ResponseWriter, sessionID, code, contentCurve string) error {
-	a, err := ss.Base64().Decode(contentCurve)
-	if err != nil {
-		return fmt.Errorf("base64 decode error: %w", err)
+	a := ss.Base64().Decode(contentCurve)
+	if a.V2 != nil {
+		return fmt.Errorf("base64 decode error: %w", a.V2)
 	}
 
 	b, err := pake.InitCurve([]byte(code), 1, "siec")
@@ -165,7 +170,7 @@ func servePake(w http.ResponseWriter, sessionID, code, contentCurve string) erro
 		return fmt.Errorf("init curve error: %w", err)
 	}
 
-	if err := b.Update(a.Bytes()); err != nil {
+	if err := b.Update(a.V1.Bytes()); err != nil {
 		return fmt.Errorf("update b error: %w", err)
 	}
 
@@ -374,13 +379,13 @@ func serveUpload(w http.ResponseWriter, r *http.Request, contentRange, sessionID
 		return nil
 	}
 
-	salt, err := ss.Base64().Decode(headerSalt)
-	if err != nil {
-		return err
+	salt := ss.Base64().Decode(headerSalt)
+	if salt.V2 != nil {
+		return salt.V2
 	}
-	key, _, err := codec.Scrypt(getSessionKey(sessionID), salt.Bytes())
+	key, _, err := codec.Scrypt(getSessionKey(sessionID), salt.V1.Bytes())
 	if err != nil {
-		return err
+		return fmt.Errorf("scrypt error: %w", err)
 	}
 
 	f, err := openChunk(fullPath, cr)

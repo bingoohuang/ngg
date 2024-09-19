@@ -23,28 +23,21 @@ import (
 )
 
 func init() {
-	Register(root.Cmd)
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:   "proxytarget",
+		Short: "a proxy to frp with target specified",
+		RunE:  fc.run,
+	}
+
+	root.AddCommand(c, fc)
 }
 
-type Cmd struct {
-	*root.RootCmd `kong:"-"`
-
+type subCmd struct {
 	Listen    string `short:"l" help:"Listen address, e.g. :3001"`
 	ProxyAddr string `short:"p" help:"Address of the proxy server to connect to" default:"127.0.0.1:6001"`
 	Target    string `short:"t" help:"Target address to send to the proxy server"`
 	Config    string `short:"c" help:"YAML config file"`
-}
-
-func Register(rootCmd *root.RootCmd) {
-	c := &cobra.Command{
-		Use:   "proxytarget",
-		Short: "a proxy to frp with target specified",
-	}
-
-	fc := &Cmd{RootCmd: rootCmd}
-	c.RunE = fc.run
-	ss.PanicErr(root.InitFlags(fc, c.Flags()))
-	rootCmd.AddCommand(c)
 }
 
 type TargetConfig struct {
@@ -59,7 +52,7 @@ type Config struct {
 	Proxies   []TargetConfig
 }
 
-func (f *Cmd) run(cmd *cobra.Command, args []string) error {
+func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 	// 如果没有指定配置文件，并且没有指定监听地址，则尝试从 ~/.proxytarget.yaml 中读取
 	if f.Config == "" && f.Listen == "" {
 		if y, err := ss.ExpandFilename("~/.proxytarget.yaml"); err == nil && y != "" {

@@ -31,22 +31,22 @@ func WriteJSON(w http.ResponseWriter, v interface{}) error {
 
 // UploadResult is the structure of download result.
 type UploadResult struct {
-	Files         []string
-	FileSizes     []string
-	TotalSize     string
-	Cost          string
-	Start         string
-	End           string
-	MaxTempMemory string
-	LimitSize     string
+	Files         []string `json:"files,omitempty"`
+	FileSizes     []string `json:"fileSizes,omitempty"`
+	TotalSize     string   `json:"totalSize,omitempty"`
+	Cost          string   `json:"cost,omitempty"`
+	Start         string   `json:"start,omitempty"`
+	End           string   `json:"end,omitempty"`
+	MaxTempMemory string   `json:"maxTempMemory,omitempty"`
+	LimitSize     string   `json:"limitSize,omitempty"`
 }
 
 // NetHTTPUpload upload
-func NetHTTPUpload(w http.ResponseWriter, r *http.Request, rootDir string, limitSize uint64) error {
+func NetHTTPUpload(w http.ResponseWriter, r *http.Request, rootDir string, limitSize uint64) (*UploadResult, error) {
 	start := time.Now()
 	maxMemory := 16 /*16 MiB */ << 20
 	if err := r.ParseMultipartForm(int64(maxMemory)); err != nil {
-		return err
+		return nil, err
 	}
 
 	totalSize := int64(0)
@@ -58,7 +58,7 @@ func NetHTTPUpload(w http.ResponseWriter, r *http.Request, rootDir string, limit
 		index++
 		file, n, err := saveFormFile(v[0], rootDir, r.URL.Path, index, fileCount)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		totalSize += n
 		files = append(files, file)
@@ -67,7 +67,7 @@ func NetHTTPUpload(w http.ResponseWriter, r *http.Request, rootDir string, limit
 	}
 
 	end := time.Now()
-	return WriteJSON(w, UploadResult{
+	return &UploadResult{
 		Start:         start.UTC().Format(http.TimeFormat),
 		End:           end.UTC().Format(http.TimeFormat),
 		Files:         files,
@@ -76,7 +76,7 @@ func NetHTTPUpload(w http.ResponseWriter, r *http.Request, rootDir string, limit
 		LimitSize:     ss.Bytes(limitSize),
 		TotalSize:     ss.Bytes(uint64(totalSize)),
 		Cost:          end.Sub(start).String(),
-	})
+	}, nil
 }
 
 // ParseFormFile returns the first file for the provided form key.

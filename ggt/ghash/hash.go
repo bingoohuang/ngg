@@ -14,7 +14,6 @@ import (
 
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
-	"github.com/bingoohuang/ngg/ss"
 	"github.com/cespare/xxhash/v2"
 	"github.com/emmansun/gmsm/sm3"
 	"github.com/spf13/cobra"
@@ -54,19 +53,29 @@ func init() {
 	// crypto.BLAKE2b_384, // import golang.org/x/crypto/blake2b
 	// crypto.BLAKE2b_512, // import golang.org/x/crypto/blake2b
 
-	// Register(root.Cmd, ripemd160.New, "ripemd160") // 160bit，20字节
+	// register(ripemd160.New, "ripemd160") // 160bit，20字节
 	// SHA-256算法输⼊报⽂的最⼤⻓度不超过2^64 bit，输⼊按512bit分组进⾏处理，产⽣的输出是⼀个256bit的报⽂摘要。
-	Register(root.Cmd, sha256.New, "sha256") // 256bit，32字节
-	Register(root.Cmd, sha512.New, "sha512") // 512bit，64字节
-	Register(root.Cmd, sha1.New, "sha1")     // 160bit，20字节
-	Register(root.Cmd, md5.New, "md5")       // 128bit，16字节
-	Register(root.Cmd, sm3.New, "sm3")       // 128bit，16字节
+	register(sha256.New, "sha256") // 256bit，32字节
+	register(sha512.New, "sha512") // 512bit，64字节
+	register(sha1.New, "sha1")     // 160bit，20字节
+	register(md5.New, "md5")       // 128bit，16字节
+	register(sm3.New, "sm3")       // 128bit，16字节
 
-	Register(root.Cmd, func() hash.Hash { return blake3.New() }, "blake3")
-	Register(root.Cmd, func() hash.Hash { return xxhash.New() }, "xxhash")
+	register(func() hash.Hash { return blake3.New() }, "blake3")
+	register(func() hash.Hash { return xxhash.New() }, "xxhash")
 }
 
-func (f *Cmd) run(cmd *cobra.Command, args []string) error {
+func register(hasher func() hash.Hash, name string) {
+	fc := &subCmd{Hasher: hasher, name: name}
+	c := &cobra.Command{
+		Use:   name,
+		Short: name + " file or input string",
+		RunE:  fc.run,
+	}
+	root.AddCommand(c, fc)
+}
+
+func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -98,29 +107,16 @@ func (f *Cmd) run(cmd *cobra.Command, args []string) error {
 	if f.Key != "" {
 		fmt.Printf("hmac-")
 	}
-	fmt.Printf("%s %s => %s len:%d\n", f.Name, r.SourceTitle, s, len(s))
+	fmt.Printf("%s %s => %s len:%d\n", f.name, r.SourceTitle, s, len(s))
 	return nil
 }
 
-type Cmd struct {
-	*root.RootCmd `kong:"-"`
-	Hasher        func() hash.Hash
+type subCmd struct {
+	Hasher func() hash.Hash
 
 	Key    string `help:"Hmac Key (enable hmac), or $KEY" env:"KEY"`
 	Input  string `short:"i" help:"Input string, or filename"`
-	Name   string `kong:"-"`
-	Base64 bool   `short:"b" help:"Base64 encode the output"`
-	Port   bool   `short:"p" help:"First 2 byte as port number"`
-}
-
-func Register(rootCmd *root.RootCmd, hasher func() hash.Hash, name string) {
-	c := &cobra.Command{
-		Use:   name,
-		Short: name + " file or input string",
-	}
-
-	fc := &Cmd{RootCmd: rootCmd, Hasher: hasher, Name: name}
-	c.RunE = fc.run
-	ss.PanicErr(root.InitFlags(fc, c.Flags()))
-	rootCmd.AddCommand(c)
+	name   string
+	Base64 bool `short:"b" help:"Base64 encode the output"`
+	Port   bool `short:"p" help:"First 2 byte as port number"`
 }

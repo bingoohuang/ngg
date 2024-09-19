@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	"net"
@@ -22,11 +22,6 @@ func filter(args []string) []string {
 	fixURI := gnet.FixURI{DefaultScheme: defaultSchema}
 
 	for _, arg := range args {
-		if arg == "version" {
-			version = true
-			continue
-		}
-
 		if ss.HasPrefix(arg, "http://", "https://") {
 			urls = append(urls, arg)
 			continue

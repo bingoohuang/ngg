@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	"context"
@@ -26,38 +26,41 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bingoohuang/ngg/ggt/goup"
+	"github.com/bingoohuang/ngg/ggt/gurl/certinfo"
+	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gnet"
-	"github.com/bingoohuang/ngg/goup"
-	"github.com/bingoohuang/ngg/gurl/certinfo"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/bingoohuang/ngg/ver"
 	"github.com/emmansun/gmsm/sm3"
-	_ "github.com/joho/godotenv/autoload"
-	"github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 	"github.com/zeebo/blake3"
 )
 
+func init() {
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:  "gurl",
+		Long: "curl in golang",
+		RunE: fc.run,
+	}
+	initFlags(c.Flags())
+	c.SetHelpFunc(func(command *cobra.Command, i []string) {
+		out := command.OutOrStdout()
+		_, _ = out.Write([]byte(help))
+	})
+	root.AddCommand(c, fc)
+}
+
+type subCmd struct{}
+
 const DryRequestURL = `http://dry.run.url`
 
-func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
-	pflag.Usage = usage
-
-	if err := pflag.CommandLine.Parse(os.Args[1:]); err != nil {
-		log.Fatalf("failed to parse args, %v", err)
-	}
-
-	nonFlagArgs := filter(pflag.Args())
-
-	if version {
-		fmt.Println(ver.Version())
-		os.Exit(2)
-	}
-
+func (f *subCmd) run(cmd *cobra.Command, args []string) error {
+	nonFlagArgs := filter(args)
 	if err := createDemoEnvFile(); err != nil {
 		if errors.Is(err, io.EOF) {
-			return
+			return nil
 		}
 
 		log.Fatalf("create demo env file: %v", err)
@@ -94,6 +97,8 @@ func main() {
 	if HasPrintOption(printVerbose) {
 		log.Printf("complete, total cost: %s", time.Since(start))
 	}
+
+	return nil
 }
 
 func parseStdin() io.Reader {
@@ -147,10 +152,10 @@ func run(totalUrls int, urlAddr string, nonFlagArgs []string, reader io.Reader) 
 
 	if auth != "" {
 		// check if it is already set by base64 encoded
-		if c, err := ss.Base64().Decode(auth); err != nil {
-			auth = ss.Pick1(ss.Base64().Encode(auth)).String()
+		if c := ss.Base64().Decode(auth); c.V2 != nil {
+			auth = ss.Base64().Encode(auth).V1.String()
 		} else {
-			auth = ss.Pick1(ss.Base64().Encode(c.String())).String()
+			auth = ss.Base64().Encode(c.V1.String()).V1.String()
 		}
 
 		req.Req.Header.Set("Authorization", "Basic "+auth)

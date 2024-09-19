@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bingoohuang/ngg/ggt/goup/codec"
+	"github.com/bingoohuang/ngg/ggt/goup/shapeio"
 	"github.com/bingoohuang/ngg/gnet"
-	"github.com/bingoohuang/ngg/goup/codec"
-	"github.com/bingoohuang/ngg/goup/shapeio"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/minio/sio"
 	"github.com/schollz/pake/v3"
@@ -297,9 +297,9 @@ func (c *Client) downloadChunk(i uint64) error {
 	}
 
 	h := ParseHeader(q.Header.Get("Content-Gulp"))
-	salt, err := ss.Base64().Decode(h.Salt)
-	if err != nil {
-		return err
+	salt := ss.Base64().Decode(h.Salt)
+	if salt.V2 != nil {
+		return salt.V2
 	}
 
 	if q.Body == nil {
@@ -310,7 +310,7 @@ func (c *Client) downloadChunk(i uint64) error {
 		q.Body = shapeio.NewReader(q.Body, shapeio.WithRateLimit(float64(c.LimitRate)))
 	}
 
-	key, _, err := codec.Scrypt(c.sessionKey, salt.Bytes())
+	key, _, err := codec.Scrypt(c.sessionKey, salt.V1.Bytes())
 	if err != nil {
 		return err
 	}
@@ -457,10 +457,11 @@ func (c *Client) setupSessionKey() error {
 	}
 
 	h := ParseHeader(q.Header.Get("Content-Gulp"))
-	b, err := ss.Base64().Decode(h.Curve)
-	if err != nil {
-		return fmt.Errorf("base64 decode error: %w", err)
-	} else if err := a.Update(b.Bytes()); err != nil {
+	b := ss.Base64().Decode(h.Curve)
+	if b.V2 != nil {
+		return b.V2
+	}
+	if err := a.Update(b.V1.Bytes()); err != nil {
 		return fmt.Errorf("update b error: %w", err)
 	}
 

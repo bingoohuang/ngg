@@ -13,39 +13,40 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type RootCmd struct {
-	*cobra.Command
+func AddCommand(c *cobra.Command, fc any) {
+	ss.PanicErr(initFlags(fc, c.Flags()))
+	cmd.AddCommand(c)
 }
 
-func create() *RootCmd {
-	// rootCmd represents the base command when called without any subcommands
-	rootCmd := &cobra.Command{
+var cmd = func() *cobra.Command {
+	r := &cobra.Command{
 		Use:   "ggt",
-		Short: "golang tools",
+		Short: "golang toolset",
 	}
 
-	rootCmd.Version = "version"
-	rootCmd.SetVersionTemplate(ver.Version() + "\n")
+	r.Version = "version"
+	r.SetVersionTemplate(ver.Version() + "\n")
 
-	r := &RootCmd{Command: rootCmd}
 	return r
-}
-
-var Cmd = create()
+}()
 
 func Run() {
-	if err := Cmd.Execute(); err != nil {
+	if err := cmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 	}
 }
 
-func InitFlags(f any, p *pflag.FlagSet) error {
+func initFlags(f any, p *pflag.FlagSet) error {
 	ptrVal := reflect.ValueOf(f)
 	structVal := ptrVal.Elem()
 	structType := structVal.Type()
 
 	for i := 0; i < structVal.NumField(); i++ {
 		field := structType.Field(i)
+		if !field.IsExported() {
+			continue
+		}
+
 		tags, err := ss.ParseStructTags(string(field.Tag))
 		if err != nil {
 			return err
@@ -55,17 +56,22 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 			continue
 		}
 
+		name := ss.ToSnake(field.Name)
+		if v, _ := tags.Get("flag"); v != nil {
+			name = v.Raw
+		}
+
 		short := ""
-		if shortTag, _ := tags.Get("short"); shortTag != nil {
-			short = shortTag.Raw
+		if v, _ := tags.Get("short"); v != nil {
+			short = v.Raw
 		}
 		usage := ""
-		if usageTag, _ := tags.Get("help"); usageTag != nil {
-			usage = usageTag.Raw
+		if v, _ := tags.Get("help"); v != nil {
+			usage = v.Raw
 		}
 		defaultVal := ""
-		if defaultTag, _ := tags.Get("default"); defaultTag != nil {
-			defaultVal = defaultTag.Raw
+		if v, _ := tags.Get("default"); v != nil {
+			defaultVal = v.Raw
 		}
 		if defaultVal == "" {
 			if t, _ := tags.Get("env"); t != nil {
@@ -78,7 +84,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 			if defaultVal != "" {
 				pf.Set(defaultVal)
 			}
-			p.VarP(pf, ss.ToSnake(field.Name), short, usage)
+			p.VarP(pf, name, short, usage)
 			continue
 		}
 
@@ -91,7 +97,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 					curDefault = val
 				}
 			}
-			p.DurationVarP(pp.(*time.Duration), ss.ToSnake(field.Name), short, curDefault, usage)
+			p.DurationVarP(pp.(*time.Duration), name, short, curDefault, usage)
 			continue
 		}
 
@@ -102,17 +108,25 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 					defaultVal = val.(string)
 				}
 			}
-			p.StringVarP(pp.(*string), ss.ToSnake(field.Name), short, defaultVal, usage)
+			p.StringVarP(pp.(*string), name, short, defaultVal, usage)
 		case reflect.Bool:
-			p.BoolVarP(pp.(*bool), ss.ToSnake(field.Name), short, false, usage)
+			p.BoolVarP(pp.(*bool), name, short, false, usage)
 		case reflect.Int:
 			curDefault := 0
-			switch defaultVal {
-			case "runtime.GOMAXPROCS(0)":
-				curDefault = runtime.GOMAXPROCS(0)
+			if defaultVal != "" {
+				switch defaultVal {
+				case "runtime.GOMAXPROCS(0)":
+					curDefault = runtime.GOMAXPROCS(0)
+				default:
+					intVal, err := ss.Parse[int](defaultVal)
+					if err != nil {
+						return fmt.Errorf("parse int %s: %w", defaultVal, err)
+					}
+					curDefault = intVal
+				}
 			}
 
-			p.IntVarP(pp.(*int), ss.ToSnake(field.Name), short, curDefault, usage)
+			p.IntVarP(pp.(*int), name, short, curDefault, usage)
 		case reflect.Slice:
 			elemType := field.Type.Elem()
 			switch elemType.Kind() {
@@ -123,7 +137,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 						curDefault = val.([]string)
 					}
 				}
-				p.StringArrayVarP(pp.(*[]string), ss.ToSnake(field.Name), short, curDefault, usage)
+				p.StringArrayVarP(pp.(*[]string), name, short, curDefault, usage)
 			}
 		case reflect.Func:
 			// ignore

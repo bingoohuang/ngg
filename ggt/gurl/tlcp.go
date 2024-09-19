@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"gitee.com/Trisia/gotlcp/tlcp"
-	"github.com/bingoohuang/ngg/gurl/certinfo"
+	"github.com/bingoohuang/ngg/ggt/gurl/certinfo"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/emmansun/gmsm/smx509"
 )

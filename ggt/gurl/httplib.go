@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	"bufio"
@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"gitee.com/Trisia/gotlcp/tlcp"
-	"github.com/bingoohuang/ngg/goup/shapeio"
+	"github.com/bingoohuang/ngg/ggt/goup/shapeio"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 )

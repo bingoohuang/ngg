@@ -23,37 +23,29 @@ import (
 )
 
 func init() {
-	Register(root.Cmd)
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:   "tecentcloud",
+		Short: "tecentcloud firewall",
+		RunE:  fc.run,
+	}
+
+	root.AddCommand(c, fc)
 }
 
-type Cmd struct {
-	*root.RootCmd `kong:"-"`
-
+type subCmd struct {
 	InstanceId string `short:"i" help:"InstanceId."`
 	File       string `short:"f" help:"防火墙规则JSON文件, e.g. firewall-xxx.json"`
 }
 
-func Register(rootCmd *root.RootCmd) {
-	c := &cobra.Command{
-		Use:     "tecentcloud",
-		Aliases: []string{"tc"},
-		Short:   "tecentcloud firewall",
-	}
-
-	fc := &Cmd{RootCmd: rootCmd}
-	c.RunE = fc.run
-	ss.PanicErr(root.InitFlags(fc, c.Flags()))
-	rootCmd.AddCommand(c)
-}
-
-func (r *Cmd) run(cmd *cobra.Command, args []string) error {
+func (r *subCmd) run(cmd *cobra.Command, args []string) error {
 	if r.File != "" {
 		return r.modifyRules(r.File)
 	}
 	return r.listRules()
 }
 
-func (r *Cmd) modifyRules(file string) error {
+func (r *subCmd) modifyRules(file string) error {
 	if _, err := os.Stat(file); err != nil {
 		return err
 	}
@@ -92,7 +84,7 @@ func (r *Cmd) modifyRules(file string) error {
 	return nil
 }
 
-func (r *Cmd) listRules() error {
+func (r *subCmd) listRules() error {
 	rq := lighthouse.NewDescribeFirewallRulesRequest()
 	if r.InstanceId == "" {
 		r.InstanceId = LightHouse.InstanceId

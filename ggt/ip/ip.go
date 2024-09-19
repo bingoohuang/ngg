@@ -1,7 +1,6 @@
 package ip
 
 import (
-	"fmt"
 	"log"
 	"net"
 
@@ -12,10 +11,17 @@ import (
 )
 
 func init() {
-	Register(root.Cmd)
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:   "ip",
+		Short: "show host IP addresses",
+		RunE:  fc.run,
+	}
+
+	root.AddCommand(c, fc)
 }
 
-func (f *Cmd) run([]string) error {
+func (f *subCmd) run(*cobra.Command, []string) error {
 	if !f.V4 && !f.V6 {
 		f.V4 = true
 	}
@@ -68,37 +74,20 @@ var defaultStunServers = []string{
 	"stun.chat.bilibili.com",
 }
 
-type Cmd struct {
-	*root.RootCmd `kong:"-"`
-	Iface         string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
-	Stun          []string `help:"STUN server"`
-	Verbose       bool     `short:"v" help:"Verbose output for more details"`
-	V4            bool     `short:"4" help:"only show ipv4"`
-	V6            bool     `short:"6" help:"only show ipv6"`
+type subCmd struct {
+	Iface   string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
+	Stun    []string `help:"STUN server"`
+	Verbose bool     `short:"v" help:"Verbose output for more details"`
+	V4      bool     `short:"4" help:"only show ipv4"`
+	V6      bool     `short:"6" help:"only show ipv6"`
 }
 
-func (f *Cmd) DefaultPlagValues(name string) (any, bool) {
+func (f *subCmd) DefaultPlagValues(name string) (any, bool) {
 	switch name {
 	case "Stun":
 		return defaultStunServers, true
 	}
 	return nil, false
-}
-
-func Register(rootCmd *root.RootCmd) {
-	c := &cobra.Command{
-		Use:   "ip",
-		Short: "show host IP addresses",
-	}
-
-	fc := &Cmd{RootCmd: rootCmd}
-	c.Run = func(cmd *cobra.Command, args []string) {
-		if err := fc.run(args); err != nil {
-			fmt.Println(err)
-		}
-	}
-	root.InitFlags(fc, c.Flags())
-	rootCmd.AddCommand(c)
 }
 
 // ListIfaces 根据mode 列出本机所有IP和网卡名称.

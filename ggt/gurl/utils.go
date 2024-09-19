@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	"hash"
@@ -100,7 +100,7 @@ func inSlice(str string, l []string) bool {
 	return false
 }
 
-func flagEnvP(v *[]string, name, short, value, usage, envName string) {
+func flagEnvP(p *pflag.FlagSet, v *[]string, name, short, value, usage, envName string) {
 	if value == "" {
 		value = os.Getenv(envName)
 	}
@@ -109,19 +109,19 @@ func flagEnvP(v *[]string, name, short, value, usage, envName string) {
 		defaultValue = []string{value}
 	}
 
-	pflag.StringSliceVarP(v, name, short, defaultValue, usage)
+	p.StringSliceVarP(v, name, short, defaultValue, usage)
 }
 
-func flagEnvVar(p *string, name, value, usage, envName string) {
+func flagEnvVar(p *pflag.FlagSet, v *string, name, value, usage, envName string) {
 	if value == "" {
 		value = os.Getenv(envName)
 	}
-	pflag.StringVar(p, name, value, usage)
+	p.StringVar(v, name, value, usage)
 }
 
-func flagEnvVarP(p *string, name, short, value, usage, envName string) {
+func flagEnvVarP(p *pflag.FlagSet, v *string, name, short, value, usage, envName string) {
 	if value == "" {
 		value = os.Getenv(envName)
 	}
-	pflag.StringVarP(p, name, short, value, usage)
+	p.StringVarP(v, name, short, value, usage)
 }

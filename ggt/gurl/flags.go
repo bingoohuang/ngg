@@ -1,4 +1,4 @@
-package main
+package gurl
 
 import (
 	_ "embed"
@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	keepAlive, version, form, pretty              bool
+	keepAlive, form, pretty                       bool
 	ugly, raw, freeInnerJSON, gzipOn              bool
 	countingItems, disableProxy                   bool
 	auth, proxy, printV, body, think, method, dns string
@@ -34,30 +34,29 @@ var (
 	unixSocket    string
 )
 
-func init() {
-	pflag.StringVarP(&unixSocket, "unix-socket", "s", "", "")
-	flagEnvP(&urls, "url", "u", "", "", "URL")
-	pflag.StringVarP(&method, "method", "m", "GET", "")
+func initFlags(p *pflag.FlagSet) {
+	p.StringVarP(&unixSocket, "unix-socket", "s", "", "")
+	flagEnvP(p, &urls, "url", "u", "", "", "URL")
+	p.StringVarP(&method, "method", "m", "GET", "")
 
-	pflag.BoolVar(&createDemoEnv, "demo.env", false, "")
-	pflag.BoolVarP(&keepAlive, "keepalive", "k", true, "")
-	pflag.BoolVarP(&version, "version", "v", false, "")
-	pflag.StringVarP(&printV, "print", "p", "b", "")
-	pflag.BoolVarP(&form, "form", "f", false, "")
-	pflag.BoolVar(&gzipOn, "gzip", false, "")
-	pflag.VarP(download, "download", "d", "")
-	pflag.DurationVarP(&timeout, "timeout", "t", time.Minute, "")
-	pflag.StringSliceVarP(&uploadFiles, "file", "F", nil, "")
-	pflag.VarP(limitRate, "limit", "L", "")
-	flagEnvVar(&think, "think", "0", "", "THINK")
+	p.BoolVar(&createDemoEnv, "demo.env", false, "")
+	p.BoolVarP(&keepAlive, "keepalive", "k", true, "")
+	p.StringVarP(&printV, "print", "p", "b", "")
+	p.BoolVarP(&form, "form", "f", false, "")
+	p.BoolVar(&gzipOn, "gzip", false, "")
+	p.VarP(download, "download", "d", "")
+	p.DurationVarP(&timeout, "timeout", "t", time.Minute, "")
+	p.StringSliceVarP(&uploadFiles, "file", "F", nil, "")
+	p.VarP(limitRate, "limit", "L", "")
+	flagEnvVar(p, &think, "think", "0", "", "THINK")
 
-	flagEnvVarP(&auth, "auth", "A", "", "", `AUTH`)
-	flagEnvVarP(&proxy, "proxy", "P", "", "", `PROXY`)
-	pflag.IntVarP(&benchN, "requests", "n", 1, "")
-	pflag.IntVarP(&confirmNum, "confirm", "C", 0, "")
-	pflag.IntVarP(&benchC, "concurrency", "c", 1, "")
-	flagEnvVarP(&body, "body", "b", "", "", "BODY")
-	flagEnvVar(&dns, "dns", "", "", "DNS")
+	flagEnvVarP(p, &auth, "auth", "A", "", "", `AUTH`)
+	flagEnvVarP(p, &proxy, "proxy", "P", "", "", `PROXY`)
+	p.IntVarP(&benchN, "requests", "n", 1, "")
+	p.IntVarP(&confirmNum, "confirm", "C", 0, "")
+	p.IntVarP(&benchC, "concurrency", "c", 1, "")
+	flagEnvVarP(p, &body, "body", "b", "", "", "BODY")
+	flagEnvVar(p, &dns, "dns", "", "", "DNS")
 }
 
 const (
@@ -186,7 +185,7 @@ Envs:
   7. TLCP_CERTS   sign.cert,sign.key,enc.cert,enc.key
   8. CHUNKED:     开启请求中的块传输
   9. INTERACTIVE=0  禁止交互模式，否则 请求参数值/地址中的注入 @age 将被解析成插值模式，会要求从命令行输入
-more help information please refer to https://github.com/bingoohuang/ngg/gurl
+more help information please refer to https://github.com/bingoohuang/ngg/ggt/gurl
 `
 
 //go:embed demo.env
@@ -208,11 +207,6 @@ func createDemoEnvFile() error {
 	log.Printf("a demo .env file has been created!")
 
 	return io.EOF
-}
-
-func usage() {
-	fmt.Print(help)
-	os.Exit(2)
 }
 
 type RateLimitDirection int
