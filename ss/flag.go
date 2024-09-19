@@ -16,15 +16,16 @@ func (i *FlagStringBool) Set(value string) error {
 
 func (i *FlagStringBool) SetExists(b bool) { i.Exists = b }
 
+type FlagSize uint64
 
-type FlagSize struct {
-	Val uint64
-}
+func (i *FlagSize) Type() string   { return "size" }
+func (i *FlagSize) String() string { return Bytes(uint64(*i)) }
 
-func (i *FlagSize) Type() string { return "size" }
-func (i *FlagSize) String() string {return  Bytes(i.Val) }
-
-func (i *FlagSize) Set(value string) (err error) {
-	i.Val, err = ParseBytes(value)
-	return err
+func (i *FlagSize) Set(value string) error {
+	val, err := ParseBytes(value)
+	if err != nil {
+		return err
+	}
+	*i = FlagSize(val)
+	return nil
 }

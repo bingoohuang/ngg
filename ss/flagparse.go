@@ -300,22 +300,6 @@ func startPprof(pprofAddr string) {
 	}
 }
 
-type Size uint64
-
-func (i *Size) Type() string { return "size" }
-
-func (i *Size) String() string {
-	return Bytes(uint64(*i))
-}
-
-func (i *Size) Set(value string) (err error) {
-	val, err := ParseBytes(value)
-	if err == nil {
-		*i = Size(val)
-	}
-	return err
-}
-
 func loadYamlConfFile(confFile, defaultConfFile string, app interface{}) error {
 	if confFile == "" {
 		if s, err := os.Stat(defaultConfFile); err != nil || s.IsDir() {
@@ -329,13 +313,13 @@ func loadYamlConfFile(confFile, defaultConfFile string, app interface{}) error {
 		return fmt.Errorf("read conf file %s error: %q", confFile, err)
 	}
 
-	decoder := yaml.NewDecoder(bytes.NewReader(data), yaml.CustomUnmarshaler(func(t *Size, b []byte) error {
+	decoder := yaml.NewDecoder(bytes.NewReader(data), yaml.CustomUnmarshaler(func(t *FlagSize, b []byte) error {
 		if b[0] == '"' {
 			val := string(b[1 : len(b)-1])
 			if v, err := ParseBytes(val); err != nil {
 				return err
 			} else {
-				*t = Size(v)
+				*t = FlagSize(v)
 			}
 		}
 		val, err := Parse[uint64](string(b))
@@ -343,7 +327,7 @@ func loadYamlConfFile(confFile, defaultConfFile string, app interface{}) error {
 			return err
 		}
 
-		*t = Size(val)
+		*t = FlagSize(val)
 		return nil
 	}))
 
