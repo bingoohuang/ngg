@@ -123,7 +123,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 						curDefault = val.([]string)
 					}
 				}
-				p.StringSliceVarP(pp.(*[]string), ss.ToSnake(field.Name), short, curDefault, usage)
+				p.StringArrayVarP(pp.(*[]string), ss.ToSnake(field.Name), short, curDefault, usage)
 			}
 		case reflect.Func:
 			// ignore
