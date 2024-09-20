@@ -195,6 +195,14 @@ func (t *StructTags) Get(key string) (*StructTag, error) {
 	return nil, ErrTagNotExist
 }
 
+func (t *StructTags) GetTag(key string) string {
+	if tag, ok := t.tagsMap[key]; ok {
+		return tag.Raw
+	}
+
+	return ""
+}
+
 // GetOpt gets opt's value by its name
 func (t *StructTag) GetOpt(optName string) string {
 	if opt, ok := t.OptionsMap[optName]; ok && opt != "" {

@@ -56,6 +56,14 @@ func initFlags(f any, p *pflag.FlagSet) error {
 			continue
 		}
 
+		if field.Anonymous {
+			if tags.GetTag("squash") == "true" {
+				squashField := structVal.Field(i).Addr().Interface()
+				initFlags(squashField, p)
+			}
+			continue
+		}
+
 		name := ss.ToSnake(field.Name)
 		if v, _ := tags.Get("flag"); v != nil {
 			name = v.Raw

@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	_ "github.com/bingoohuang/ngg/ggt/ghash"
+	_ "github.com/bingoohuang/ngg/ggt/gossh"
 	_ "github.com/bingoohuang/ngg/ggt/goup"
 	_ "github.com/bingoohuang/ngg/ggt/gurl"
 	_ "github.com/bingoohuang/ngg/ggt/hertz"

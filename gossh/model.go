@@ -23,36 +23,36 @@ import (
 
 // Config represents the structure of input toml file structure.
 type Config struct {
-	ReplaceQuote string `pflag:"replace for quote(\"). shorthand=q"`
-	ReplaceBang  string `pflag:"replace for bang(!). shorthand=b"`
+	ReplaceQuote string `help:"replace for quote" short:"q"`
+	ReplaceBang  string `help:"replace for bang(!)" short:"b"`
 
-	Separator  string `pflag:"separator for hosts, cmds, default comma. shorthand=s"`
-	NetTimeout string `pflag:"timeout(eg. 15s, 3m), empty for no timeout."`
-	CmdTimeout string `pflag:"timeout(eg. 15s, 3m), default 15m."`
+	Separator  string `help:"separator for hosts, cmds, default comma" short:"s"`
+	NetTimeout string `help:"timeout(eg. 15s, 3m), empty for no timeout"`
+	CmdTimeout string `help:"timeout(eg. 15s, 3m), default 15m"`
 
-	Group    string `pflag:"group name."`
-	CmdsFile string `pflag:"cmds file."`
+	Group    string `help:"group name"`
+	CmdsFile string `help:"cmds file"`
 
-	HostsFile string `pflag:"hosts file. shorthand=f"`
-	Pass      string `pflag:"pass."`
+	HostsFile string `help:"hosts file" short:"f"`
+	Pass      string `help:"pass."`
 
-	User string `pflag:"user. shorthand=u"`
+	User string `help:"user" short:"u"`
 
-	Passphrase string   `pflag:"passphrase for decrypt {PBE}Password. shorthand=p"`
-	Cmds       []string `pflag:"commands to be executedChan. shorthand=C"`
+	Passphrase string   `help:"passphrase for decrypt {PBE}Password" short:"p"`
+	Cmds       []string `help:"commands to be executedChan" short:"C"`
 
-	Hosts []string `pflag:"hosts. shorthand=H"`
+	Hosts []string `help:"hosts" short:"H"`
 
-	ExecMode int `pflag:"exec mode(0: cmd by cmd, 1 host by host). shorthand=e"`
+	ExecMode int `help:"exec mode(0: cmd by cmd, 1 host by host)" short:"e"`
 
 	FirstConfirm bool
 
-	Confirm bool `pflag:"conform to continue."`
+	Confirm bool `help:"conform to continue."`
 	// 是否全局设置为远程shell命令
-	GlobalRemote bool `pflag:"run as global remote ssh command(no need %host). shorthand=g"`
-	PrintConfig  bool `pflag:"print config before running. shorthand=P"`
+	GlobalRemote bool `help:"run as global remote ssh command(no need %host)" short:"g"`
+	PrintConfig  bool `help:"print config before running" short:"P"`
 
-	SplitSSH bool `pflag:"split ssh commands by comma or not. shorthand=S"`
+	SplitSSH bool `help:"split ssh commands by comma or not" short:"S"`
 }
 
 const (

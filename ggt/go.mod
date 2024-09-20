@@ -2,13 +2,20 @@ module github.com/bingoohuang/ngg/ggt
 
 go 1.22.0
 
+replace (
+	github.com/bingoohuang/ngg/gossh => ../gossh
+	github.com/bingoohuang/ngg/ss => ../ss
+)
+
 require (
 	gitee.com/Trisia/gotlcp v1.3.23
 	github.com/AlecAivazis/survey/v2 v2.3.7
+	github.com/BurntSushi/toml v1.4.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/bingoohuang/ngg/cmd v0.0.0-20240919022203-b1debd4511c9
 	github.com/bingoohuang/ngg/daemon v0.0.0-20240919022203-b1debd4511c9
 	github.com/bingoohuang/ngg/gnet v0.0.0-20240919022203-b1debd4511c9
+	github.com/bingoohuang/ngg/gossh v0.0.0-20240919095151-653bdf49ccb9
 	github.com/bingoohuang/ngg/gum v0.0.0-20240919022203-b1debd4511c9
 	github.com/bingoohuang/ngg/jj v0.0.0-20240919022203-b1debd4511c9
 	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240919022203-b1debd4511c9
@@ -54,6 +61,7 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
+	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/alecthomas/kong v1.2.1 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
@@ -61,6 +69,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bingoohuang/ngg/q v0.0.0-20240919022203-b1debd4511c9 // indirect
 	github.com/bingoohuang/ngg/tsid v0.0.0-20240919022203-b1debd4511c9 // indirect
+	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
@@ -75,6 +84,7 @@ require (
 	github.com/charmbracelet/x/ansi v0.3.2 // indirect
 	github.com/charmbracelet/x/exp/strings v0.0.0-20240918160051-227168dc0568 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
+	github.com/cheggaaa/pb/v3 v3.1.5 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
@@ -84,6 +94,7 @@ require (
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/gobars/cmd v0.0.0-20210215022658-cd78beda9673 // indirect
 	github.com/google/pprof v0.0.0-20240910150728-a0b0bb1d4134 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -97,6 +108,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/kortschak/goroutine v1.1.2 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -120,6 +132,8 @@ require (
 	github.com/pion/logging v0.2.2 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/sftp v1.13.6 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.47.0 // indirect
