@@ -1,10 +1,14 @@
 module github.com/bingoohuang/ngg/ggt
 
-go 1.22.0
+go 1.23
+
+toolchain go1.23.1
 
 replace (
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/ss => ../ss
+	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
+
 )
 
 require (
@@ -28,6 +32,7 @@ require (
 	github.com/cloudwego/hertz v0.9.3
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
+	github.com/fatedier/frp v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.17.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/hertz-contrib/gzip v0.0.3
@@ -60,12 +65,14 @@ require (
 )
 
 require (
+	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/alecthomas/kong v1.2.1 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bingoohuang/ngg/q v0.0.0-20240919022203-b1debd4511c9 // indirect
 	github.com/bingoohuang/ngg/tsid v0.0.0-20240919022203-b1debd4511c9 // indirect
@@ -90,16 +97,19 @@ require (
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/cloudwego/netpoll v0.6.4 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
+	github.com/fatedier/golib v0.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gobars/cmd v0.0.0-20210215022658-cd78beda9673 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/pprof v0.0.0-20240910150728-a0b0bb1d4134 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -107,6 +117,7 @@ require (
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/klauspost/reedsolomon v1.12.4 // indirect
 	github.com/kortschak/goroutine v1.1.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -132,6 +143,7 @@ require (
 	github.com/pion/logging v0.2.2 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
+	github.com/pires/go-proxyproto v0.7.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.6 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
@@ -150,14 +162,18 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/templexxx/cpu v0.1.1 // indirect
+	github.com/templexxx/xorsimd v0.4.3 // indirect
 	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/tscholl2/siec v0.0.0-20240310163802-c2c6f6198406 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/wlynxg/anet v0.0.4 // indirect
+	github.com/xtaci/kcp-go/v5 v5.6.17 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	golang.org/x/arch v0.10.0 // indirect
@@ -172,8 +188,12 @@ require (
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/apimachinery v0.31.1 // indirect
+	k8s.io/utils v0.0.0-20240902221715-702e33fdd3c3 // indirect
 	modernc.org/libc v1.61.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
 	modernc.org/sqlite v1.33.1 // indirect
+	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )

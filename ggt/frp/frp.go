@@ -1,4 +1,4 @@
-package proxytarget
+package frp
 
 import (
 	"bytes"
@@ -12,21 +12,24 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/yaml"
+	"github.com/fatedier/frp"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	fc := &subCmd{}
 	c := &cobra.Command{
-		Use:   "proxytarget",
-		Short: "a proxy to frp with target specified",
+		Use:   "frp",
+		Short: "frp with proxytarget",
 		RunE:  fc.run,
 	}
 
@@ -34,10 +37,9 @@ func init() {
 }
 
 type subCmd struct {
-	Listen    string `short:"l" help:"Listen address, e.g. :3001"`
-	ProxyAddr string `short:"p" help:"Address of the proxy server to connect to" default:"127.0.0.1:6001"`
-	Target    string `short:"t" help:"Target address to send to the proxy server"`
-	Config    string `short:"c" help:"YAML config file"`
+	FrpCnf      string `short:"c" help:"FRP yaml config file" default:"~/.frp.yaml"`
+	ProxyConfig string `short:"p" help:"YAML config file for proxy target" default:"~/.proxytarget.yaml"`
+	ProxyOnly   bool   `short:"P" help:"porxy only"`
 }
 
 type TargetConfig struct {
@@ -53,59 +55,57 @@ type Config struct {
 }
 
 func (f *subCmd) run(cmd *cobra.Command, args []string) error {
-	// 如果没有指定配置文件，并且没有指定监听地址，则尝试从 ~/.proxytarget.yaml 中读取
-	if f.Config == "" && f.Listen == "" {
-		if y, err := ss.ExpandFilename("~/.proxytarget.yaml"); err == nil && y != "" {
-			f.Config = y
-		}
-	}
-
-	if f.Config != "" {
-		yamlFile, err := ss.ExpandFilename(f.Config)
-		if err != nil {
-			return fmt.Errorf("expand yaml config file: %w", err)
-		}
-
-		yamlFileData, err := os.ReadFile(yamlFile)
-		if err != nil {
-			return fmt.Errorf("read yaml config file: %w", err)
-		}
-
-		var config Config
-		if err = yaml.Unmarshal(yamlFileData, &config); err != nil {
-			return fmt.Errorf("unmarshal yaml config file: %w", err)
-		}
-
-		var wg sync.WaitGroup
-
-		for _, p := range config.Proxies {
-			if p.ProxyAddr == "" {
-				p.ProxyAddr = config.ProxyAddr
+	if !f.ProxyOnly {
+		go func() {
+			if err := frp.Run(f.FrpCnf); err != nil {
+				log.Printf("E! frp error: %v", err)
 			}
+		}()
+	}
 
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				if err := p.Serve(); err != nil {
-					log.Printf("Error serving proxy: %v", err)
-				}
-			}()
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-ch
+		os.Exit(1)
+	}()
+
+	if f.ProxyConfig == "" {
+		return fmt.Errorf("config file is required")
+	}
+
+	yamlFile, err := ss.ExpandFilename(f.ProxyConfig)
+	if err != nil {
+		return fmt.Errorf("expand yaml config file: %w", err)
+	}
+
+	yamlFileData, err := os.ReadFile(yamlFile)
+	if err != nil {
+		return fmt.Errorf("read yaml config file: %w", err)
+	}
+
+	var config Config
+	if err = yaml.Unmarshal(yamlFileData, &config); err != nil {
+		return fmt.Errorf("unmarshal yaml config file: %w", err)
+	}
+
+	var wg sync.WaitGroup
+
+	for _, p := range config.Proxies {
+		if p.ProxyAddr == "" {
+			p.ProxyAddr = config.ProxyAddr
 		}
 
-		wg.Wait()
-
-		return nil
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := p.Serve(); err != nil {
+				log.Printf("Error serving proxy: %v", err)
+			}
+		}()
 	}
 
-	t := &TargetConfig{
-		Listen:     f.Listen,
-		ProxyAddr:  f.ProxyAddr,
-		TargetAddr: f.Target,
-	}
-	if err := t.Serve(); err != nil {
-		log.Printf("Error serving proxy: %v", err)
-		return err
-	}
+	wg.Wait()
 
 	return nil
 }
@@ -126,7 +126,8 @@ func (t *TargetConfig) Serve() error {
 	}
 	defer listener.Close()
 
-	log.Printf("Listening on port: %d, desc: %s", listener.Addr().(*net.TCPAddr).Port, t.Desc)
+	listenPort := listener.Addr().(*net.TCPAddr).Port
+	log.Printf("Listening on http://127.0.0.1:%d, desc: %s", listenPort, t.Desc)
 
 	if strings.HasPrefix(t.TargetAddr, "http") {
 		return serveHTTP(listener, t.ProxyAddr, t.TargetAddr)
