@@ -230,19 +230,18 @@ func handleConnection(conn net.Conn, proxy, target string) {
 	}
 	defer proxyConn.Close()
 
-	log.Printf("Connected to proxy server at %s", proxy)
+	// log.Printf("Connected to proxy server at %s", proxy)
 
 	// 构造要发送到代理服务器的目标地址字符串
 	targetMessage := "TARGET " + target + ";"
 
 	// 发送目标地址到代理服务器
-	_, err = proxyConn.Write([]byte(targetMessage))
-	if err != nil {
+	if _, err = proxyConn.Write([]byte(targetMessage)); err != nil {
 		log.Printf("Failed to send target address to proxy: %v", err)
 		return
 	}
 
-	log.Printf("Sent target address to proxy: %s", target)
+	// log.Printf("Sent target address to proxy: %s", target)
 
 	// 将客户端连接和代理服务器连接衔接起来
 	go io.Copy(proxyConn, conn)
