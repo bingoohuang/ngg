@@ -25,8 +25,8 @@ import (
 func init() {
 	fc := &subCmd{}
 	c := &cobra.Command{
-		Use:   "tecentcloud",
-		Short: "tecentcloud firewall",
+		Use:   "tencentcloud",
+		Short: "tencentcloud firewall",
 		RunE:  fc.run,
 	}
 
