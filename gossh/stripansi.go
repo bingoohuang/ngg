@@ -1,6 +1,9 @@
 package gossh
 
-import "regexp"
+import (
+	"io"
+	"regexp"
+)
 
 // https://superuser.com/questions/380772/removing-ansi-color-codes-from-text-stream
 // http://ascii-table.com/ansi-escape-sequences.php
@@ -13,7 +16,7 @@ import "regexp"
 // sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'    # Remove all escape sequences
 // sed 's/\x1b\[[0-9;]*[mGKH]//g'      # Remove color and move sequences
 
-var re = regexp.MustCompile("\u001b\\[[0-9;]*[A-Ksu]")
+var re = regexp.MustCompile("\u001b\\[[0-9;]*[a-zA-Z]")
 
 // https://github.com/pborman/ansi/blob/master/ansi.go
 // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
@@ -39,4 +42,22 @@ var re = regexp.MustCompile("\u001b\\[[0-9;]*[A-Ksu]")
 // StripAnsi strips the cursor, clears, and save positions escape code.
 func StripAnsi(str string) string {
 	return re.ReplaceAllString(str, "")
+}
+
+type StripAnsiWriter struct {
+	io.WriteCloser
+}
+
+func NewStripAnsiWriter(w io.WriteCloser) *StripAnsiWriter {
+	return &StripAnsiWriter{WriteCloser: w}
+}
+
+func (w *StripAnsiWriter) Write(data []byte) (int, error) {
+	s := StripAnsi(string(data))
+	_, err := w.WriteCloser.Write([]byte(s))
+	if err != nil {
+		return 0, err
+	}
+
+	return len(data), nil
 }

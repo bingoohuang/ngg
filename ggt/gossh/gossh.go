@@ -120,7 +120,7 @@ func (fc *subCmd) run(*cobra.Command, []string) error {
 		fmt.Fprintf(os.Stderr, "failed to create log file %s, error:%v\n", logFn, err)
 	} else {
 		fmt.Fprintf(os.Stdout, "log file %s created\n", logFn)
-		fmt.Fprintf(logFile, "started at %s\n", time.Now().UTC().Format("2006-01-02 15:03:04"))
+		fmt.Fprintf(logFile, "started at %s\n", time.Now().Format(time.RFC3339))
 	}
 
 	start := time.Now()
@@ -131,7 +131,7 @@ func (fc *subCmd) run(*cobra.Command, []string) error {
 		stdout = io.MultiWriter(os.Stdout, logFile)
 
 		defer func() {
-			fmt.Fprintf(logFile, "finished at %s\n", time.Now().UTC().Format("2006-01-02 15:03:04"))
+			fmt.Fprintf(logFile, "\nfinished at %s\n", time.Now().Format(time.RFC3339))
 			fmt.Fprintf(logFile, "cost %s\n", time.Since(start))
 			fmt.Fprintf(os.Stdout, "log file %s recorded\n", logFn)
 
