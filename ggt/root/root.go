@@ -82,8 +82,12 @@ func initFlags(f any, p *pflag.FlagSet) error {
 			defaultVal = v.Raw
 		}
 		if defaultVal == "" {
-			if t, _ := tags.Get("env"); t != nil {
-				defaultVal = os.Getenv(t.Raw)
+			if t, _ := tags.Get("env"); t != nil && t.Raw != "-" {
+				if t.Raw == "auto" {
+					defaultVal = os.Getenv(ss.ToSnakeUpper(name))
+				} else {
+					defaultVal = os.Getenv(t.Raw)
+				}
 			}
 		}
 

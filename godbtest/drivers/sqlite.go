@@ -2,6 +2,5 @@
 
 package drivers
 
-import (
-	_ "modernc.org/sqlite"
-)
+// TODO: panic: sql: Register called twice for driver sqlite
+// _ "modernc.org/sqlite"

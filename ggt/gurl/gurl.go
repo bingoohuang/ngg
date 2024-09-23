@@ -63,7 +63,7 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 
-		log.Fatalf("create demo env file: %v", err)
+		return fmt.Errorf("create demo env file: %w", err)
 	}
 
 	if RemoveChars(printV, "svtqfdUrCN") == "" {

@@ -188,14 +188,14 @@ mssql://user:pass@remote-host.com/instance/dbname
 ms://user:pass@remote-host.com:port/instance/dbname?keepAlive=10
 oracle://user:pass@somehost.com/sid?lob fetch=post
 sap://user:pass@localhost/dbname
-sqlite:/path/to/file.db
-sqlite:/:memory:
+sqlite://path/to/file.db
+sqlite://:memory:
 file:myfile.sqlite3?loc=auto
 odbc+postgres://user:pass@localhost:port/dbname?option1=
 
 or use ENV vars like:
 
-export DSN=sqlite/:memory:
+export DSN=sqlite://:memory:
 export DSN=mysql://root:root@127.0.0.1:3306/bingoo
 export DSN=oracle://user:pass@127.0.0.1:1521/ORCLPDB1?lob fetch=post
 `,
