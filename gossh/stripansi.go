@@ -44,20 +44,19 @@ func StripAnsi(str string) string {
 	return re.ReplaceAllString(str, "")
 }
 
-type StripAnsiWriter struct {
-	io.WriteCloser
+// StripAnsi removes all ANSI Escape Sequences from the byteslice
+func StripAnsiBytes(b []byte) []byte {
+	return re.ReplaceAll(b, []byte(""))
 }
 
-func NewStripAnsiWriter(w io.WriteCloser) *StripAnsiWriter {
-	return &StripAnsiWriter{WriteCloser: w}
+type AnsiStripper struct {
+	w io.WriteCloser
 }
 
-func (w *StripAnsiWriter) Write(data []byte) (int, error) {
-	s := StripAnsi(string(data))
-	_, err := w.WriteCloser.Write([]byte(s))
-	if err != nil {
-		return 0, err
-	}
+func NewStripAnsiWriter(w io.WriteCloser) *AnsiStripper {
+	return &AnsiStripper{w: w}
+}
 
-	return len(data), nil
+func (w *AnsiStripper) Write(data []byte) (int, error) {
+	return w.w.Write(StripAnsiBytes(data))
 }
