@@ -48,6 +48,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/pion/stun/v2 v2.0.0
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/samber/lo v1.47.0
 	github.com/schollz/pake/v3 v3.0.5
 	github.com/schollz/progressbar/v3 v3.15.0
@@ -107,6 +108,7 @@ require (
 	github.com/cloudwego/netpoll v0.6.4 // indirect
 	github.com/creasty/defaults v1.8.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
