@@ -14,7 +14,9 @@ import (
 )
 
 func AddCommand(c *cobra.Command, fc any) {
-	ss.PanicErr(initFlags(fc, c.Flags()))
+	if fc != nil {
+		ss.PanicErr(InitFlags(fc, c.Flags()))
+	}
 	cmd.AddCommand(c)
 }
 
@@ -36,7 +38,7 @@ func Run() {
 	}
 }
 
-func initFlags(f any, p *pflag.FlagSet) error {
+func InitFlags(f any, p *pflag.FlagSet) error {
 	ptrVal := reflect.ValueOf(f)
 	structVal := ptrVal.Elem()
 	structType := structVal.Type()
@@ -59,7 +61,7 @@ func initFlags(f any, p *pflag.FlagSet) error {
 		if field.Anonymous {
 			if tags.GetTag("squash") == "true" {
 				squashField := structVal.Field(i).Addr().Interface()
-				initFlags(squashField, p)
+				InitFlags(squashField, p)
 			}
 			continue
 		}

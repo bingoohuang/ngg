@@ -114,7 +114,7 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 type subCmd struct {
 	Hasher func() hash.Hash
 
-	Key    string `help:"Hmac Key (enable hmac), or $KEY" env:"KEY"`
+	Key    string `help:"Hmac Key (enable hmac), or $KEY" env:"auto"`
 	Input  string `short:"i" help:"Input string, or filename"`
 	name   string
 	Base64 bool `short:"b" help:"Base64 encode the output"`

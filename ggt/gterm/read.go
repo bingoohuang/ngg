@@ -39,6 +39,15 @@ type Result struct {
 	Len         int
 	SourceType  ReaderSource
 	SourceTitle string
+	Bytes       []byte
+}
+
+func (r Result) ToBytes() ([]byte, error) {
+	if len(r.Bytes) > 0 {
+		return r.Bytes, nil
+	}
+
+	return io.ReadAll(r.Reader)
 }
 
 func (o Option) Open(input string) (*Result, error) {
@@ -57,12 +66,14 @@ func (o Option) Open(input string) (*Result, error) {
 				return nil, err
 			}
 
-			return &Result{
+			r := &Result{
 				Reader:      bytes.NewReader(dat),
+				Bytes:       dat,
 				Len:         len(dat),
 				SourceType:  SourcePipe,
 				SourceTitle: "pipe",
-			}, nil
+			}
+			return r, nil
 
 		}
 
@@ -76,6 +87,7 @@ func (o Option) Open(input string) (*Result, error) {
 
 			return &Result{
 				Reader:      decorateReader(strings.NewReader(line), format),
+				Bytes:       []byte(line),
 				Len:         len(line),
 				SourceType:  SourcePrompt,
 				SourceTitle: "prompt",
@@ -128,17 +140,6 @@ func SplitTail(s *string, c byte) (tail string) {
 		*s = (*s)[:p]
 	}
 	return tail
-}
-
-func decodeString(s string, format string) ([]byte, error) {
-	switch format {
-	case "hex":
-		return hex.DecodeString(s)
-	case "base64", "b64":
-		return base64.StdEncoding.DecodeString(s)
-	default:
-		return []byte(s), nil
-	}
 }
 
 func decorateReader(r io.Reader, format string) io.Reader {
