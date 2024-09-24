@@ -7,6 +7,7 @@ toolchain go1.23.1
 replace (
 	github.com/bingoohuang/ngg/godbtest => ../godbtest
 	github.com/bingoohuang/ngg/gossh => ../gossh
+	github.com/bingoohuang/ngg/jj => ../jj
 	github.com/bingoohuang/ngg/ss => ../ss
 	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 
@@ -17,24 +18,25 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.4.0
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/cmd v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/godbtest v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/gossh v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/gum v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/jj v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/ss v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/tick v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/ver v0.0.0-20240923030430-e976e2fc382c
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240923030430-e976e2fc382c
+	github.com/bingoohuang/ngg/cmd v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/godbtest v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/gossh v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/gum v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/jj v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/ss v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/tick v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/ver v0.0.0-20240924063910-250446488122
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240924063910-250446488122
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/chzyer/readline v1.5.1
 	github.com/cloudwego/hertz v0.9.3
 	github.com/deatil/go-cryptobin v1.0.4010
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
+	github.com/expr-lang/expr v1.16.9
 	github.com/fatedier/frp v0.60.0
 	github.com/fatih/color v1.17.0
 	github.com/glebarez/sqlite v1.11.0
@@ -44,6 +46,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213
 	github.com/klauspost/cpuid/v2 v2.2.8
+	github.com/mattn/go-isatty v0.0.20
 	github.com/minio/sio v0.4.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
@@ -51,13 +54,13 @@ require (
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/samber/lo v1.47.0
 	github.com/schollz/pake/v3 v3.0.5
-	github.com/schollz/progressbar/v3 v3.15.0
+	github.com/schollz/progressbar/v3 v3.16.0
 	github.com/segmentio/ksuid v1.0.4
 	github.com/shirou/gopsutil/v4 v4.24.8
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1007
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse v1.0.1007
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1009
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse v1.0.1009
 	github.com/vthiery/retry v0.1.0
 	github.com/zeebo/blake3 v0.2.4
 	go.uber.org/atomic v1.11.0
@@ -83,14 +86,14 @@ require (
 	github.com/apache/arrow/go/v17 v17.0.0 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240923030430-e976e2fc382c // indirect
-	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240923030430-e976e2fc382c // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240923030430-e976e2fc382c // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240924063910-250446488122 // indirect
+	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240924063910-250446488122 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240924063910-250446488122 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
-	github.com/bytedance/sonic v1.12.2 // indirect
+	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
@@ -142,7 +145,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/klauspost/compress v1.17.10 // indirect
 	github.com/klauspost/reedsolomon v1.12.4 // indirect
 	github.com/kortschak/goroutine v1.1.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
@@ -152,7 +155,6 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/marcboeker/go-duckdb v1.8.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
@@ -184,7 +186,7 @@ require (
 	github.com/refraction-networking/utls v1.6.7 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sevlyar/go-daemon v0.1.6 // indirect

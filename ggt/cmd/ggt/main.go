@@ -10,6 +10,7 @@ import (
 	_ "github.com/bingoohuang/ngg/ggt/gurl"
 	_ "github.com/bingoohuang/ngg/ggt/hertz"
 	_ "github.com/bingoohuang/ngg/ggt/ip"
+	_ "github.com/bingoohuang/ngg/ggt/jj"
 	_ "github.com/bingoohuang/ngg/ggt/ps"
 	_ "github.com/bingoohuang/ngg/ggt/redis"
 	"github.com/bingoohuang/ngg/ggt/root"

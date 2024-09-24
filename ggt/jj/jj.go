@@ -1,4 +1,4 @@
-package main
+package jj
 
 import (
 	"bytes"
@@ -15,13 +15,36 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/jj"
 	_ "github.com/bingoohuang/ngg/jj/randpoem"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
 	"github.com/expr-lang/expr"
 	"github.com/mattn/go-isatty"
+	"github.com/spf13/cobra"
 )
+
+func init() {
+	fc := &subCmd{}
+	c := &cobra.Command{
+		Use:   "jj",
+		Short: "json stream editor/creator",
+		RunE:  fc.run,
+
+		DisableFlagParsing: true,
+	}
+
+	root.AddCommand(c, fc)
+}
+
+type subCmd struct {
+}
+
+func (f *subCmd) run(_ *cobra.Command, args []string) error {
+	run(args)
+	return nil
+}
 
 var (
 	version = "1.0.1"
@@ -71,7 +94,7 @@ type args struct {
 	jsonMap map[string]any
 }
 
-func parseArgs() args {
+func parseArgs(cmdArgs []string) args {
 	fail := func(format string, args ...any) {
 		fmt.Fprintf(os.Stderr, "%s\n", tag)
 		if format != "" {
@@ -91,17 +114,17 @@ func parseArgs() args {
 	var a args
 	a.jsonMap = make(map[string]any)
 
-	for i := 1; i < len(os.Args); i++ {
-		switch os.Args[i] {
+	for i := 0; i < len(cmdArgs); i++ {
+		switch cmdArgs[i] {
 		default:
-			if len(os.Args[i]) > 1 && os.Args[i][0] == '-' {
-				for j := 1; j < len(os.Args[i]); j++ {
-					switch os.Args[i][j] {
+			if len(cmdArgs[i]) > 1 && cmdArgs[i][0] == '-' {
+				for j := 1; j < len(cmdArgs[i]); j++ {
+					switch cmdArgs[i][j] {
 					case 'c':
 						fmt.Println(cheatText)
 						os.Exit(0)
 					case 'V':
-						fmt.Printf("%s version: %s\n", os.Args[0], ver.Version())
+						fmt.Printf("%s version: %s\n", cmdArgs[0], ver.Version())
 						os.Exit(0)
 					case 'u':
 						a.ugly = true
@@ -136,37 +159,37 @@ func parseArgs() args {
 				continue
 			}
 		P1:
-			if p1 := strings.Index(os.Args[i], ":="); p1 > 0 {
+			if p1 := strings.Index(cmdArgs[i], ":="); p1 > 0 {
 				// Raw JSON fields
-				a.jsonMap[os.Args[i][:p1]] = json.RawMessage(os.Args[i][p1+2:])
-			} else if p2 := strings.Index(os.Args[i], "="); p2 > 0 {
+				a.jsonMap[cmdArgs[i][:p1]] = json.RawMessage(cmdArgs[i][p1+2:])
+			} else if p2 := strings.Index(cmdArgs[i], "="); p2 > 0 {
 				// Json fields
-				a.jsonMap[os.Args[i][:p2]] = os.Args[i][p2+1:]
+				a.jsonMap[cmdArgs[i][:p2]] = cmdArgs[i][p2+1:]
 			} else if !a.keypathok {
 				a.keypathok = true
-				a.keypath = os.Args[i]
+				a.keypath = cmdArgs[i]
 			} else {
 				fail("unknown option argument: \"%s\"", a.keypath)
 			}
 		case "-v", "-i", "-o", "-k", "-K", "-f":
-			arg := os.Args[i]
+			arg := cmdArgs[i]
 			i++
-			if i >= len(os.Args) {
+			if i >= len(cmdArgs) {
 				fail("argument missing after: \"%s\"", arg)
 			}
 			switch arg {
 			case "-v":
-				a.value = &os.Args[i]
+				a.value = &cmdArgs[i]
 			case "-i":
-				a.infile = &os.Args[i]
+				a.infile = &cmdArgs[i]
 			case "-o":
-				a.outfile = &os.Args[i]
+				a.outfile = &cmdArgs[i]
 			case "-k", "-K":
 				a.keypathok = true
-				a.keypath = os.Args[i]
+				a.keypath = cmdArgs[i]
 				a.rawKey = arg == "-K"
 			case "-f":
-				a.findRegex = os.Args[i]
+				a.findRegex = cmdArgs[i]
 			}
 		case "--force-notty":
 			a.notty = true
@@ -220,8 +243,8 @@ func init() {
 	}
 }
 
-func main() {
-	a := parseArgs()
+func run(args []string) {
+	a := parseArgs(args)
 	f := a.createOutFile()
 
 	outChan := make(chan Out)

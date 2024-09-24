@@ -14,7 +14,7 @@ import (
 )
 
 func AddCommand(c *cobra.Command, fc any) {
-	if fc != nil {
+	if fc != nil && !c.DisableFlagParsing {
 		ss.PanicErr(InitFlags(fc, c.Flags()))
 	}
 	cmd.AddCommand(c)

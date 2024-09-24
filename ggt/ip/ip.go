@@ -21,6 +21,14 @@ func init() {
 	root.AddCommand(c, fc)
 }
 
+type subCmd struct {
+	Iface   string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
+	Stun    []string `help:"STUN server"`
+	Verbose bool     `short:"v" help:"Verbose output for more details"`
+	V4      bool     `short:"4" help:"only show ipv4"`
+	V6      bool     `short:"6" help:"only show ipv6"`
+}
+
 func (f *subCmd) run(*cobra.Command, []string) error {
 	if !f.V4 && !f.V6 {
 		f.V4 = true
@@ -72,14 +80,6 @@ var defaultStunServers = []string{
 	"stun.syncthing.net",
 	"stun.miwifi.com",
 	"stun.chat.bilibili.com",
-}
-
-type subCmd struct {
-	Iface   string   `short:"i" help:"Interface name pattern specified(eg. eth0, eth*)"`
-	Stun    []string `help:"STUN server"`
-	Verbose bool     `short:"v" help:"Verbose output for more details"`
-	V4      bool     `short:"4" help:"only show ipv4"`
-	V6      bool     `short:"6" help:"only show ipv6"`
 }
 
 func (f *subCmd) DefaultPlagValues(name string) (any, bool) {
