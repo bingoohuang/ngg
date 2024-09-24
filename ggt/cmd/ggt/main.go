@@ -15,7 +15,9 @@ import (
 	_ "github.com/bingoohuang/ngg/ggt/redis"
 	"github.com/bingoohuang/ngg/ggt/root"
 	_ "github.com/bingoohuang/ngg/ggt/rsa"
+	_ "github.com/bingoohuang/ngg/ggt/size"
 	_ "github.com/bingoohuang/ngg/ggt/tencentcloud"
+	_ "github.com/bingoohuang/ngg/ggt/time"
 	_ "github.com/bingoohuang/ngg/rotatefile/stdlog/autoload"
 	_ "github.com/joho/godotenv/autoload"
 )
