@@ -26,10 +26,13 @@ type subCmd struct {
 	Password string `short:"p"`
 	Db       int    `help:"default DB"`
 
-	Key   string        `short:"k"`
-	Field string        `short:"f" help:"hash field"`
-	Val   string        `short:"v" help:"set/hset value for the key"`
-	Exp   time.Duration `help:"set expiry time for the key"`
+	Key     []string      `short:"k"`
+	Pattern string        `short:"P" help:"keys scan pattern" default:"*"`
+	MaxKeys int           `help:"scan max keys" default:"10"`
+	Type    string        `help:"scan type, string/hash/list/set/zset"`
+	Field   []string      `short:"f" help:"hash field"`
+	Val     string        `short:"v" help:"set/hset value for the key"`
+	Exp     time.Duration `help:"set expiry time for the key"`
 }
 
 func (f *subCmd) run(cmd *cobra.Command, args []string) error {
@@ -41,46 +44,86 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 
 	ctx := context.Background()
 
-	if f.Val == "" {
-		typ, err := rdb.Type(ctx, f.Key).Result()
-		if err != nil {
-			log.Printf("redis type %s err: %v", f.Key, err)
-			return nil
-		} else {
-			log.Printf("redis type %s", typ)
-		}
+	if len(f.Key) == 0 {
+		var cursor uint64
+		keyIndex := 0
+		for {
+			var keys []string
+			var err error
+			keys, cursor, err = rdb.ScanType(ctx, cursor, f.Pattern, 0, f.Type).Result()
+			if err != nil {
+				log.Printf("scan redis error: %v", err)
+				return nil
+			}
+			for _, key := range keys {
+				keyIndex++
+				typ := f.Type
+				if f.Type == "" {
+					typ, _ = rdb.Type(ctx, key).Result()
+				}
+				log.Printf("#%d key: %s, type: %s", keyIndex, key, typ)
+			}
 
-		if f.Field == "" {
-			val, err := rdb.Get(ctx, f.Key).Result()
+			if cursor == 0 || keyIndex >= f.MaxKeys { // no more keys
+				break
+			}
+		}
+		return nil
+	}
+
+	if f.Val == "" {
+		for _, key := range f.Key {
+			typ, err := rdb.Type(ctx, key).Result()
+			if err != nil {
+				log.Printf("redis type %s err: %v", f.Key, err)
+				continue
+			}
+
+			var val any
+			switch typ {
+			case "string":
+				val, err = rdb.Get(ctx, key).Result()
+			case "hash":
+				if len(f.Field) > 0 {
+					val, err = rdb.HMGet(ctx, key, f.Field...).Result()
+				} else {
+					val, err = rdb.HGetAll(ctx, key).Result()
+				}
+			default:
+			}
+
 			if err != nil {
 				if errors.Is(err, redis.Nil) {
-					log.Printf("Get key: %s does not exist", f.Key)
-					return nil
+					log.Printf("%s key: %s does not exist", f.Key)
+
+				} else {
+					log.Printf("HGET key: %s field: %s error: %v", f.Key, f.Field, err)
 				}
-				log.Printf("Get key: %s error: %v", f.Key, err)
-			} else {
-				log.Printf("Get key: %s value: %s", f.Key, val)
+				continue
+			}
+
+			switch typ {
+			case "string":
+				log.Printf("%s key: %s value: %v", typ, f.Key, val)
+			case "hash":
+				log.Printf("%s key: %s field: %v value: %v", typ, f.Key, f.Field, val)
+			}
+		}
+		return nil
+	}
+
+	for _, key := range f.Key {
+		if len(f.Field) > 0 {
+			for _, field := range f.Field {
+				if err := rdb.HSet(ctx, key, field, f.Val).Err(); err != nil {
+					log.Printf("redis hset err: %v", err)
+				}
 			}
 		} else {
-			val, err := rdb.HGet(ctx, f.Key, f.Field).Result()
-			if err != nil {
-				if errors.Is(err, redis.Nil) {
-					log.Printf("HGET key: %s does not exist", f.Key)
-					return nil
-				}
-				log.Printf("HGET key: %s field: %s error: %v", f.Key, f.Field, err)
-				return err
+			if err := rdb.Set(ctx, key, f.Val, f.Exp).Err(); err != nil {
+				log.Printf("redis set err: %v", err)
 			}
-			log.Printf("HGET key: %s field: %s value: %s", f.Key, f.Field, val)
 		}
-	} else {
-		var err error
-		if f.Field == "" {
-			err = rdb.Set(ctx, f.Key, f.Val, f.Exp).Err()
-		} else {
-			err = rdb.HSet(ctx, f.Key, f.Field, f.Val).Err()
-		}
-		return err
 	}
 
 	return nil
