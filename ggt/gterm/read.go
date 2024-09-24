@@ -142,6 +142,18 @@ func SplitTail(s *string, c byte) (tail string) {
 	return tail
 }
 
+func DecodeByTailTag(s string) ([]byte, error) {
+	format := SplitTail(&s, ':')
+	switch format {
+	case "hex":
+		return hex.DecodeString(s)
+	case "base64", "b64":
+		return base64.StdEncoding.DecodeString(s)
+	default:
+		return []byte(s), nil
+	}
+}
+
 func decorateReader(r io.Reader, format string) io.Reader {
 	switch strings.ToLower(format) {
 	case "hex":

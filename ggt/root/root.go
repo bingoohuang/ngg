@@ -75,9 +75,9 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 		if v, _ := tags.Get("short"); v != nil {
 			short = v.Raw
 		}
-		usage := ""
+		help := ""
 		if v, _ := tags.Get("help"); v != nil {
-			usage = v.Raw
+			help = v.Raw
 		}
 		defaultVal := ""
 		if v, _ := tags.Get("default"); v != nil {
@@ -85,11 +85,12 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 		}
 		if defaultVal == "" {
 			if t, _ := tags.Get("env"); t != nil && t.Raw != "-" {
+				env := t.Raw
 				if t.Raw == "auto" {
-					defaultVal = os.Getenv(ss.ToSnakeUpper(name))
-				} else {
-					defaultVal = os.Getenv(t.Raw)
+					env = ss.ToSnakeUpper(name)
 				}
+				defaultVal = os.Getenv(env)
+				help += fmt.Sprintf("(env $%s)", env)
 			}
 		}
 
@@ -98,7 +99,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 			if defaultVal != "" {
 				pf.Set(defaultVal)
 			}
-			p.VarP(pf, name, short, usage)
+			p.VarP(pf, name, short, help)
 			continue
 		}
 
@@ -111,7 +112,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 					curDefault = val
 				}
 			}
-			p.DurationVarP(pp.(*time.Duration), name, short, curDefault, usage)
+			p.DurationVarP(pp.(*time.Duration), name, short, curDefault, help)
 			continue
 		}
 
@@ -122,9 +123,16 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 					defaultVal = val.(string)
 				}
 			}
-			p.StringVarP(pp.(*string), name, short, defaultVal, usage)
+			p.StringVarP(pp.(*string), name, short, defaultVal, help)
 		case reflect.Bool:
-			p.BoolVarP(pp.(*bool), name, short, false, usage)
+			curDefault := false
+			if defaultVal != "" {
+				curDefault, err = ss.ParseBool(defaultVal)
+				if err != nil {
+					return fmt.Errorf("parse  bool %s: %w", defaultVal, err)
+				}
+			}
+			p.BoolVarP(pp.(*bool), name, short, curDefault, help)
 		case reflect.Int:
 			curDefault := 0
 			if defaultVal != "" {
@@ -132,15 +140,14 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 				case "runtime.GOMAXPROCS(0)":
 					curDefault = runtime.GOMAXPROCS(0)
 				default:
-					intVal, err := ss.Parse[int](defaultVal)
+					curDefault, err = ss.Parse[int](defaultVal)
 					if err != nil {
 						return fmt.Errorf("parse int %s: %w", defaultVal, err)
 					}
-					curDefault = intVal
 				}
 			}
 
-			p.IntVarP(pp.(*int), name, short, curDefault, usage)
+			p.IntVarP(pp.(*int), name, short, curDefault, help)
 		case reflect.Slice:
 			elemType := field.Type.Elem()
 			switch elemType.Kind() {
@@ -151,7 +158,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 						curDefault = val.([]string)
 					}
 				}
-				p.StringArrayVarP(pp.(*[]string), name, short, curDefault, usage)
+				p.StringArrayVarP(pp.(*[]string), name, short, curDefault, help)
 			}
 		case reflect.Func:
 			// ignore
