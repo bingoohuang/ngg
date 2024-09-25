@@ -10,7 +10,7 @@ replace (
 	github.com/bingoohuang/ngg/jj => ../jj
 	github.com/bingoohuang/ngg/ss => ../ss
 	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
-
+	github.com/emmansun/gmsm => ./gmsm
 )
 
 require (
@@ -18,22 +18,22 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.4.0
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/cmd v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/daemon v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/gnet v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/godbtest v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/gossh v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/gum v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/jj v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/ss v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/tick v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/ver v0.0.0-20240924143359-64c7ac9bf51f
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240924143359-64c7ac9bf51f
+	github.com/bingoohuang/ngg/cmd v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/daemon v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/gnet v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/godbtest v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/gossh v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/gum v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/jj v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/ss v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/tick v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/ver v0.0.0-20240925004800-51db94c4a057
+	github.com/bingoohuang/ngg/yaml v0.0.0-20240925004800-51db94c4a057
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/chzyer/readline v1.5.1
 	github.com/cloudwego/hertz v0.9.3
-	github.com/deatil/go-cryptobin v1.0.4010
+	github.com/deatil/go-cryptobin v1.0.4011
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.28.0
 	github.com/expr-lang/expr v1.16.9
@@ -85,9 +85,9 @@ require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20240924143359-64c7ac9bf51f // indirect
-	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240924143359-64c7ac9bf51f // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20240924143359-64c7ac9bf51f // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20240925004800-51db94c4a057 // indirect
+	github.com/bingoohuang/ngg/sqlparser v0.0.0-20240925004800-51db94c4a057 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20240925004800-51db94c4a057 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect

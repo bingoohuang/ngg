@@ -385,7 +385,7 @@ func (r *keyCmd) run(cmd *cobra.Command, args []string) error {
 	// CreatePKCS8PrivateKeyWithPassword(psssword, "AES256CBC", "SHA256").
 	// CreateXMLPrivateKey().
 	if r.Dir != "" {
-		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "pri.key")
+		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "rsa_pri.pem")
 		if err := os.WriteFile(keyFile, pri.ToKeyBytes(), os.ModePerm); err != nil {
 			return err
 		}
@@ -419,7 +419,7 @@ func (r *keyCmd) run(cmd *cobra.Command, args []string) error {
 	// CreateXMLPublicKey().
 
 	if r.Dir != "" {
-		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "pub.key")
+		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "rsa_pub.pem")
 		if err := os.WriteFile(keyFile, pub.ToKeyBytes(), os.ModePerm); err != nil {
 			return err
 		}

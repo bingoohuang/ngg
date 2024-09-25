@@ -2,6 +2,7 @@ package root
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"runtime"
@@ -12,6 +13,22 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
+
+func CreateSubCmd(parent *cobra.Command, use, short string, obj interface {
+	Run(*cobra.Command, []string) error
+}) {
+	c := &cobra.Command{
+		Use:   use,
+		Short: short,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := obj.Run(cmd, args); err != nil {
+				log.Printf("error occured: %v", err)
+			}
+		},
+	}
+	ss.PanicErr(InitFlags(obj, c.Flags()))
+	parent.AddCommand(c)
+}
 
 func AddCommand(c *cobra.Command, fc any) {
 	if fc != nil && !c.DisableFlagParsing {
