@@ -2,4 +2,4 @@
 
 package drivers
 
-import _ "github.com/marcboeker/go-duckdb"
+// import _ "github.com/marcboeker/go-duckdb"

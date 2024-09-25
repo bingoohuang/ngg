@@ -376,7 +376,7 @@ func checksumReader(r io.Reader) string {
 	if _, err := io.Copy(h, r); err != nil {
 		log.Printf("copy failed: %v", err)
 	}
-	return ss.Must(ss.Base64().EncodeBytes(h.Sum(nil), ss.Raw, ss.Url)).String()
+	return ss.Base64().EncodeBytes(h.Sum(nil), ss.Raw, ss.Url).V1.String()
 }
 
 func fileNotExists(filePath string) bool {

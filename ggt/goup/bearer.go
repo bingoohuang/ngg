@@ -40,5 +40,5 @@ func SecureCompare(given string, actual string) bool {
 func BearerTokenGenerate() string {
 	b := make([]byte, 15)
 	_, _ = rand.Read(b)
-	return ss.Must(ss.Base64().EncodeBytes(b, ss.Url, ss.Raw)).String()
+	return ss.Base64().EncodeBytes(b, ss.Url, ss.Raw).V1.String()
 }

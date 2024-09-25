@@ -41,12 +41,12 @@ func Base64() *b64 {
 }
 
 // EncodeBytes encodes src into base64 []byte.
-func (b *b64) EncodeBytes(src []byte, flags ...Base64Flags) (*bytes.Buffer, error) {
+func (b *b64) EncodeBytes(src []byte, flags ...Base64Flags) Pair[*bytes.Buffer, error] {
 	var buf bytes.Buffer
 	if _, err := EncodeBase64(&buf, bytes.NewReader(src), flags...); err != nil {
-		return nil, err
+		return Pair[*bytes.Buffer, error]{V2: err}
 	}
-	return &buf, nil
+	return Pair[*bytes.Buffer, error]{V1: &buf, V2: nil}
 }
 
 type Pair[T1 any, T2 any] struct {

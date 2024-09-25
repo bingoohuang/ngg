@@ -42,7 +42,8 @@ type subCmd struct {
 
 	Additional string `help:"additional in GCM/CCM"`
 
-	SM4 bool `help:"sm4"`
+	SM4     bool `help:"sm4"`
+	Verbose bool `short:"v" help:"verbose"`
 
 	Base64 bool `help:"base64 encrypted output"`
 	Hex    bool `help:"hex encrypted output"`
@@ -60,9 +61,15 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
+	if f.Verbose && r.SourceType == gterm.SourceRandom {
+		log.Printf("random input: %s:base64", ss.Base64().EncodeBytes(data).V1.Bytes())
+	}
+
 	if f.Key == "" {
 		f.Key = string(ss.Rand().Bytes(16)) // 128位
-		log.Printf("rand --key %x:hex", f.Key)
+		if f.Verbose {
+			log.Printf("rand --key %x:hex", f.Key)
+		}
 	} else {
 		key, err := gterm.DecodeByTailTag(f.Key)
 		if err != nil {
@@ -73,7 +80,9 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 	}
 	if f.IV == "" {
 		f.IV = string(ss.Rand().Bytes(aes.BlockSize))
-		log.Printf("rand --iv %x:hex", f.IV)
+		if f.Verbose {
+			log.Printf("rand --iv %x:hex", f.IV)
+		}
 	} else {
 		iv, err := gterm.DecodeByTailTag(f.IV)
 		if err != nil {
@@ -155,12 +164,16 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 
 	if f.Out != "" {
 		if err := os.WriteFile(f.Out, result, os.ModePerm); err != nil {
-			log.Printf("write %s failed: %v", f.Out, err)
+			log.Printf("write file %s failed: %v", f.Out, err)
 		} else {
-			log.Printf("%s result written to file %s", action, f.Out)
+			log.Printf("%s file %s", action, f.Out)
 		}
 	} else {
-		log.Printf("%s result: %s", action, result)
+		if f.Verbose {
+			log.Printf("%s: %s", action, result)
+		} else {
+			fmt.Printf("%s", result)
+		}
 	}
 
 	return nil

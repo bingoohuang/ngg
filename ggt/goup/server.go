@@ -181,7 +181,7 @@ func servePake(w http.ResponseWriter, sessionID, code, contentCurve string) erro
 	}
 
 	setSessionKey(sessionID, bk)
-	w.Header().Set("Content-Gulp", "Curve="+ss.Must(ss.Base64().EncodeBytes(bb, ss.Raw, ss.Url)).String())
+	w.Header().Set("Content-Gulp", "Curve="+ss.Base64().EncodeBytes(bb, ss.Raw, ss.Url).V1.String())
 	return nil
 }
 
@@ -283,7 +283,7 @@ func serveDownload(w http.ResponseWriter, r *http.Request, sessionID, cipher, co
 
 	w.Header().Set(ContentType, "application/octet-stream")
 	w.Header().Set(ContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filename}))
-	w.Header().Set("Content-Gulp", "Rang="+contentRange+"; Salt="+ss.Must(ss.Base64().EncodeBytes(salt, ss.Raw, ss.Url)).String())
+	w.Header().Set("Content-Gulp", "Rang="+contentRange+"; Salt="+ss.Base64().EncodeBytes(salt, ss.Raw, ss.Url).V1.String())
 
 	_, cipherSuites := parseCipherSuites(cipher)
 	cfg := sio.Config{Key: key, CipherSuites: cipherSuites}

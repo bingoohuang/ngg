@@ -395,7 +395,7 @@ func PbeEncrypt(plainText, password string, iterations int) (string, error) {
 		return "", err
 	}
 
-	return Pick1(Base64().EncodeBytes(append(salt, encText...), Url)).String(), nil
+	return Base64().EncodeBytes(append(salt, encText...), Url).V1.String(), nil
 }
 
 // PbeDecrypt PrintDecrypt the cipherText(result of Encrypt) based on password and iterations.
@@ -422,7 +422,7 @@ func PbeEncryptSalt(plainText, password, fixedSalt string, iterations int) (stri
 		return "", err
 	}
 
-	return Pick1(Base64().EncodeBytes(encText, Url)).String(), nil
+	return Base64().EncodeBytes(encText, Url).V1.String(), nil
 }
 
 // PbeDecryptSalt PrintDecrypt the cipherText(result of EncryptSalt) based on password and iterations.

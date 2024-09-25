@@ -447,7 +447,7 @@ func (c *Client) setupSessionKey() error {
 		return err
 	}
 	r.Header.Set(Authorization, c.Bearer)
-	r.Header.Set("Content-Gulp", "Session="+c.ID+"; Curve="+ss.Must(ss.Base64().EncodeBytes(a.Bytes(), ss.Raw, ss.Url)).String())
+	r.Header.Set("Content-Gulp", "Session="+c.ID+"; Curve="+ss.Base64().EncodeBytes(a.Bytes(), ss.Raw, ss.Url).V1.String())
 	q, err := c.Client.Do(r)
 	if err != nil {
 		return err
@@ -515,7 +515,7 @@ func (c *Client) chunkTransfer(chunkBody io.Reader, contentRange string, err err
 	r.Header.Set(ContentDisposition, c.contentDisposition)
 	r.Header.Set("Content-Gulp", "Session="+c.ID+
 		"; Range="+contentRange+
-		"; Salt="+ss.Must(ss.Base64().EncodeBytes(salt, ss.Raw, ss.Url)).String())
+		"; Salt="+ss.Base64().EncodeBytes(salt, ss.Raw, ss.Url).V1.String())
 	q, err := c.Client.Do(r)
 	if err != nil {
 		return "", err
