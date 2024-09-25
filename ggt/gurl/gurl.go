@@ -32,7 +32,7 @@ import (
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
-	"github.com/emmansun/gmsm/sm3"
+	"github.com/deatil/go-cryptobin/hash/sm3"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/blake3"
 )

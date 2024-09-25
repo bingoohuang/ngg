@@ -15,7 +15,7 @@ import (
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/cespare/xxhash/v2"
-	"github.com/emmansun/gmsm/sm3"
+	"github.com/deatil/go-cryptobin/hash/sm3"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/blake3"
 )

@@ -38,3 +38,27 @@ $ ggt encrypt --sm4 -i bingoohuang --base64
 $ ggt encrypt -d --sm4 --key 2b49c80e2d1a47b18775aeccebb64ee4:hex --iv e010af29b4aaae3e94a58615e04ab473:hex -i x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ:b64
 2024-09-24 22:24:49.821 [INFO ] 44073 --- [1     ] [-] : SM4/GCM/NoPadding Decrypt result: bingoohuang
 ```
+
+## sm2 签名验签
+
+```sh
+$ ggt sm2 key --dir .
+2024-09-25 22:41:50.844 [INFO ] 65201 --- [1     ] [-] : key file sm2_pri.pem created!
+2024-09-25 22:41:50.845 [INFO ] 65201 --- [1     ] [-] : key file sm2_pub.pem created!
+
+$ ggt sm2 sign -i bingoohuang -k sm2_pri.pem
+MEQCIEq/b+KzaC6jzUM/HI1oRfKZec2Wq+mW4xKY4E49aH1PAiAabAbA+0AA7hfPfuC4NHY6B/9q3F7yGMGp+wM5KHAq3A==
+                                                                                                                           
+$ ggt sm2 verify -i bingoohuang -k sm2_pub.pem --sign MEQCIEq/b+KzaC6jzUM/HI1oRfKZec2Wq+mW4xKY4E49aH1PAiAabAbA+0AA7hfPfuC4NHY6B/9q3F7yGMGp+wM5KHAq3A==
+true
+```
+
+## sm2 公钥加密，私钥解密
+
+```sh
+$ ggt sm2 encrypt -i bingoohuang -k sm2_pub.pem 
+2024-09-25 22:58:37.031 [INFO ] 67989 --- [1     ] [-] : encrypted: BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShXtfoEQ+0Yf5hUvu7hzmUIny7nF8gBX2bA8Dv7/iBqqEkPBfW/onrSMPZMVt/dLrT1e6KEmo6j11JPQvUVA8D6fkk110IvbalHbI322eFuG/b
+
+$ ggt sm2 decrypt -i BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShXtfoEQ+0Yf5hUvu7hzmUIny7nF8gBX2bA8Dv7/iBqqEkPBfW/onrSMPZMVt/dLrT1e6KEmo6j11JPQvUVA8D6fkk110IvbalHbI322eFuG/b:base64 -k sm2_pri.pem 
+2024-09-25 22:58:56.607 [INFO ] 68048 --- [1     ] [-] : decrypted: bingoohuang
+```
