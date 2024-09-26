@@ -6,8 +6,6 @@ import (
 	"io"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/bingoohuang/ngg/sqlparser/dependency/querypb"
 	"github.com/bingoohuang/ngg/sqlparser/dependency/sqltypes"
 	"github.com/bingoohuang/ngg/sqlparser/dialect"
@@ -75,11 +73,11 @@ func (p Parser) HandleRawSQLQuery(sql string) (normalizedQuery, redactedQuery st
 func (p Parser) Parse(sql string) (Statement, error) {
 	statement, err := ParseWithDialect(defaultDialect, sql)
 	if err != nil && p.parseQueryErrorMode == ModeDefault {
-		if log.GetLevel() == log.DebugLevel {
-			log.WithError(err).Debugln("ignoring error of non parsed sql statement")
-		} else {
-			log.Warningln("ignoring error of non parsed sql statement")
-		}
+		// if log.GetLevel() == log.DebugLevel {
+		// 	log.WithError(err).Debugln("ignoring error of non parsed sql statement")
+		// } else {
+		// 	log.Warningln("ignoring error of non parsed sql statement")
+		// }
 		return NotParsedStatement{Query: sql}, nil
 	}
 	return statement, err
@@ -101,7 +99,7 @@ func ParseWithDialect(dialect dialect.Dialect, sql string) (Statement, error) {
 	tokenizer := NewStringTokenizerWithDialect(dialect, sql)
 	if yyParse(tokenizer) != 0 {
 		if tokenizer.partialDDL != nil {
-			log.Printf("ignoring error parsing DDL '%s': %v", sql, tokenizer.LastError)
+			// log.Printf("ignoring error parsing DDL '%s': %v", sql, tokenizer.LastError)
 			tokenizer.ParseTree = tokenizer.partialDDL
 			return tokenizer.ParseTree, nil
 		}
