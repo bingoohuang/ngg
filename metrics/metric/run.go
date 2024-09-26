@@ -2,6 +2,7 @@ package metric
 
 import (
 	"io"
+	"log"
 	"math"
 	"path/filepath"
 	"runtime"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/bingoohuang/ngg/metrics/pkg/rotate"
 	"github.com/bingoohuang/ngg/metrics/pkg/util"
-	"github.com/sirupsen/logrus"
 )
 
 // DefaultRunner is the default runner for metric recording.
@@ -86,7 +86,7 @@ func createRotateFile(o *Option, prefix string) io.Writer {
 	f := filepath.Join(o.LogPath, prefix+o.AppName+".log")
 	lf, err := rotate.NewFile(f, o.MaxBackups)
 	if err != nil {
-		logrus.Warnf("fail to new logMetrics file %s, error %v", f, err)
+		log.Printf("W! fail to new logMetrics file %s, error %v", f, err)
 		return nil
 	}
 
@@ -101,7 +101,7 @@ func (r *Runner) Start() {
 
 	go r.run()
 
-	logrus.Info("runner started")
+	log.Printf("runner started")
 }
 
 // Stop stops the runner.
@@ -132,13 +132,11 @@ func (r *Runner) run() {
 		case <-hbTicker.C:
 			r.logHB()
 		case <-r.stop:
-			logrus.Info("runner stopped")
+			log.Printf("runner stopped")
 			return
 		}
 	}
 }
-
-func (r *Runner) afterMetricsInterval() bool { return time.Since(r.startTime) > r.MetricsInterval }
 
 func (r *Runner) logMetrics() {
 	if r.MetricsLogfile == nil {
@@ -187,7 +185,7 @@ func (r *Runner) writeLog(file io.Writer, v Line) {
 
 	if r.option.Debug {
 		s, _ := v.ToLineProtocol()
-		logrus.Infof("LineProtocol:%s", s)
+		log.Printf("LineProtocol: %s", s)
 	}
 	if file == nil {
 		return
@@ -196,7 +194,7 @@ func (r *Runner) writeLog(file io.Writer, v Line) {
 	content := util.JSONCompact(v)
 
 	if _, err := file.Write([]byte(content + "\n")); err != nil {
-		logrus.Warnf("fail to write log of metrics, error %+v", err)
+		log.Printf("W! fail to write log of metrics, error %+v", err)
 	}
 }
 

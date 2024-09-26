@@ -2,13 +2,13 @@ package rotate
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/bingoohuang/ngg/metrics/pkg/util"
-	"github.com/sirupsen/logrus"
 )
 
 const yyyyMMdd = "yyyy-MM-dd"
@@ -49,7 +49,7 @@ func (o *File) open() error {
 
 	o.file = f
 
-	logrus.Infof("log file %s created", o.Filename)
+	log.Printf("log file %s created", o.Filename)
 
 	return nil
 }
@@ -70,7 +70,7 @@ func (o *File) doRotate(rotated string, outMaxBackups []string) error {
 			return fmt.Errorf("rotate %s to %s error %w", o.Filename, rotated, err)
 		}
 
-		logrus.Infof("%s rotated to %s", o.Filename, rotated)
+		log.Printf("%s rotated to %s", o.Filename, rotated)
 
 		if err := o.open(); err != nil {
 			return err
@@ -82,7 +82,7 @@ func (o *File) doRotate(rotated string, outMaxBackups []string) error {
 			return fmt.Errorf("remove log file %s before max backup days %d error %v", old, o.MaxBackups, err)
 		}
 
-		logrus.Infof("%s before max backup days %d removed", old, o.MaxBackups)
+		log.Printf("%s before max backup days %d removed", old, o.MaxBackups)
 	}
 
 	return nil

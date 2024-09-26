@@ -1,10 +1,11 @@
 package metric
 
 import (
+	"log"
+
 	"github.com/bingoohuang/ngg/metrics/pkg/ks"
 	"github.com/bingoohuang/ngg/metrics/pkg/util"
 	"github.com/bingoohuang/ngg/ss"
-	"github.com/sirupsen/logrus"
 )
 
 // Key defines a slice of keys.
@@ -31,7 +32,7 @@ func (k *Key) Check() {
 
 	if len(k.Keys) == 0 {
 		k.Checked = false
-		logrus.Warn("Keys required")
+		log.Printf("W! Keys required")
 		return
 	}
 
@@ -46,13 +47,13 @@ const strippedChars = `" .,|#\` + "\t\r\n"
 
 func (k *Key) validateKey(i int, key string) bool {
 	if key == "" {
-		logrus.Warn("Key can not be empty")
+		log.Printf("W! Key can not be empty")
 		return false
 	}
 
 	key = util.StripAny(key, strippedChars)
 	if key == "" {
-		logrus.Warnf("invalid Key %s", key)
+		log.Printf("W! invalid Key %s", key)
 		return false
 	}
 

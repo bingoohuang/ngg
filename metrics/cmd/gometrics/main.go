@@ -7,13 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bingoohuang/golog"
 	"github.com/bingoohuang/ngg/metrics/metric"
 	"github.com/bingoohuang/ngg/metrics/pkg/ks"
 )
 
 func init() {
-	_ = golog.Setup()
 	metric.DefaultRunner.Stop()
 	metric.DefaultRunner = metric.NewRunner(metric.EnvOption())
 	metric.DefaultRunner.Start()

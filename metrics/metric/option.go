@@ -1,6 +1,7 @@
 package metric
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -8,7 +9,6 @@ import (
 	"github.com/caarlos0/env/v6"
 	"github.com/creasty/defaults"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 // Option defines the option for runner.
@@ -36,7 +36,7 @@ func EnvOption(filenames ...string) OptionFn {
 
 		_ = godotenv.Load(filenames...)
 		if err := env.Parse(o); err != nil {
-			logrus.Warnf("parse env to option error %+v", err)
+			log.Printf("W! parse env to option error %+v", err)
 		}
 	}
 }
@@ -72,7 +72,7 @@ func createOption(ofs ...OptionFn) *Option {
 // SetDefaults set the default values to Option.
 func (o *Option) setDefaults() {
 	if err := defaults.Set(o); err != nil {
-		logrus.Warnf("defaults set error %v", err)
+		log.Printf("W! defaults set error %v", err)
 	}
 
 	if o.AppName == "" {
