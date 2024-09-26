@@ -143,6 +143,8 @@ func (q *Sqliter) tickRecycleByDays(t time.Time, keepTime TimeSpan) (totalRecycl
 		for _, info := range infos {
 			if info.DividedBy < cutoffDivided {
 				recycled = append(recycled, info)
+			} else {
+				log.Printf("file: %s DividedBy: %s >= cutoffDivided: %s", info.File.Path, info.DividedBy, cutoffDivided)
 			}
 		}
 	}
@@ -164,10 +166,8 @@ func (q *Sqliter) tickRecycleDbFiles(recycled []*DbFile) (totalRecycledSize int6
 		totalRecycledSize += removedSize
 	}
 
-	if q.Debug {
-		log.Printf("recycleFiles: %d, size: %s", len(recycled),
-			ss.IBytes(uint64(totalRecycledSize)))
-	}
+	log.Printf("recycleFiles: %d, size: %s", len(recycled),
+		ss.IBytes(uint64(totalRecycledSize)))
 
 	return
 }

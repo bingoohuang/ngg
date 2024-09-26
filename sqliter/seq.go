@@ -18,6 +18,11 @@ type BoltSeq struct {
 func NewBoltSeq(name, bucket string) (*BoltSeq, error) {
 	// Open the data file in your current directory.
 	// It will be created if it doesn't exist.
+
+	// "invalid argument" when opening db https://github.com/boltdb/bolt/issues/272
+	// Basically you can't run a boltdb file out of a shared folder in Virtualbox, especially if your on a mac.
+	// The workaround here is to run the boltdb file out of a non-shared folder.
+	// 基本上，您不能从 Virtualbox 中的共享文件夹运行 boltdb 文件，尤其是在 Mac 上时。 此处的解决方法是在非共享文件夹中运行 boltdb 文件。
 	db, err := bolt.Open(name, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, fmt.Errorf("open %s: %w", name, err)

@@ -107,7 +107,7 @@ func ParseTimeSpan(s string) (TimeSpan, error) {
 	}
 
 	unit := UnitMonth
-	switch strings.ToLower(subs[2][:0]) {
+	switch strings.ToLower(subs[2][:1]) {
 	case "m":
 		unit = UnitMonth
 	case "w":

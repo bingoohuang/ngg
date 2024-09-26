@@ -17,4 +17,8 @@ func TestParseTimeSpan(t *testing.T) {
 	span, err := ParseTimeSpan("3 months")
 	assert.Nil(t, err)
 	assert.Equal(t, TimeSpan{Value: 3, Unit: UnitMonth}, span)
+
+	span, err = ParseTimeSpan("30d")
+	assert.Nil(t, err)
+	assert.Equal(t, TimeSpan{Value: 30, Unit: UnitDay}, span)
 }
