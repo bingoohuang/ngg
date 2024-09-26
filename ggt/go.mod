@@ -9,8 +9,8 @@ replace (
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/jj => ../jj
 	github.com/bingoohuang/ngg/ss => ../ss
-	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 	github.com/emmansun/gmsm => ./gmsm
+	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 )
 
 require (
