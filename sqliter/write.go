@@ -176,19 +176,20 @@ func (d *writeTable) prepareQuery(query string, columns int, onConflict string, 
 	postfixFn := func(batchInsertSize int) string {
 		return MultiInsertBinds(columns, batchInsertSize) + onConflict
 	}
-	stmt, err := d.db.dbPrepare(query, d.BatchInsertSize, postfixFn)
-	if err != nil {
-		if ss.Contains(err.Error(), d.AllowDBErrors...) {
+	stmt := d.db.dbPrepare(query, d.BatchInsertSize, postfixFn, false)
+	if stmt.err != nil {
+		if ss.Contains(stmt.err.Error(), d.AllowDBErrors...) {
 			alterTables := CreateAlterTable(&d.tableMeta, metric, d.SeqKeysDB, d.AsTags)
 			for _, q := range alterTables {
 				d.db.dbExec(true, q)
 			}
-			stmt, err = d.db.dbPrepare(query, d.BatchInsertSize, postfixFn)
+			stmt = d.db.dbPrepare(query, d.BatchInsertSize, postfixFn, true)
 		} else {
-			d.dealError(err, query, BatchPrepare)
-			return nil, err
+			log.Printf("E! dbPrepare: %s, error: %v", stmt.query, stmt.err)
+			d.dealError(stmt.err, query, BatchPrepare)
+			return nil, stmt.err
 		}
 	}
 
-	return stmt, err
+	return stmt, stmt.err
 }

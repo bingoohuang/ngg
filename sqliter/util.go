@@ -213,6 +213,8 @@ type Prepared struct {
 	db    *DebugDB
 	stmt  *sql.Stmt
 	Debug bool
+
+	err error
 }
 
 func (d *Prepared) Close() error {
@@ -236,7 +238,7 @@ const tooManySqlVariables = "too many SQL variables"
 // 默认情况下，这个限制在SQLite版本 3.32.0 之前的版本是 999，而在 3.32.0 及之后的版本是 32766
 // github.com/mattn/go-sqlite3 v2.0.3+incompatible 时， SELECT sqlite_version() 结果 3.31.1, 最大变量数量是 999
 // github.com/mattn/go-sqlite3 v1.14.22 时,  SELECT sqlite_version() 结果 3.45.1, 最大变量数量是 32766
-func (d *DebugDB) dbPrepare(baseQuery string, batchSize int, postfix func(batchSize int) string) (*Prepared, error) {
+func (d *DebugDB) dbPrepare(baseQuery string, batchSize int, postfix func(batchSize int) string, logErr bool) *Prepared {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
@@ -263,7 +265,9 @@ func (d *DebugDB) dbPrepare(baseQuery string, batchSize int, postfix func(batchS
 	}
 
 	if err != nil {
-		log.Printf("E! dbPrepare: %s, error: %v", q, err)
+		if logErr {
+			log.Printf("E! dbPrepare: %s, error: %v", q, err)
+		}
 	} else if d.Debug {
 		log.Printf("dbPrepare: %s, cost: %s", q, cost)
 	}
@@ -278,7 +282,8 @@ func (d *DebugDB) dbPrepare(baseQuery string, batchSize int, postfix func(batchS
 		stmt:      stmt,
 		Debug:     d.Debug,
 		batchSize: newBatchSize,
-	}, err
+		err:       err,
+	}
 }
 
 type file struct {
