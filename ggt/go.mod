@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.1
 
 replace (
+	github.com/bingoohuang/ngg/sqlparser => ../sqlparser
 	github.com/bingoohuang/ngg/godbtest => ../godbtest
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/jj => ../jj
