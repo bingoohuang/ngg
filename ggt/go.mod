@@ -5,11 +5,12 @@ go 1.23.0
 toolchain go1.23.1
 
 replace (
-	github.com/bingoohuang/ngg/sqlparser => ../sqlparser
 	github.com/bingoohuang/ngg/godbtest => ../godbtest
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/jj => ../jj
+	github.com/bingoohuang/ngg/sqlparser => ../sqlparser
 	github.com/bingoohuang/ngg/ss => ../ss
+	github.com/bingoohuang/ngg/ver => ../ver
 	github.com/emmansun/gmsm => ./gmsm
 	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 )
@@ -188,7 +189,6 @@ require (
 	github.com/sevlyar/go-daemon v0.1.6 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sijms/go-ora/v2 v2.8.21 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect

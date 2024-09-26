@@ -17,6 +17,12 @@ var (
 	GoVersion = ""
 	// AppVersion 应用版本号
 	AppVersion = "1.0.0"
+
+	// RepoPath gitlab 仓库地址路径
+	// 1. HTTP: http://192.168.131.1/develop/FOOTSTONE/bsf/Code/msp-api-gateway.git
+	// 2. Git: git@192.168.131.1:develop/FOOTSTONE/bsf/Code/msp-api-gateway.git
+	// 路径皆为: /develop/FOOTSTONE/bsf/Code/msp-api-gateway.git
+	RepoPath = "Unset"
 )
 
 // Version returns the full version information for the application.
@@ -27,6 +33,7 @@ func Version() string {
 		fmt.Sprintf("build host : %s\n", BuildHost) +
 		fmt.Sprintf("build ip   : %s\n", BuildIP) +
 		fmt.Sprintf("build ci   : %s\n", BuildCI) +
-		fmt.Sprintf("git        : %s\n", GitCommit) +
+		fmt.Sprintf("git commit : %s\n", GitCommit) +
+		fmt.Sprintf("git repo   : %s\n", RepoPath) +
 		fmt.Sprintf("go         : %s", GoVersion)
 }

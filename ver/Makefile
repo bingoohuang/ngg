@@ -17,9 +17,11 @@ buildTime := $(shell date +%FT%T%z)
 buildTimeCompact := $(shell date +%Y%m%d%H%M%S)
 # https://git-scm.com/docs/git-rev-list#Documentation/git-rev-list.txt-emaIem
 # e.g. ffd23d3@2022-04-06T18:07:14+08:00
-gitCommit := $(shell [ -f git.commit ] && cat git.commit || git log --format=format:'%h@%aI' -1)
-gitBranch := $(shell [ -f git.branch ] && cat git.branch || git reflog | head -1)
-gitInfo = $(gitBranch)-$(gitCommit)
+repoUrl := $(shell git remote -v  | head -1 | awk '{print $$2}')
+repoPath := $(shell if [[ $(repoUrl) =~ ^git@[^:]+:(.*\.git)$$ ]]; then echo "/$${BASH_REMATCH[1]}"; elif [[ $(repoUrl) =~ ^http[s]?://[^/]+(.*\.git)$$ ]]; then echo "$${BASH_REMATCH[1]}"; else echo "Unknown"; fi)
+gitCommit := $(shell [ -f git.commit ] && cat git.commit || git log -1 --format=format:'%h_%aI_%an_%B' )
+gitBranch := $(shell [ -f git.branch ] && cat git.branch || git branch --show-current)
+gitInfo = $(gitBranch)_$(gitCommit)
 #gitCommit := $(shell git rev-list -1 HEAD)
 # https://stackoverflow.com/a/47510909
 pkg := github.com/bingoohuang/ngg/ver
@@ -30,7 +32,7 @@ BuildCI := $(if $(BUILD_TAG),$(BUILD_TAG),Unknown)
 extldflags := -extldflags -static
 # https://ms2008.github.io/2018/10/08/golang-build-version/
 # https://github.com/kubermatic/kubeone/blob/master/Makefile
-flags1 = -s -w -X "$(pkg).BuildTime=$(buildTime)" -X "$(pkg).AppVersion=$(appVersion)" -X "$(pkg).GitCommit=$(gitInfo)" -X "$(pkg).GoVersion=$(goVersion)" -X "$(pkg).BuildHost=$(hostname)" -X "$(pkg).BuildIP=$(hostip)" -X "$(pkg).BuildCI=$(BuildCI)"
+flags1 = -s -w -X "$(pkg).BuildTime=$(buildTime)" -X "$(pkg).AppVersion=$(appVersion)" -X "$(pkg).GitCommit=$(gitInfo)" -X "$(pkg).GoVersion=$(goVersion)" -X "$(pkg).BuildHost=$(hostname)" -X "$(pkg).BuildIP=$(hostip)" -X "$(pkg).BuildCI=$(BuildCI)" -X "$(pkg).RepoPath=$(repoPath)"
 flags2 = ${extldflags} ${flags1}
 buildTags = $(if $(TAGS),-tags=$(TAGS),)
 buildFlags = ${buildTags} -trimpath -ldflags="'${flags1}'"
