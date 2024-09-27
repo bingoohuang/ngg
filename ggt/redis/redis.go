@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/ggt/root"
+	"github.com/bingoohuang/ngg/jj"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 )
@@ -33,6 +35,8 @@ type subCmd struct {
 	Field   []string      `short:"f" help:"hash field"`
 	Val     string        `short:"v" help:"set/hset value for the key"`
 	Exp     time.Duration `help:"set expiry time for the key"`
+	Raw     bool          `short:"r" help:"use raw json format"`
+	Del     bool          `short:"d" help:"delete keys"`
 }
 
 func (f *subCmd) run(cmd *cobra.Command, args []string) error {
@@ -71,6 +75,16 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	if f.Del {
+		result, err := rdb.Del(ctx, f.Key...).Result()
+		if err != nil {
+			log.Printf("del error: %v", err)
+		} else {
+			log.Printf("del result: %v", result)
+		}
+		return nil
+	}
+
 	if f.Val == "" {
 		for _, key := range f.Key {
 			typ, err := rdb.Type(ctx, key).Result()
@@ -94,7 +108,7 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 
 			if err != nil {
 				if errors.Is(err, redis.Nil) {
-					log.Printf("%s key: %s does not exist", f.Key)
+					log.Printf("key: %s does not exist", f.Key)
 
 				} else {
 					log.Printf("HGET key: %s field: %s error: %v", f.Key, f.Field, err)
@@ -104,9 +118,18 @@ func (f *subCmd) run(cmd *cobra.Command, args []string) error {
 
 			switch typ {
 			case "string":
-				log.Printf("%s key: %s value: %v", typ, f.Key, val)
+				if !f.Raw && jj.Valid(val.(string)) {
+					log.Printf("%s key: %s value: %s", typ, key, jj.Pretty([]byte(val.(string))))
+				} else {
+					log.Printf("%s key: %s value: %v", typ, key, val)
+				}
 			case "hash":
-				log.Printf("%s key: %s field: %v value: %v", typ, f.Key, f.Field, val)
+				value := ss.Json(val)
+				if !f.Raw {
+					value = jj.Pretty(jj.FreeInnerJSON(value))
+				}
+
+				log.Printf("%s key: %s field: %v value: %s", typ, f.Key, f.Field, value)
 			}
 		}
 		return nil
