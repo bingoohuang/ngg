@@ -61,8 +61,14 @@ func (f *subCmd) run(*cobra.Command, []string) error {
 		log.Printf("stun error: %v", err)
 	} else if len(publicIP) > 0 {
 		log.Printf("Stun IP: %v ✅", publicIP)
-		clipboard.WriteAll(publicIP[0])
-		log.Printf("%s copied to clipboard", publicIP)
+
+		for _, public := range publicIP {
+			if gnet.IsIPv4(public) {
+				clipboard.WriteAll(public)
+				log.Printf("%s copied to clipboard", public)
+				break
+			}
+		}
 	}
 
 	if f.Verbose {
