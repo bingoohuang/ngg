@@ -85,7 +85,7 @@ func (q *Sqliter) tickRecycle(keepTime TimeSpan) (totalRecycledSize int64) {
 func (q *Sqliter) tickRecycleByMaxSize(t time.Time) (totalRecycledSize int64) {
 	tables, err := q.ListDiskTables()
 	if err != nil {
-		log.Printf("sqliteplus.ListDiskTables() error: %v", err)
+		log.Printf("sqliter.ListDiskTables() error: %v", err)
 		return
 	}
 
@@ -133,7 +133,7 @@ func (q *Sqliter) findRecycleFilesBySize(t time.Time, tables map[string][]*DbFil
 func (q *Sqliter) tickRecycleByDays(t time.Time, keepTime TimeSpan) (totalRecycledSize int64) {
 	tables, err := q.ListDiskTables()
 	if err != nil {
-		log.Printf("sqliteplus.ListDiskTables() error: %v", err)
+		log.Printf("sqliter.ListDiskTables() error: %v", err)
 		return
 	}
 
@@ -275,7 +275,7 @@ func (q *Sqliter) statWriteDbs() (dbStats []DbStat) {
 	return
 }
 
-// Close 关闭 SqlitePlus 所有操作，包括关闭库文件、退出回收协程等
+// Close 关闭 sqliter 所有操作，包括关闭库文件、退出回收协程等
 func (q *Sqliter) Close() error {
 	q.recycleCancel()
 	q.closeWriteDbs()

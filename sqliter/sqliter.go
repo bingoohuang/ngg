@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// New 创建 *SqlitePlus 对象
+// New 创建 *sqliter 对象
 func New(fns ...ConfigFn) (*Sqliter, error) {
 	config, err := createConfig(fns)
 	if err != nil {
@@ -76,7 +76,7 @@ const (
 	DefaultMaxIdle = 5 * time.Minute
 	// DefaultBatchInterval 批量执行时间间隔
 	DefaultBatchInterval = 10 * time.Second
-	// DefaultBatchSize 批次大学
+	// DefaultBatchSize 批次大小
 	DefaultBatchSize = 50
 
 	// DefaultRecycleInterval 回收周期间隔
