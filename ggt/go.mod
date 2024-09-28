@@ -42,6 +42,7 @@ require (
 	github.com/fatedier/frp v0.60.0
 	github.com/fatih/color v1.17.0
 	github.com/glebarez/sqlite v1.11.0
+	github.com/golang-module/dongle v0.2.8
 	github.com/hertz-contrib/gzip v0.0.3
 	github.com/imroc/req/v3 v3.46.1
 	github.com/jedib0t/go-pretty/v6 v6.5.9

@@ -5,8 +5,8 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 
+	"github.com/bingoohuang/ngg/ggt/encrypt"
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/ss"
@@ -17,56 +17,16 @@ import (
 // https://github.com/deatil/go-cryptobin/blob/main/docs/rsa.md
 
 func init() {
-	rsaCobra := &cobra.Command{
+	c := &cobra.Command{
 		Use: "rsa",
 	}
-	root.AddCommand(rsaCobra, nil)
+	root.AddCommand(c, nil)
 
-	keyCobra := &cobra.Command{
-		Use:   "key",
-		Short: "生成公钥私钥",
-	}
-	key := &keyCmd{}
-	keyCobra.RunE = key.run
-	ss.PanicErr(root.InitFlags(key, keyCobra.Flags()))
-	rsaCobra.AddCommand(keyCobra)
-
-	signCobra := &cobra.Command{
-		Use:   "sign",
-		Short: "签名",
-	}
-	sign := &signCmd{}
-	signCobra.RunE = sign.run
-	ss.PanicErr(root.InitFlags(sign, signCobra.Flags()))
-	rsaCobra.AddCommand(signCobra)
-
-	verifyCobra := &cobra.Command{
-		Use:   "verify",
-		Short: "验签",
-	}
-	verify := &verifyCmd{}
-	verifyCobra.RunE = verify.run
-	ss.PanicErr(root.InitFlags(verify, verifyCobra.Flags()))
-	rsaCobra.AddCommand(verifyCobra)
-
-	encryptCobra := &cobra.Command{
-		Use:   "encrypt",
-		Short: "公钥加密/私钥解密 / Encrypt with public key, 或者  私钥加密/公钥解密 / Encrypt with private key",
-	}
-	encrypt := &encryptCmd{}
-	encryptCobra.RunE = encrypt.run
-	ss.PanicErr(root.InitFlags(encrypt, encryptCobra.Flags()))
-	rsaCobra.AddCommand(encryptCobra)
-
-	checkKeyPairCobra := &cobra.Command{
-		Use:   "check-keypair",
-		Short: "检测私钥公钥是否匹配 / Check KeyPair",
-	}
-	checkKeyPair := &checkKeyPairCmd{}
-	checkKeyPairCobra.RunE = checkKeyPair.run
-	ss.PanicErr(root.InitFlags(checkKeyPair, checkKeyPairCobra.Flags()))
-	rsaCobra.AddCommand(checkKeyPairCobra)
-
+	root.CreateSubCmd(c, "newkey", "生成公钥私钥", &newKeyCmd{})
+	root.CreateSubCmd(c, "sign", "签名", &signCmd{})
+	root.CreateSubCmd(c, "verify", "验签", &verifyCmd{})
+	root.CreateSubCmd(c, "encrypt", "公钥加密/私钥解密, 私钥加密/公钥解密", &encryptCmd{})
+	root.CreateSubCmd(c, "keypair", "公检测私钥公钥是否匹配", &checkKeyPairCmd{})
 }
 
 type checkKeyPairCmd struct {
@@ -76,7 +36,7 @@ type checkKeyPairCmd struct {
 	Pub string `short:"P" help:"public key pem file"`
 }
 
-func (f *checkKeyPairCmd) run(cmd *cobra.Command, args []string) error {
+func (f *checkKeyPairCmd) Run(cmd *cobra.Command, args []string) error {
 	pubKeyPem, err := os.ReadFile(ss.ExpandHome(f.Pub))
 	if err != nil {
 		return err
@@ -120,7 +80,7 @@ type encryptCmd struct {
 	OaepLabel string `help:"OAEP label"`
 }
 
-func (f *encryptCmd) run(cmd *cobra.Command, args []string) error {
+func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -148,19 +108,6 @@ func (f *encryptCmd) run(cmd *cobra.Command, args []string) error {
 		if f.Decrypt {
 			// 公钥解密
 			obj = obj.PublicKeyDecrypt()
-			if err := obj.Error(); err != nil {
-				return err
-			}
-
-			if f.Out != "" {
-				if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-					return err
-				} else {
-					log.Printf("decrypted result written to file %s", f.Out)
-				}
-			} else {
-				log.Printf("decrypted: %s", obj.ToString())
-			}
 		} else {
 			// 公钥加密
 			if f.Oaep {
@@ -176,20 +123,13 @@ func (f *encryptCmd) run(cmd *cobra.Command, args []string) error {
 			} else {
 				obj = obj.Encrypt()
 			}
+		}
 
-			if err := obj.Error(); err != nil {
-				return err
-			}
-
-			if f.Out != "" {
-				if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-					return err
-				} else {
-					log.Printf("encrypted result written to file %s", f.Out)
-				}
-			} else {
-				log.Printf("encrypted: %s", obj.ToBase64String())
-			}
+		if err := obj.Error(); err != nil {
+			return err
+		}
+		if err := encrypt.WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
+			return err
 		}
 	} else if f.Pri != "" {
 		priKeyPem, err := os.ReadFile(ss.ExpandHome(f.Pri))
@@ -221,37 +161,17 @@ func (f *encryptCmd) run(cmd *cobra.Command, args []string) error {
 
 				obj = obj.Decrypt()
 			}
-
-			if err := obj.Error(); err != nil {
-				return err
-			}
-
-			if f.Out != "" {
-				if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-					return err
-				} else {
-					log.Printf("decrypted result written to file %s", f.Out)
-				}
-			} else {
-				log.Printf("decrypted: %s", obj.ToBytes())
-			}
 		} else {
 			// 私钥加密
 			obj = obj.PrivateKeyEncrypt()
+		}
 
-			if err := obj.Error(); err != nil {
-				return err
-			}
+		if err := obj.Error(); err != nil {
+			return err
+		}
 
-			if f.Out != "" {
-				if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-					return err
-				} else {
-					log.Printf("encrypted result written to file %s", f.Out)
-				}
-			} else {
-				log.Printf("encrypted: %s", obj.ToBase64String())
-			}
+		if err := encrypt.WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
+			return err
 		}
 	} else {
 		return fmt.Errorf("必须指定公钥或者私钥，用于加密或者解密")
@@ -269,7 +189,7 @@ type verifyCmd struct {
 	Pss  bool   `help:"填充模式PSS(Probabilistic Signature Scheme)"`
 }
 
-func (f *verifyCmd) run(cmd *cobra.Command, args []string) error {
+func (f *verifyCmd) Run(cmd *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -313,7 +233,7 @@ type signCmd struct {
 	Pss   bool   `help:"填充模式PSS(Probabilistic Signature Scheme)"`
 }
 
-func (f *signCmd) run(cmd *cobra.Command, args []string) error {
+func (f *signCmd) Run(cmd *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -348,15 +268,15 @@ func (f *signCmd) run(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-type keyCmd struct {
-	Bits  int    `help:"keys bits, 512 | 1024 | 2048 | 4096" default:"2048"`
+type newKeyCmd struct {
+	Bits  int    `help:"keys bits" default:"2048" enum:"512,1024,2048,4096"`
 	Pass  string `short:"p" help:"privatekey password"`
 	Dir   string `help:"output dir"`
 	Pkcs8 bool   `help:"pkcs8"`
 }
 
-func (r *keyCmd) run(cmd *cobra.Command, args []string) error {
-	obj := rsa.New().GenerateKey(2048)
+func (r *newKeyCmd) Run(cmd *cobra.Command, args []string) error {
+	obj := rsa.New().GenerateKey(r.Bits)
 
 	// 生成私钥
 	// create private key
@@ -384,15 +304,9 @@ func (r *keyCmd) run(cmd *cobra.Command, args []string) error {
 	// CreatePKCS8PrivateKey().
 	// CreatePKCS8PrivateKeyWithPassword(psssword, "AES256CBC", "SHA256").
 	// CreateXMLPrivateKey().
-	if r.Dir != "" {
-		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "rsa_pri.pem")
-		if err := os.WriteFile(keyFile, pri.ToKeyBytes(), os.ModePerm); err != nil {
-			return err
-		}
-		log.Printf("key file %s created!", keyFile)
-	} else {
-		log.Printf("private key pem: \n%s", pri.ToKeyString())
-	}
+
+	encrypt.WriteKeyFile(pri.ToKeyBytes(), r.Dir, "rsa_pri.pem")
+
 	// 自定义私钥加密类型
 	// use custom encrypt options
 	// var PriKeyPem string = obj.
@@ -410,23 +324,11 @@ func (r *keyCmd) run(cmd *cobra.Command, args []string) error {
 	var pub rsa.RSA
 	// 生成公钥
 	// create public key
-	if r.Pkcs8 {
-		pub = obj.CreatePKCS8PublicKey()
-	} else {
-		pub = obj.CreatePKCS1PublicKey()
-	}
+	pub = ss.If(r.Pkcs8, obj.CreatePKCS8PublicKey, obj.CreatePKCS1PublicKey)()
 	// CreatePKCS8PublicKey().
 	// CreateXMLPublicKey().
 
-	if r.Dir != "" {
-		keyFile := filepath.Join(ss.ExpandHome(r.Dir), "rsa_pub.pem")
-		if err := os.WriteFile(keyFile, pub.ToKeyBytes(), os.ModePerm); err != nil {
-			return err
-		}
-		log.Printf("key file %s created!", keyFile)
-	} else {
-		log.Printf("public key pem: \n%s", pub.ToKeyString())
-	}
+	encrypt.WriteKeyFile(pub.ToKeyBytes(), r.Dir, "rsa_pub.pem")
 
 	return nil
 }

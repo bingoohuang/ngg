@@ -24,7 +24,7 @@ func init() {
 	}
 
 	root.AddCommand(c, fc)
-	root.CreateSubCmd(c, "key", "生成公钥私钥", &sm2KeyCmd{})
+	root.CreateSubCmd(c, "newkey", "生成公钥私钥", &sm2KeyCmd{})
 	root.CreateSubCmd(c, "sign", "签名", &sm2SignCmd{})
 	root.CreateSubCmd(c, "verify", "验签", &sm2VerifyCmd{})
 	root.CreateSubCmd(c, "encrypt", "加密", &sm2EncryptCmd{})
@@ -55,12 +55,12 @@ func (f *sm2KeyCmd) Run(_ *cobra.Command, args []string) error {
 		obj = obj.CreatePrivateKey()
 	}
 
-	if err := writeKeyFile(obj, f.Dir, "sm2_pri.pem"); err != nil {
+	if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pri.pem"); err != nil {
 		return nil
 	}
 
 	obj = obj.CreatePublicKey()
-	if err := writeKeyFile(obj, f.Dir, "sm2_pub.pem"); err != nil {
+	if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pub.pem"); err != nil {
 		return nil
 	}
 	return nil
@@ -262,14 +262,8 @@ func (f *sm2EncryptCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if f.Out != "" {
-		if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-			return err
-		} else {
-			log.Printf("encrypted result written to file %s", f.Out)
-		}
-	} else {
-		log.Printf("encrypted: %s", obj.ToBase64String())
+	if err := WriteDataFile(f.Out, obj.ToBytes(), true); err != nil {
+		return err
 	}
 
 	return nil
@@ -319,14 +313,8 @@ func (f *sm2DecryptCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if f.Out != "" {
-		if err := os.WriteFile(ss.ExpandHome(f.Out), obj.ToBytes(), os.ModePerm); err != nil {
-			return err
-		} else {
-			log.Printf("decrypted result written to file %s", f.Out)
-		}
-	} else {
-		log.Printf("decrypted: %s", obj.ToString())
+	if err := WriteDataFile(f.Out, obj.ToBytes(), false); err != nil {
+		return err
 	}
 
 	return nil
@@ -416,17 +404,35 @@ type sm2RecoverCmd struct {
 	Dir string `help:"output dir"`
 }
 
-func writeKeyFile(obj sm2.SM2, dir, keyFileName string) error {
+func WriteKeyFile(keyBytes []byte, dir, keyFileName string) error {
 	if dir != "" {
 		keyFile := filepath.Join(ss.ExpandHome(dir), keyFileName)
-		if err := os.WriteFile(keyFile, obj.ToKeyBytes(), os.ModePerm); err != nil {
+		if err := os.WriteFile(keyFile, keyBytes, os.ModePerm); err != nil {
 			return err
 		}
 		log.Printf("key file %s created!", keyFile)
 	} else {
-		log.Printf("key:\n%s", obj.ToKeyString())
+		log.Printf("key:\n%s", keyBytes)
 	}
 
+	return nil
+}
+
+func WriteDataFile(out string, data []byte, base64Console bool) error {
+	if out != "" {
+		if err := os.WriteFile(ss.ExpandHome(out), data, os.ModePerm); err != nil {
+			return err
+		}
+
+		log.Printf("result written to file %s", out)
+		return nil
+	}
+
+	if base64Console {
+		log.Printf("result: %s", ss.Base64().EncodeBytes(data).V1.Bytes())
+	} else {
+		log.Printf("result: %s", data)
+	}
 	return nil
 }
 
@@ -438,8 +444,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, args []string) error {
 		log.Printf("public key: %s", ss.Base64().EncodeBytes((gmsm2.PublicKeyTo(obj.GetPublicKey()))).V1.Bytes())
 
 		obj = obj.CreatePublicKey()
-
-		if err := writeKeyFile(obj, f.Dir, "sm2_pub.pem"); err != nil {
+		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pub.pem"); err != nil {
 			return nil
 		}
 	}
@@ -451,8 +456,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, args []string) error {
 		log.Printf("private key: %s", ss.Base64().EncodeBytes((gmsm2.PrivateKeyTo(obj.GetPrivateKey()))).V1.Bytes())
 
 		obj = obj.CreatePrivateKey()
-
-		if err := writeKeyFile(obj, f.Dir, "sm2_pri.pem"); err != nil {
+		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pri.pem"); err != nil {
 			return nil
 		}
 	}
@@ -491,7 +495,7 @@ func (f *sm2ConvertCmd) Run(_ *cobra.Command, args []string) error {
 			obj = obj.CreatePKCS8PrivateKey()
 		}
 
-		if err := writeKeyFile(obj, f.Dir, "sm2_pri.pem"); err != nil {
+		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pri.pem"); err != nil {
 			return nil
 		}
 	}

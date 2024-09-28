@@ -1,11 +1,14 @@
 package root
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bingoohuang/ngg/ss"
@@ -33,6 +36,15 @@ func CreateSubCmd(parent *cobra.Command, use, short string, obj interface {
 func AddCommand(c *cobra.Command, fc any) {
 	if fc != nil && !c.DisableFlagParsing {
 		ss.PanicErr(InitFlags(fc, c.Flags()))
+	}
+	if runer, ok := fc.(interface {
+		Run(cmd *cobra.Command, args []string) error
+	}); ok {
+		c.Run = func(cmd *cobra.Command, args []string) {
+			if err := runer.Run(cmd, args); err != nil {
+				log.Printf("error occured: %v", err)
+			}
+		}
 	}
 	cmd.AddCommand(c)
 }
@@ -87,7 +99,6 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 		if v, _ := tags.Get("flag"); v != nil {
 			name = v.Raw
 		}
-
 		short := ""
 		if v, _ := tags.Get("short"); v != nil {
 			short = v.Raw
@@ -107,8 +118,13 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 					env = ss.ToSnakeUpper(name)
 				}
 				defaultVal = os.Getenv(env)
-				help += fmt.Sprintf("(env $%s)", env)
+				help = appendHelp(name, help, fmt.Sprintf("env: $%s.", env))
 			}
+		}
+		var enumValues []string
+		if v, _ := tags.Get("enum"); v != nil {
+			enumValues = ss.Split(v.Raw, ",")
+			help = appendHelp(name, help, fmt.Sprintf("allowed: %s.", v.Raw))
 		}
 
 		pp := structVal.Field(i).Addr().Interface()
@@ -135,12 +151,17 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 
 		switch field.Type.Kind() {
 		case reflect.String:
+
 			if aware, ok := f.(DefaultPlagValuesAware); ok {
 				if val, ok := aware.DefaultPlagValues(field.Name); ok {
 					defaultVal = val.(string)
 				}
 			}
-			p.StringVarP(pp.(*string), name, short, defaultVal, help)
+			if len(enumValues) > 0 {
+				p.VarP(NewEnum(enumValues, pp.(*string), defaultVal), name, short, help)
+			} else {
+				p.StringVarP(pp.(*string), name, short, defaultVal, help)
+			}
 		case reflect.Bool:
 			curDefault := false
 			if defaultVal != "" {
@@ -159,12 +180,16 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 				default:
 					curDefault, err = ss.Parse[int](defaultVal)
 					if err != nil {
-						return fmt.Errorf("parse int %s: %w", defaultVal, err)
+						log.Panicf("default %s is not int", defaultVal)
 					}
 				}
 			}
+			if len(enumValues) > 0 {
+				p.VarP(NewEnumInt(enumValues, pp.(*int), curDefault), name, short, help)
+			} else {
+				p.IntVarP(pp.(*int), name, short, curDefault, help)
+			}
 
-			p.IntVarP(pp.(*int), name, short, curDefault, help)
 		case reflect.Slice:
 			elemType := field.Type.Elem()
 			switch elemType.Kind() {
@@ -187,6 +212,86 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 	return nil
 }
 
+func appendHelp(name, help, s string) string {
+	if help == "" {
+		help = name
+	}
+
+	if !strings.HasSuffix(help, ".") {
+		help += "."
+	}
+
+	return help + " " + s
+}
+
 type DefaultPlagValuesAware interface {
 	DefaultPlagValues(name string) (any, bool)
+}
+
+type EnumType int
+
+const (
+	EnumString EnumType = iota
+	EnumInt
+)
+
+type Enum struct {
+	Allows    []string
+	Value     *string
+	ValueInt  *int
+	ValueType EnumType
+}
+
+func NewEnum(allows []string, val *string, defaultVal string) *Enum {
+	*val = defaultVal
+	return &Enum{
+		Allows:    allows,
+		Value:     val,
+		ValueType: EnumString,
+	}
+}
+
+func NewEnumInt(allows []string, val *int, defaultVal int) *Enum {
+	*val = defaultVal
+
+	return &Enum{
+		Allows:    allows,
+		ValueInt:  val,
+		ValueType: EnumInt,
+	}
+}
+
+// String is used both by fmt.Print and by Cobra in help text
+func (e Enum) String() string {
+	switch e.ValueType {
+	case EnumString:
+		return *e.Value
+	case EnumInt:
+		return strconv.Itoa(*e.ValueInt)
+	}
+	return ""
+}
+
+// Set must have pointer receiver so it doesn't change the value of a copy
+func (e *Enum) Set(v string) error {
+	for _, allow := range e.Allows {
+		if strings.EqualFold(v, allow) {
+			switch e.ValueType {
+			case EnumString:
+				*e.Value = v
+				return nil
+			case EnumInt:
+				var err error
+				*e.ValueInt, err = ss.Parse[int](v)
+				return err
+			}
+		}
+	}
+
+	return errors.New(`must be one of ` + strings.Join(e.Allows, ","))
+}
+
+// Type is only used in help text
+func (e *Enum) Type() string {
+	return "enum"
 }

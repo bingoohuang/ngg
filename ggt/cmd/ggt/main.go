@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
+	_ "github.com/bingoohuang/ngg/ggt/codec"
 	_ "github.com/bingoohuang/ngg/ggt/dbtest"
 	_ "github.com/bingoohuang/ngg/ggt/encrypt"
 	_ "github.com/bingoohuang/ngg/ggt/frp"

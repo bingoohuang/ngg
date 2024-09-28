@@ -1,9 +1,18 @@
 # 对称加解密
 
+## 最佳实践
+
+- 密钥管理：密钥是 AES 加密的核心，必须确保其安全存储和传输。使用密钥管理服务（如 AWS KMS、HashiCorp Vault）存储密钥，不要将密钥硬编码在代码中。
+- 选择合适的分组模式：AES 提供多种加密模式，尽量避免使用 ECB 模式，因为它对相同的明文总是生成相同的密文，容易被攻击。建议使用 CBC、GCM 等模式。GCM（Galois/Counter Mode）具有更高的安全性和性能，并支持数据认证。
+- 使用随机 IV：加密时，为每次加密操作生成一个随机的初始向量（IV），并将 IV 与密文一起传输。IV 不需要保密，但必须确保每次加密时都是随机的，以防止模式攻击。
+- 处理填充和未填充：AES 加密需要数据块是 16 字节的倍数，因此需要使用 PKCS7 等填充方式。解密时，要谨慎处理填充的去除，以避免解密错误和潜在的攻击。
+- 错误处理：在加密和解密过程中，密钥长度、IV 长度和数据块大小等操作都可能出错，必须在每个步骤处理这些错误，防止出现潜在的安全漏洞。
+- 数据完整性：AES 本身只提供加密，不能确保数据完整性。为了防止密文篡改，建议在加密过程中结合 HMAC 或使用 AES-GCM 模式，这些模式可以提供加密和数据完整性验证。
+
 ## 文件加解密
 
 ```sh
-$ ggt encrypt -i /Users/bingoo/Downloads/1.jpg --out /Users/bingoo/Downloads/1.jpg.aes                                                                                        
+$ ggt encrypt -i /Users/bingoo/Downloads/1.jpg -v --out /Users/bingoo/Downloads/1.jpg.aes                                                                                        
 2024-09-24 22:20:03.828 [INFO ] 42816 --- [1     ] [-] : rand --key 4149fd5f0e8ee10d52155c56984b1761:hex
 2024-09-24 22:20:03.829 [INFO ] 42816 --- [1     ] [-] : rand --iv 4781d2c35e619aaba39211ed31af4b63:hex
 2024-09-24 22:20:03.831 [INFO ] 42816 --- [1     ] [-] : AES/GCM/NoPadding Encrypt result written to file /Users/bingoo/Downloads/1.jpg.aes
@@ -18,7 +27,7 @@ Files /Users/bingoo/Downloads/1.jpg and /Users/bingoo/Downloads/2.jpg are identi
 ## 文本加解密
 
 ```sh
-$ ggt encrypt -i bingoohuang --base64
+$ ggt encrypt -v -i bingoohuang --base64
 2024-09-24 22:19:04.780 [INFO ] 42690 --- [1     ] [-] : rand --key f4b1b49188227518f96e2e8c9214d9e4:hex
 2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : rand --iv fed6e50a238ebed2821e7abd4df94f51:hex
 2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : AES/GCM/NoPadding Encrypt result: KMiSPR7DE5j127FZOm9SctyIi9QhNn/Kx3N3
@@ -30,7 +39,7 @@ $ ggt encrypt -d --key f4b1b49188227518f96e2e8c9214d9e4:hex --iv fed6e50a238ebed
 ## 文本 sm4 加解密
 
 ```sh
-$ ggt encrypt --sm4 -i bingoohuang --base64                                                                                                                     
+$ ggt encrypt --sm4 -v -i bingoohuang --base64                                                                                                                     
 2024-09-24 22:24:23.202 [INFO ] 43995 --- [1     ] [-] : rand --key 2b49c80e2d1a47b18775aeccebb64ee4:hex
 2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : rand --iv e010af29b4aaae3e94a58615e04ab473:hex
 2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : SM4/GCM/NoPadding Encrypt result: x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ
@@ -44,7 +53,7 @@ $ ggt encrypt -d --sm4 --key 2b49c80e2d1a47b18775aeccebb64ee4:hex --iv e010af29b
 SM2 签名时，默认的 Hash 就是 SM3
 
 ```sh
-$ ggt sm2 key --dir .
+$ ggt sm2 newkey --dir .
 2024-09-26 08:14:45.433 [INFO ] 32783 --- [1     ] [-] : private key: 4CPliYoiw4/uo/7mJuV74OnrT90omaHJY6uu44UwrZo=
 2024-09-26 08:14:45.435 [INFO ] 32783 --- [1     ] [-] : public key: BGN03rpdKTmGRTDmq9m0kXr+sVJB8k237zsCRmcN2pBFRd/2/7CDXnV19KuSttmgu/33BEjP66mL/TDag/QqltU=
 2024-09-26 08:14:45.436 [INFO ] 32783 --- [1     ] [-] : key file sm2_pri.pem created!

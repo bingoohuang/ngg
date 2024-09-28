@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
@@ -31,15 +32,8 @@ type subCmd struct {
 	IV      string `help:"IV" env:"auto"`
 	Out     string `short:"o" help:"output file name"`
 	Decrypt bool   `short:"d" help:"decrypt"`
-	Cbc     bool   `help:"CBC mode"`
-	Gcm     bool   `help:"GCM mode" default:"true"`
-	Ccm     bool   `help:"CCM mode"`
-	Ctr     bool   `help:"CTR mode"`
-	Ecb     bool   `help:"ECB mode"`
-	CFB     bool   `help:"CFB mode"`
-	OFB     bool   `help:"OFB mode"`
-	Wrap    bool   `help:"WRAP mode"`
 
+	Mode       string `help:"mode" default:"GCM" enum:"CBC,GCM,CCM,CTR,ECB,CFB,OFB,WRAP"`
 	Additional string `help:"additional in GCM/CCM"`
 
 	SM4     bool `help:"sm4"`
@@ -105,7 +99,8 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		action += "AES"
 	}
 
-	if f.Gcm {
+	switch strings.ToUpper(f.Mode) {
+	case "GCM":
 		if f.Additional != "" {
 			obj = obj.GCM([]byte(f.Additional)).NoPadding()
 		} else {
@@ -113,29 +108,29 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		}
 
 		action += "/GCM/NoPadding"
-	} else if f.Ccm {
+	case "CCM":
 		if f.Additional != "" {
 			obj = obj.CCM([]byte(f.Additional)).NoPadding()
 		} else {
 			obj = obj.CCM().NoPadding()
 		}
 		action += "/CCM/NoPadding"
-	} else if f.Ctr {
+	case "CTR":
 		obj = obj.CTR().NoPadding()
 		action += "/CTR/NoPadding"
-	} else if f.Ecb {
+	case "ECB":
 		obj = obj.ECB().PKCS7Padding()
 		action += "/ECB/PKCS7Padding"
-	} else if f.CFB {
+	case "CFB":
 		obj = obj.CFB().NoPadding()
 		action += "/CFB/NoPadding"
-	} else if f.OFB {
+	case "OFB":
 		obj = obj.OFB().NoPadding()
 		action += "/OFB/NoPadding"
-	} else if f.Wrap {
+	case "WRAP":
 		obj = obj.ModeBy(wrap.Wrap)
 		action += "/WRAP/PKCS7Padding"
-	} else {
+	default:
 		obj = obj.CBC().PKCS7Padding()
 		action += "/CBC/PKCS7Padding"
 	}
