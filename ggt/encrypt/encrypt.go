@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/bingoohuang/ngg/ggt/gterm"
@@ -12,6 +11,7 @@ import (
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/deatil/go-cryptobin/cryptobin/crypto"
 	"github.com/deatil/go-cryptobin/cryptobin/crypto/mode/wrap"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
@@ -29,11 +29,11 @@ func init() {
 type subCmd struct {
 	Input   string `short:"i" help:"Input string, or filename"`
 	Key     string `short:"k" help:"public key pem file" env:"auto"`
-	IV      string `help:"IV" env:"auto"`
+	IV      string `help:"IV, Nonce for GCM" env:"auto"`
 	Out     string `short:"o" help:"output file name"`
 	Decrypt bool   `short:"d" help:"decrypt"`
 
-	Mode       string `help:"mode" default:"GCM" enum:"CBC,GCM,CCM,CTR,ECB,CFB,OFB,WRAP"`
+	Mode       string `help:"mode" default:"GCM" enum:"CBC,GCM,CCM,CTR,ECB,CFB,OFB,WRAP" env:"auto"`
 	Additional string `help:"additional in GCM/CCM"`
 
 	SM4     bool `help:"sm4"`
@@ -55,15 +55,13 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if f.Verbose && r.SourceType == gterm.SourceRandom {
+	if r.SourceType == gterm.SourceRandom {
 		log.Printf("random input: %s:base64", ss.Base64().EncodeBytes(data).V1.Bytes())
 	}
 
 	if f.Key == "" {
 		f.Key = string(ss.Rand().Bytes(16)) // 128位
-		if f.Verbose {
-			log.Printf("rand --key %x:hex", f.Key)
-		}
+		log.Printf("rand --key %x:hex", f.Key)
 	} else {
 		key, err := gterm.DecodeByTailTag(f.Key)
 		if err != nil {
@@ -73,10 +71,8 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		f.Key = string(key)
 	}
 	if f.IV == "" {
-		f.IV = string(ss.Rand().Bytes(aes.BlockSize))
-		if f.Verbose {
-			log.Printf("rand --iv %x:hex", f.IV)
-		}
+		f.IV = string(ss.Rand().Bytes(ss.If(strings.EqualFold(f.Mode, "GCM"), 12, aes.BlockSize)))
+		log.Printf("rand --iv %x:hex", f.IV)
 	} else {
 		iv, err := gterm.DecodeByTailTag(f.IV)
 		if err != nil {
@@ -135,41 +131,20 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		action += "/CBC/PKCS7Padding"
 	}
 
-	if f.Decrypt {
-		obj = obj.Decrypt()
-		action += " Decrypt"
-	} else {
-		obj = obj.Encrypt()
-		action += " Encrypt"
-	}
+	obj = ss.If(f.Decrypt, obj.Decrypt, obj.Encrypt)()
+	action += ss.If(f.Decrypt, " Decrypt", " Encrypt")
 
 	if err := obj.Error(); err != nil {
 		log.Printf("%s error: %v", action, err)
 		return nil
 	}
 
-	var result []byte
-	if f.Base64 {
-		result = []byte(obj.ToBase64String())
-	} else if f.Hex {
-		result = []byte(obj.ToHexString())
-	} else {
-		result = obj.ToBytes()
-	}
+	result := lo.
+		If(f.Base64, obj.ToBase64String).
+		ElseIf(f.Hex, obj.ToHexString).
+		Else(obj.ToString)()
 
-	if f.Out != "" {
-		if err := os.WriteFile(f.Out, result, os.ModePerm); err != nil {
-			log.Printf("write file %s failed: %v", f.Out, err)
-		} else {
-			log.Printf("%s file %s", action, f.Out)
-		}
-	} else {
-		if f.Verbose {
-			log.Printf("%s: %s", action, result)
-		} else {
-			fmt.Printf("%s", result)
-		}
-	}
+	WriteDataFile(f.Out, []byte(result), !f.Decrypt)
 
 	return nil
 }
