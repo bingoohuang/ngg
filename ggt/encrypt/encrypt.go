@@ -16,14 +16,12 @@ import (
 )
 
 func init() {
-	fc := &subCmd{}
 	c := &cobra.Command{
 		Use:   "encrypt",
 		Short: "aes/sm4 encryption/decryption",
-		RunE:  fc.run,
 	}
 
-	root.AddCommand(c, fc)
+	root.AddCommand(c, &subCmd{})
 }
 
 type subCmd struct {
@@ -43,7 +41,7 @@ type subCmd struct {
 	Hex    bool `help:"hex encrypted output"`
 }
 
-func (f *subCmd) run(_ *cobra.Command, args []string) error {
+func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -136,7 +134,7 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 
 	if err := obj.Error(); err != nil {
 		log.Printf("%s error: %v", action, err)
-		return nil
+		return err
 	}
 
 	result := lo.
@@ -144,7 +142,5 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 		ElseIf(f.Hex, obj.ToHexString).
 		Else(obj.ToString)()
 
-	WriteDataFile(f.Out, []byte(result), !f.Decrypt)
-
-	return nil
+	return WriteDataFile(f.Out, []byte(result), !f.Decrypt)
 }

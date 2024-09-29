@@ -80,6 +80,14 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 		d = dongle.Decode.FromBytes(data).BySafeURL().ToBytes()
 	}
 
+	if len(f.To) == 0 {
+		rawString := string(d)
+		if f.Raw {
+			fmt.Printf("%s", []byte(rawString))
+		} else {
+			log.Printf("raw: %s (len: %d)", rawString, len(rawString))
+		}
+	}
 	for _, to := range f.To {
 		var rawString, hexString, base64String string
 		algo := strings.ToLower(to)
