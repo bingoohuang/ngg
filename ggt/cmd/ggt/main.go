@@ -6,7 +6,6 @@ import (
 	_ "github.com/bingoohuang/ngg/ggt/dbtest"
 	_ "github.com/bingoohuang/ngg/ggt/encrypt"
 	_ "github.com/bingoohuang/ngg/ggt/frp"
-	_ "github.com/bingoohuang/ngg/ggt/ghash"
 	_ "github.com/bingoohuang/ngg/ggt/gossh"
 	_ "github.com/bingoohuang/ngg/ggt/goup"
 	_ "github.com/bingoohuang/ngg/ggt/gurl"
