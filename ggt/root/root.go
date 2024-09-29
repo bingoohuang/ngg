@@ -29,13 +29,13 @@ func CreateSubCmd(parent *cobra.Command, use, short string, obj interface {
 			}
 		},
 	}
-	ss.PanicErr(InitFlags(obj, c.Flags()))
+	ss.PanicErr(InitFlags(obj, c.Flags(), c.PersistentFlags()))
 	parent.AddCommand(c)
 }
 
 func AddCommand(c *cobra.Command, fc any) {
 	if fc != nil && !c.DisableFlagParsing {
-		ss.PanicErr(InitFlags(fc, c.Flags()))
+		ss.PanicErr(InitFlags(fc, c.Flags(), c.PersistentFlags()))
 	}
 	if runer, ok := fc.(interface {
 		Run(cmd *cobra.Command, args []string) error
@@ -67,7 +67,7 @@ func Run() {
 	}
 }
 
-func InitFlags(f any, p *pflag.FlagSet) error {
+func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 	ptrVal := reflect.ValueOf(f)
 	structVal := ptrVal.Elem()
 	structType := structVal.Type()
@@ -90,7 +90,7 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 		if field.Anonymous {
 			if tags.GetTag("squash") == "true" {
 				squashField := structVal.Field(i).Addr().Interface()
-				InitFlags(squashField, p)
+				InitFlags(squashField, pf, persistent)
 			}
 			continue
 		}
@@ -107,6 +107,14 @@ func InitFlags(f any, p *pflag.FlagSet) error {
 		if v, _ := tags.Get("help"); v != nil {
 			help = v.Raw
 		}
+
+		p := pf
+		if v, _ := tags.Get("persistent"); v != nil {
+			if persistentTag, _ := ss.ParseBool(v.Raw); persistentTag {
+				p = persistent
+			}
+		}
+
 		defaultVal := ""
 		if v, _ := tags.Get("default"); v != nil {
 			defaultVal = v.Raw
