@@ -174,6 +174,10 @@ func (r *Runner) logMetrics() {
 			pv.V7 -= v.V7
 			pv.V8 -= v.V8
 			pv.V9 -= v.V9
+
+			// 重置 Min, Max
+			pv.Min = -1
+			pv.Max = -1
 		}
 	}
 }

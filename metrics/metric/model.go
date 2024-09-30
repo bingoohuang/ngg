@@ -80,8 +80,8 @@ type Line struct {
 	Hostname string  `json:"hostname"`
 
 	Keys []string `json:"-"`
-	Min  float64  `json:"min"` // 累计最小值
-	Max  float64  `json:"max"` // 累计最大值
+	Min  float64  `json:"min"` // 每次采集区间（METRICS_INTERVAL）中 v1/v2  最小/大值
+	Max  float64  `json:"max"`
 
 	V1 float64 `json:"v1"` // 小数
 	V2 float64 `json:"v2"` // 只有比率类型的时候，才用到v2

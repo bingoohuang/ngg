@@ -11,12 +11,6 @@ import (
 	"github.com/bingoohuang/ngg/metrics/pkg/ks"
 )
 
-func init() {
-	metric.DefaultRunner.Stop()
-	metric.DefaultRunner = metric.NewRunner(metric.EnvOption())
-	metric.DefaultRunner.Start()
-}
-
 func main() {
 	port := flag.Int("port", 0, "http port")
 

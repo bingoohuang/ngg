@@ -1,4 +1,4 @@
-module gometrics
+module metrics
 
 go 1.23.0
 
