@@ -88,7 +88,7 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 		}
 
 		if field.Anonymous {
-			if tags.GetTag("squash") == "true" {
+			if ss.Pick1(ss.ParseBool(tags.GetTag("squash"))) {
 				squashField := structVal.Field(i).Addr().Interface()
 				InitFlags(squashField, pf, persistent)
 			}
@@ -99,14 +99,8 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 		if v, _ := tags.Get("flag"); v != nil {
 			name = v.Raw
 		}
-		short := ""
-		if v, _ := tags.Get("short"); v != nil {
-			short = v.Raw
-		}
-		help := ""
-		if v, _ := tags.Get("help"); v != nil {
-			help = v.Raw
-		}
+		short := tags.GetTag("short")
+		help := tags.GetTag("help")
 
 		p := pf
 		if v, _ := tags.Get("persistent"); v != nil {
@@ -115,10 +109,7 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			}
 		}
 
-		defaultVal := ""
-		if v, _ := tags.Get("default"); v != nil {
-			defaultVal = v.Raw
-		}
+		defaultVal := tags.GetTag("default")
 		if defaultVal == "" {
 			if t, _ := tags.Get("env"); t != nil && t.Raw != "-" {
 				env := t.Raw

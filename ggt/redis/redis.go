@@ -5,12 +5,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/bingoohuang/ngg/ggt/root"
+	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/redis/go-redis/v9"
@@ -24,7 +27,7 @@ func init() {
 		Long: "redis client",
 	}
 	root.AddCommand(c, nil)
-	root.CreateSubCmd(c, "keys", "scan keys", &keysCmd{})
+	root.CreateSubCmd(c, "scan", "scan keys for list/del", &scanCmd{})
 	root.CreateSubCmd(c, "set", "set string key", &setCmd{})
 	root.CreateSubCmd(c, "get", "get key", &getCmd{})
 	root.CreateSubCmd(c, "export", "export keys", &exportCmd{})
@@ -32,8 +35,8 @@ func init() {
 }
 
 type Basic struct {
-	Server   string `short:"s" help:"redis server" default:"127.0.0.1:6379" persist:"1"`
-	Password string `short:"p" persist:"1"`
+	Server   string `short:"s" help:"redis server" default:"127.0.0.1:6379" persist:"1" env:"auto"`
+	Password string `short:"p" persist:"1"  env:"auto"`
 	Db       int    `help:"default redis DB index" persist:"1"`
 }
 
@@ -121,7 +124,7 @@ func (f *setCmd) Run(cmd *cobra.Command, args []string) error {
 
 type importCmd struct {
 	Basic `squash:"true"`
-	File  string `help:"export file, e.g. redis.json"`
+	File  string `help:"exported file, e.g. redis.json"`
 }
 
 func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
@@ -134,21 +137,24 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 	}
 
 	decoder := json.NewDecoder(file)
+	itemIndex := 0
 
 	for {
 		var item ImportKeyItem
 		if err := decoder.Decode(&item); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
 			return err
 		}
 
 		switch item.Type {
 		case "string":
-			var val string
-			if err := json.Unmarshal(item.Value, &val); err != nil {
-				return err
-			}
-			if err := rdb.Set(cmd.Context(), item.Key, val, 0).Err(); err != nil {
+			if err := rdb.Set(cmd.Context(), item.Key, (RawMessage(item.Value)).String(), 0).Err(); err != nil {
 				log.Printf("redis set err: %v", err)
+			} else {
+				itemIndex++
+				log.Printf("%d: string key %s imported", itemIndex, item.Key)
 			}
 		case "hash":
 			var val map[string]json.RawMessage
@@ -157,14 +163,30 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 			}
 
 			for k, v := range val {
-				if err := rdb.HSet(cmd.Context(), item.Key, k, v).Err(); err != nil {
+				if err := rdb.HSet(cmd.Context(), item.Key, k, (RawMessage(v)).String()).Err(); err != nil {
 					return err
 				}
 			}
+			itemIndex++
+			log.Printf("%d: hash key %s imported", itemIndex, item.Key)
 		}
 	}
 
 	return nil
+}
+
+type RawMessage json.RawMessage
+
+func (r RawMessage) String() string {
+	if len(r) == 0 {
+		return ""
+	}
+
+	if len(r) >= 2 && r[0] == '"' && r[len(r)-1] == '"' {
+		return string(r[1 : len(r)-1])
+	}
+
+	return string(r)
 }
 
 type ImportKeyItem struct {
@@ -181,7 +203,7 @@ type exportCmd struct {
 	Excludes []string `help:"exclude keys"`
 	Max      int      `help:"scan max keys" default:"30"`
 	File     string   `help:"export file, e.g. redis.json"`
-	Raw      bool     `short:"r" help:"use raw json format"`
+	Pretty   bool     `help:"use pretty json format"`
 
 	exportItems int
 
@@ -290,16 +312,18 @@ func (f *exportCmd) exportPattern(ctx context.Context, rdb *redis.Client,
 
 }
 
-type keysCmd struct {
+type scanCmd struct {
 	Basic `squash:"true"`
 
 	Type     string   `help:"scan type" enum:"string,hash,list,set,zset"`
 	Key      string   `short:"k" help:"keys scan pattern" default:"*"`
 	Excludes []string `help:"exclude keys"`
 	Max      int      `help:"scan max keys" default:"30"`
+	Del      bool     `help:"delete the keys"`
+	Force    bool     `short:"f" help:"force delete without confirm"`
 }
 
-func (f *keysCmd) Run(cmd *cobra.Command, args []string) error {
+func (f *scanCmd) Run(cmd *cobra.Command, args []string) error {
 	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
 	defer rdb.Close()
 
@@ -331,6 +355,21 @@ func (f *keysCmd) Run(cmd *cobra.Command, args []string) error {
 			}
 
 			log.Printf("#%d key: %s, type: %s", keyIndex, key, typ)
+			if f.Del {
+				confirm := true
+				if !f.Force {
+					confirm, _ = gum.Confirm("Sure to delete " + strconv.Quote(key))
+				}
+
+				if confirm {
+					deletedResult, err := rdb.Del(cmd.Context(), key).Result()
+					if err != nil {
+						log.Printf("%s deleted error: %v", key, err)
+					} else {
+						log.Printf("%s deleted reuslt: %d", key, deletedResult)
+					}
+				}
+			}
 		}
 
 		if cursor == 0 || f.Max > 0 && keyIndex >= f.Max { // no more keys
@@ -385,7 +424,7 @@ func (f *exportCmd) exportKeys(ctx context.Context, rdb *redis.Client, encoder *
 				}
 			}
 
-			if !f.Raw && jj.Valid(val) {
+			if f.Pretty && jj.Valid(val) {
 				item.Value = json.RawMessage(jj.FreeInnerJSON([]byte(val)))
 			} else {
 				item.Value = val
@@ -412,7 +451,7 @@ func (f *exportCmd) exportKeys(ctx context.Context, rdb *redis.Client, encoder *
 				}
 			}
 
-			if !f.Raw {
+			if f.Pretty {
 				hashValues := make(map[string]any)
 				for k, v := range val {
 					if jj.Valid(v) {
