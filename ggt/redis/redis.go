@@ -135,6 +135,7 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 	itemIndex := 0
