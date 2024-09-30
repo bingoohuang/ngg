@@ -2,6 +2,7 @@ package encrypt
 
 import (
 	"crypto/aes"
+	"crypto/sha256"
 	"fmt"
 	"log"
 	"strings"
@@ -11,8 +12,8 @@ import (
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/deatil/go-cryptobin/cryptobin/crypto"
 	"github.com/deatil/go-cryptobin/cryptobin/crypto/mode/wrap"
-	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 func init() {
@@ -27,6 +28,7 @@ func init() {
 type subCmd struct {
 	Input   string `short:"i" help:"Input string, or filename"`
 	Key     string `short:"k" help:"public key pem file" env:"auto"`
+	Pass    string `short:"p" help:"password to generate key"`
 	IV      string `help:"IV, Nonce for GCM" env:"auto"`
 	Out     string `short:"o" help:"output file name"`
 	Decrypt bool   `short:"d" help:"decrypt"`
@@ -36,9 +38,6 @@ type subCmd struct {
 
 	SM4     bool `help:"sm4"`
 	Verbose bool `short:"v" help:"verbose"`
-
-	Base64 bool `help:"base64 encrypted output"`
-	Hex    bool `help:"hex encrypted output"`
 }
 
 func (f *subCmd) Run(_ *cobra.Command, args []string) error {
@@ -58,8 +57,14 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 	}
 
 	if f.Key == "" {
-		f.Key = string(ss.Rand().Bytes(16)) // 128位
-		log.Printf("rand --key %x:hex", f.Key)
+		if f.Pass != "" {
+			salt := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+			f.Key = string(pbkdf2.Key([]byte(f.Pass), salt, 10000, 16, sha256.New))
+			log.Printf("pbkdf2 --key %x:hex", f.Key)
+		} else {
+			f.Key = string(ss.Rand().Bytes(16)) // 128位
+			log.Printf("rand --key %x:hex", f.Key)
+		}
 	} else {
 		key, err := gterm.DecodeByTailTag(f.Key)
 		if err != nil {
@@ -69,7 +74,8 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		f.Key = string(key)
 	}
 	if f.IV == "" {
-		f.IV = string(ss.Rand().Bytes(ss.If(strings.EqualFold(f.Mode, "GCM"), 12, aes.BlockSize)))
+		ivLen := ss.If(strings.EqualFold(f.Mode, "GCM"), 12, aes.BlockSize)
+		f.IV = string(ss.Rand().Bytes(ivLen))
 		log.Printf("rand --iv %x:hex", f.IV)
 	} else {
 		iv, err := gterm.DecodeByTailTag(f.IV)
@@ -80,18 +86,9 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		f.IV = string(iv)
 	}
 
-	obj := crypto.
-		FromBytes(data).
-		SetKey(f.Key).
-		SetIv(f.IV)
-	action := ""
-	if f.SM4 {
-		obj = obj.SM4()
-		action += "SM4"
-	} else {
-		obj = obj.Aes()
-		action += "AES"
-	}
+	obj := crypto.FromBytes(data).SetKey(f.Key).SetIv(f.IV)
+	obj = ss.If(f.SM4, obj.SM4, obj.Aes)()
+	action := ss.If(f.SM4, "SM4", "AES")
 
 	switch strings.ToUpper(f.Mode) {
 	case "GCM":
@@ -100,7 +97,6 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		} else {
 			obj = obj.GCM().NoPadding()
 		}
-
 		action += "/GCM/NoPadding"
 	case "CCM":
 		if f.Additional != "" {
@@ -137,10 +133,5 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	result := lo.
-		If(f.Base64, obj.ToBase64String).
-		ElseIf(f.Hex, obj.ToHexString).
-		Else(obj.ToString)()
-
-	return WriteDataFile(f.Out, []byte(result), !f.Decrypt)
+	return WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt)
 }

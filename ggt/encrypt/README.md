@@ -27,7 +27,7 @@ Files /Users/bingoo/Downloads/1.jpg and /Users/bingoo/Downloads/2.jpg are identi
 ## 文本加解密
 
 ```sh
-$ ggt encrypt -v -i bingoohuang --base64
+$ ggt encrypt -v -i bingoohuang
 2024-09-24 22:19:04.780 [INFO ] 42690 --- [1     ] [-] : rand --key f4b1b49188227518f96e2e8c9214d9e4:hex
 2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : rand --iv fed6e50a238ebed2821e7abd4df94f51:hex
 2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : AES/GCM/NoPadding Encrypt result: KMiSPR7DE5j127FZOm9SctyIi9QhNn/Kx3N3
@@ -39,7 +39,7 @@ $ ggt encrypt -d --key f4b1b49188227518f96e2e8c9214d9e4:hex --iv fed6e50a238ebed
 ## 文本 sm4 加解密
 
 ```sh
-$ ggt encrypt --sm4 -v -i bingoohuang --base64                                                                                                                     
+$ ggt encrypt --sm4 -v -i bingoohuang --base64
 2024-09-24 22:24:23.202 [INFO ] 43995 --- [1     ] [-] : rand --key 2b49c80e2d1a47b18775aeccebb64ee4:hex
 2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : rand --iv e010af29b4aaae3e94a58615e04ab473:hex
 2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : SM4/GCM/NoPadding Encrypt result: x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ
