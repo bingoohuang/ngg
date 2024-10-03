@@ -105,10 +105,13 @@ func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 		// FromPKCS8PublicKey([]byte(pubKeyPem)).
 		// FromXMLPublicKey([]byte(pubKeyXML)).
 
+		action := ""
 		if f.Decrypt {
 			// 公钥解密
 			obj = obj.PublicKeyDecrypt()
+			action = "RSA pub decrypt"
 		} else {
+			action = "RSA pub encrypt"
 			// 公钥加密
 			if f.Oaep {
 				if f.OaepHash != "" {
@@ -128,10 +131,11 @@ func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 		if err := obj.Error(); err != nil {
 			return err
 		}
-		if err := encrypt.WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
+		if err := encrypt.WriteDataFile(action, f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
 			return err
 		}
 	} else if f.Pri != "" {
+		action := ""
 		priKeyPem, err := os.ReadFile(ss.ExpandHome(f.Pri))
 		if err != nil {
 			return err
@@ -146,7 +150,7 @@ func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 
 		if f.Decrypt {
 			// 私钥解密
-
+			action = "RSA pri decrypt"
 			if f.Oaep {
 				if f.OaepHash != "" {
 					// SetOAEPHash("SHA256"). // OAEP 可选
@@ -163,6 +167,7 @@ func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 			}
 		} else {
 			// 私钥加密
+			action = "RSA pri encrypt"
 			obj = obj.PrivateKeyEncrypt()
 		}
 
@@ -170,7 +175,7 @@ func (f *encryptCmd) Run(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if err := encrypt.WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
+		if err := encrypt.WriteDataFile(action, f.Out, obj.ToBytes(), !f.Decrypt); err != nil {
 			return err
 		}
 	} else {

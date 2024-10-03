@@ -133,5 +133,5 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	return WriteDataFile(f.Out, obj.ToBytes(), !f.Decrypt)
+	return WriteDataFile(action, f.Out, obj.ToBytes(), !f.Decrypt)
 }

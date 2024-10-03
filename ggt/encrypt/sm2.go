@@ -262,7 +262,7 @@ func (f *sm2EncryptCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := WriteDataFile(f.Out, obj.ToBytes(), true); err != nil {
+	if err := WriteDataFile("SM2 encrypt", f.Out, obj.ToBytes(), true); err != nil {
 		return err
 	}
 
@@ -313,7 +313,7 @@ func (f *sm2DecryptCmd) Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := WriteDataFile(f.Out, obj.ToBytes(), false); err != nil {
+	if err := WriteDataFile("SM2 decrypt", f.Out, obj.ToBytes(), false); err != nil {
 		return err
 	}
 
@@ -418,20 +418,20 @@ func WriteKeyFile(keyBytes []byte, dir, keyFileName string) error {
 	return nil
 }
 
-func WriteDataFile(out string, data []byte, base64Console bool) error {
+func WriteDataFile(action, out string, data []byte, base64Console bool) error {
 	if out != "" {
 		if err := os.WriteFile(ss.ExpandHome(out), data, os.ModePerm); err != nil {
 			return err
 		}
 
-		log.Printf("result written to file %s", out)
+		log.Printf("%s result written to file %s", action, out)
 		return nil
 	}
 
 	if base64Console {
-		log.Printf("result: %s", ss.Base64().EncodeBytes(data).V1.Bytes())
+		log.Printf("%s result: %s", action, ss.Base64().EncodeBytes(data).V1.Bytes())
 	} else {
-		log.Printf("result: %s", data)
+		log.Printf("%s result: %s", action, data)
 	}
 	return nil
 }
