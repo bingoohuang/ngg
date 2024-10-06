@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -286,6 +287,11 @@ func QueryXxHash(baseURL string, w http.ResponseWriter, r *http.Request, db *gor
 	var img Img
 	if db1 := db.Find(&img, "xxhash=?", xh); db1.Error != nil {
 		return db1.Error
+	}
+	img.Fix()
+	if r.Header.Get("Accept") == "application/json" || r.URL.Query().Get("format") == "json" {
+		json.NewEncoder(w).Encode(img)
+		return nil
 	}
 
 	return servePage(baseURL, w, r, ss.If(img.ID != "", []Img{img}, nil), limitN == "")

@@ -3,7 +3,12 @@ package main
 import (
 	"bytes"
 	"image"
+	"log"
 	"mime"
+	"strings"
+
+	"github.com/bingoohuang/ngg/ss"
+	"github.com/corona10/goimagehash"
 )
 
 type CollectedImages struct {
@@ -42,6 +47,30 @@ type Img struct {
 	Width        int    `json:",omitempty"`
 	Height       int    `json:",omitempty"`
 	HumanizeSize string `json:",omitempty"`
+}
+
+func (i *Img) Fix() {
+	if i.HumanizeSize == "" {
+		i.HumanizeSize = strings.ReplaceAll(ss.Bytes(uint64(i.Size)), " ", "")
+	}
+
+	if i.Format == "" {
+		if c, format, err := image.DecodeConfig(bytes.NewReader(i.Body)); err != nil {
+			log.Printf("解码图像配置信息时出错: %v", err)
+		} else {
+			i.Format = format
+			i.Width = c.Width
+			i.Height = c.Height
+
+			if i.PerceptionHash == "" {
+				if decoded, _, _ := image.Decode(bytes.NewReader(i.Body)); decoded != nil {
+					if hash, _ := goimagehash.PerceptionHash(decoded); hash != nil {
+						i.PerceptionHash = hash.ToString()
+					}
+				}
+			}
+		}
+	}
 }
 
 func (i *Img) ExportFileName() string {
