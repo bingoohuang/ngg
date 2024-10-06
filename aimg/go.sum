@@ -50,8 +50,8 @@ github.com/bingoohuang/ngg/q v0.0.0-20241003145418-15b115d0e656 h1:4n4+woK3UloCp
 github.com/bingoohuang/ngg/q v0.0.0-20241003145418-15b115d0e656/go.mod h1:XQOFCRuJHQYRBVaOK/IF08scnC/eGDFyVqI+cYeqye0=
 github.com/bingoohuang/ngg/rotatefile v0.0.0-20241003145418-15b115d0e656 h1:Pf/RSPS7hX9joeCLu5xYO3u32vAY7AWmcygSawq4E1Y=
 github.com/bingoohuang/ngg/rotatefile v0.0.0-20241003145418-15b115d0e656/go.mod h1:EEEpaSZ67SLPhdFB8njyS7l0VNYvSncZdu/c4VgwLd8=
-github.com/bingoohuang/ngg/ss v0.0.0-20241003145418-15b115d0e656 h1:LVK0J9KMeuXxcJAmgQoDQnKw9cxyExKrHGo3FMBZZ2A=
-github.com/bingoohuang/ngg/ss v0.0.0-20241003145418-15b115d0e656/go.mod h1:q713LuNHPm6REV+2M0nB+H/MnmUH3dx0Z/UjvKTos68=
+github.com/bingoohuang/ngg/ss v0.0.0-20241006135818-d1e63a733b6e h1:LL/V1qhcVeOciibl0u2i8Hq4V8or4oFemwh8N82//h4=
+github.com/bingoohuang/ngg/ss v0.0.0-20241006135818-d1e63a733b6e/go.mod h1:q713LuNHPm6REV+2M0nB+H/MnmUH3dx0Z/UjvKTos68=
 github.com/bingoohuang/ngg/tick v0.0.0-20241003145418-15b115d0e656 h1:8MAnrNxckCk0DLQdIaFX11I4VaYiQsnLMn0jWOO+qq0=
 github.com/bingoohuang/ngg/tick v0.0.0-20241003145418-15b115d0e656/go.mod h1:mNL4qoyIUAufIh5B4DDFeCbQTqpkYshQE9DJPgWVtNI=
 github.com/bingoohuang/ngg/tsid v0.0.0-20241003145418-15b115d0e656 h1:TGj1FKs5yGhpdEmZEqI2HSIUBXNuQ4/CCDDve6ynock=

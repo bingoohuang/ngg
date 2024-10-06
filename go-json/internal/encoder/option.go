@@ -35,7 +35,17 @@ func (o *Option) Reset() {
 	o.Context = nil
 	o.DebugOut = nil
 	o.DebugDOTOut = nil
-	o.NamingStrategy = func(key string) string { return key }
+	o.NamingStrategy = func(flags uint16, key string) string { return key }
+}
+
+func (o *Option) ConvertKey(code *Opcode) string {
+	key := code.Key
+	if key[0] == '"' { // `"%s":`
+		return `"` + o.NamingStrategy(uint16(code.Flags), key[1:len(key)-2]) + `":`
+	}
+
+	// `%s:`
+	return o.NamingStrategy(uint16(code.Flags), key[:len(key)-1]) + `:`
 }
 
 type EncodeFormat struct {

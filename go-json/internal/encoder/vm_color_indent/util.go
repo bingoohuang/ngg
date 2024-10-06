@@ -257,7 +257,7 @@ func appendStructKey(ctx *encoder.RuntimeContext, code *encoder.Opcode, b []byte
 	b = appendIndent(ctx, b, code.Indent)
 	format := ctx.Option.ColorScheme.ObjectKey
 	b = append(b, format.Header...)
-	key := ctx.Option.NamingStrategy(code.Key)
+	key := ctx.Option.ConvertKey(code)
 	b = append(b, key[:len(key)-1]...)
 	b = append(b, format.Footer...)
 

@@ -185,7 +185,7 @@ func appendStructHead(_ *encoder.RuntimeContext, b []byte) []byte {
 }
 
 func appendStructKey(ctx *encoder.RuntimeContext, code *encoder.Opcode, b []byte) []byte {
-	key := ctx.Option.NamingStrategy(code.Key)
+	key := ctx.Option.ConvertKey(code)
 	return append(b, key...)
 }
 

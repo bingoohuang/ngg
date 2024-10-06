@@ -13,12 +13,12 @@ type Arg struct {
 	Duration time.Duration `short:"d"`
 	MyFlag   myFlag        `flag:"my"`
 	Out      []string
-	Port     int    `short:"p" val:"1234"`
-	Input    string `short:"i" val:"" required:"true"`
-	Version  bool   `val:"false" usage:"Show version"`
-	Other    string `flag:"-"`
-	V        int    `short:"v" count:"true"`
-	Size     Size   `short:"s" val:"10MiB"`
+	Port     int      `short:"p" val:"1234"`
+	Input    string   `short:"i" val:"" required:"true"`
+	Version  bool     `val:"false" usage:"Show version"`
+	Other    string   `flag:"-"`
+	V        int      `short:"v" count:"true"`
+	Size     FlagSize `short:"s" val:"10MiB"`
 	Pmem     float32
 }
 
@@ -43,7 +43,7 @@ func TestParse(t *testing.T) {
 	assert.Equal(t, 1234, arg.Port)
 	assert.Equal(t, "5003", arg.Input)
 	assert.Equal(t, 3, arg.V)
-	assert.Equal(t, Size(uint64(2*1024)), arg.Size)
+	assert.Equal(t, FlagSize(uint64(2*1024)), arg.Size)
 	assert.Equal(t, float32(0.618), arg.Pmem)
 	// ... use arg
 }

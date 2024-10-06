@@ -33,15 +33,23 @@ func ExampleMarshal() {
 	os.Stdout.Write(b)
 	os.Stdout.Write([]byte("\n"))
 
-	b, err = json.MarshalWithOption(group, json.NamingStrategy(strings.ToLower))
+	strategy := json.NamingStrategy(func(flags uint16, key string) string {
+		return strings.ToLower(key[:1]) + key[1:]
+	})
+
+	b, err = json.MarshalWithOption(group, strategy)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 	os.Stdout.Write(b)
 
+	os.Stdout.Write([]byte("\n"))
+	json.NewEncoder(os.Stdout).EncodeWithOption(group, strategy)
+
 	// Output:
 	// {"ID":1,"Name":"Reds","Colors":["Crimson","Red","Ruby","Maroon"]}
-	// {"id":1,"name":"Reds","colors":["Crimson","Red","Ruby","Maroon"]}
+	// {"iD":1,"name":"Reds","colors":["Crimson","Red","Ruby","Maroon"]}
+	// {"iD":1,"name":"Reds","colors":["Crimson","Red","Ruby","Maroon"]}
 }
 
 func ExampleUnmarshal() {

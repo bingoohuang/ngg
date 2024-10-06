@@ -193,7 +193,7 @@ func appendStructHead(_ *encoder.RuntimeContext, b []byte) []byte {
 
 func appendStructKey(ctx *encoder.RuntimeContext, code *encoder.Opcode, b []byte) []byte {
 	b = appendIndent(ctx, b, code.Indent)
-	key := ctx.Option.NamingStrategy(code.Key)
+	key := ctx.Option.ConvertKey(code)
 	b = append(b, key...)
 	return append(b, ' ')
 }

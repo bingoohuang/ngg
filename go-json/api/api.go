@@ -1,3 +1,3 @@
 package api
 
-type NamingStrategy func(key string) string
+type NamingStrategy func(flags uint16, key string) string

@@ -2,14 +2,17 @@ module github.com/bingoohuang/aimg
 
 go 1.23
 
+replace github.com/bingoohuang/ngg/go-json => ../go-json
+
 require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/alitto/pond v1.9.2
 	github.com/bingoohuang/ngg/daemon v0.0.0-20241003145418-15b115d0e656
+	github.com/bingoohuang/ngg/go-json v0.0.0-20241006135818-d1e63a733b6e
 	github.com/bingoohuang/ngg/httpretty v0.0.0-20241003145418-15b115d0e656
 	github.com/bingoohuang/ngg/jj v0.0.0-20241003145418-15b115d0e656
 	github.com/bingoohuang/ngg/rotatefile v0.0.0-20241003145418-15b115d0e656
-	github.com/bingoohuang/ngg/ss v0.0.0-20241003145418-15b115d0e656
+	github.com/bingoohuang/ngg/ss v0.0.0-20241006135818-d1e63a733b6e
 	github.com/bingoohuang/ngg/tick v0.0.0-20241003145418-15b115d0e656
 	github.com/bingoohuang/ngg/ver v0.0.0-20241003145418-15b115d0e656
 	github.com/cespare/xxhash/v2 v2.3.0

@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -12,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bingoohuang/ngg/go-json"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/segmentio/ksuid"
@@ -283,6 +283,15 @@ func servePage(baseURL string, w http.ResponseWriter, r *http.Request, imgs []Im
 	return listTmpl.Execute(w, page)
 }
 
+const IsTaggedKeyFlags = 8
+
+var jsonNamingStrategy = json.NamingStrategy(func(flags uint16, key string) string {
+	if (flags & IsTaggedKeyFlags) != 0 {
+		return key
+	}
+	return ss.ToCamelLower(key)
+})
+
 func QueryXxHash(baseURL string, w http.ResponseWriter, r *http.Request, db *gorm.DB, xh string, limitN string) error {
 	var img Img
 	if db1 := db.Find(&img, "xxhash=?", xh); db1.Error != nil {
@@ -290,8 +299,8 @@ func QueryXxHash(baseURL string, w http.ResponseWriter, r *http.Request, db *gor
 	}
 	img.Fix()
 	if r.Header.Get("Accept") == "application/json" || r.URL.Query().Get("format") == "json" {
-		json.NewEncoder(w).Encode(img)
-		return nil
+		w.Header().Set("Content-Type", "application/json")
+		return json.NewEncoder(w).EncodeWithOption(img, jsonNamingStrategy)
 	}
 
 	return servePage(baseURL, w, r, ss.If(img.ID != "", []Img{img}, nil), limitN == "")
