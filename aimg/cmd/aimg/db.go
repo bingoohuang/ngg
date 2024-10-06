@@ -99,6 +99,10 @@ func SaveImageToDB(db *gorm.DB, img Img, okCount, errCount, duplicateCount *int)
 		return
 	}
 
+	if img.PerceptionHash != "" {
+		img.PerceptionHashGroupId, _ = AssignGroupID(db, img.PerceptionHash)
+	}
+
 	db1 := db.Create(img)
 	img.Body = nil // 下面的 JSON 不用序列化该字段
 	imgJSON := jj.FormatQuoteNameLeniently(ss.Json(img), jj.WithLenientValue())
@@ -133,6 +137,9 @@ func CopyDB(fromDB, toDB string) error {
 	}
 
 	rows, err := db1.DB.Model(&Img{}).Rows()
+	if err != nil {
+		return err
+	}
 	defer rows.Close()
 
 	var okCount, errCount, duplicateCount int
@@ -143,9 +150,7 @@ func CopyDB(fromDB, toDB string) error {
 			log.Printf("scan rows error: %v", err)
 			continue
 		}
-		if result := db2.DB.Create(img); result.Error != nil {
-			SaveImageToDB(db2.DB, img, &okCount, &errCount, &duplicateCount)
-		}
+		SaveImageToDB(db2.DB, img, &okCount, &errCount, &duplicateCount)
 	}
 
 	log.Printf("Copy %d rows from %s to %s successfully, %d duplicated, %d failed", okCount, fromDB, toDB, duplicateCount, errCount)
@@ -193,9 +198,7 @@ func QuerySize(baseURL string, w http.ResponseWriter, r *http.Request, db *gorm.
 		for i := len(imgs2) - 1; i >= 0; i-- {
 			imgs = append(imgs, imgs2[i])
 		}
-		for _, img := range imgs1 {
-			imgs = append(imgs, img)
-		}
+		imgs = append(imgs, imgs1...)
 		return servePage(baseURL, w, r, imgs, limitN == "1")
 	}
 
@@ -255,15 +258,16 @@ func servePage(baseURL string, w http.ResponseWriter, r *http.Request, imgs []Im
 
 	for i, img := range imgs {
 		page.Images = append(page.Images, ListPageImage{
-			Seq:      i + 1,
-			Total:    len(imgs),
-			XxHash:   img.Xxhash,
-			PageID:   img.PageID,
-			Size:     img.Size,
-			Type:     img.ContentType,
-			Title:    img.Title,
-			PageLink: img.PageLink,
-			Favorite: img.Favorite,
+			Seq:            i + 1,
+			Total:          len(imgs),
+			XxHash:         img.Xxhash,
+			PerceptionHash: img.PerceptionHash,
+			PageID:         img.PageID,
+			Size:           img.Size,
+			Type:           img.ContentType,
+			Title:          img.Title,
+			PageLink:       img.PageLink,
+			Favorite:       img.Favorite,
 			CreatedTime: func() string {
 				if k, err := ksuid.Parse(img.ID); err == nil {
 					return k.Time().Format(time.RFC3339)
@@ -307,17 +311,18 @@ type ListPage struct {
 }
 
 type ListPageImage struct {
-	XxHash       string
-	PageID       string
-	Type         string
-	HumanizeSize string
-	Title        string
-	PageLink     string
-	CreatedTime  string
-	Size         int
-	Seq          int
-	Total        int
-	Favorite     int
+	XxHash         string
+	PerceptionHash string
+	PageID         string
+	Type           string
+	HumanizeSize   string
+	Title          string
+	PageLink       string
+	CreatedTime    string
+	Size           int
+	Seq            int
+	Total          int
+	Favorite       int
 }
 
 // 创建模板并解析HTML文件

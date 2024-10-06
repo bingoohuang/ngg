@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/tick"
+	"github.com/corona10/goimagehash"
 	"github.com/gocolly/colly/v2"
 	"github.com/imroc/req/v3"
 	"github.com/segmentio/ksuid"
@@ -119,11 +120,16 @@ func downloadImage(id, addr string, images *CollectedImages, createTime string, 
 		img.ContentType = contentType
 		img.Xxhash = XxHash(img.Body)
 
-		reader := bytes.NewReader(img.Body)
 		widthHeight := false
-		if c, format, err := image.DecodeConfig(reader); err != nil {
+		if c, format, err := image.DecodeConfig(bytes.NewReader(img.Body)); err != nil {
 			log.Printf("解码图像配置信息时出错: %v", err)
 		} else {
+			if decoded, _, _ := image.Decode(bytes.NewReader(img.Body)); decoded != nil {
+				if hash, _ := goimagehash.PerceptionHash(decoded); hash != nil {
+					img.PerceptionHash = hash.ToString()
+				}
+			}
+
 			img.Format = format
 			img.Width = c.Width
 			img.Height = c.Height

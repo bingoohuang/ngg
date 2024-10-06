@@ -21,7 +21,11 @@ type Img struct {
 	ID        string `json:",omitempty" gorm:"primarykey"`
 	CreatedAt string `json:",omitempty"`
 
-	Xxhash      string `gorm:"unique"`     // xxhash base64，唯一索引
+	Xxhash string `gorm:"unique"` // xxhash base64，唯一索引
+	// PerceptionHash  // 感知哈希算法 (perceptual hash algorithm)，用于相似图片搜索
+	PerceptionHash        string `gorm:"index"`
+	PerceptionHashGroupId uint   `gorm:"index"`
+
 	ContentType string `json:",omitempty"` // e.g. image/png
 	PageLink    string `json:",omitempty"`
 	Title       string `json:",omitempty"`

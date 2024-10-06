@@ -27,6 +27,22 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
+func main() {
+	c := parseFlags()
+
+	pool := pond.New(c.workers, c.workers)
+	listen := c.handleArgs(pool)
+
+	go func() {
+		pool.StopAndWait()
+		close(c.StatChan)
+	}()
+
+	c.summary(listen)
+	dealListen(c, listen, c.db)
+	log.Printf("Exited!")
+}
+
 const defaultListen = ":1100"
 
 type Config struct {
@@ -39,6 +55,7 @@ type Config struct {
 	foreground bool
 	version    bool
 	debug      bool
+	fix        bool
 
 	page    int
 	workers int
@@ -62,26 +79,8 @@ type AimgState struct {
 	PageID string `json:"pageID"`
 }
 
-// ArgSize 是一个自定义类型，用于存储解析后的文件大小
-type ArgSize struct {
-	Value  uint64
-	HasSet bool
-}
-
-// String 方法返回文件大小的字符串表示形式
-func (a *ArgSize) String() string {
-	return ss.Bytes(a.Value)
-}
-
-// Set 方法解析命令行参数并将其转换为 int64
-func (a *ArgSize) Set(value string) error {
-	size, err := ss.ParseBytes(value)
-	if err != nil {
-		return err
-	}
-	a.HasSet = true
-	a.Value = size
-	return nil
+func Ptr[T any](val T) *T {
+	return &val
 }
 
 func parseFlags() (c *Config) {
@@ -95,14 +94,13 @@ func parseFlags() (c *Config) {
 	flag.StringVar(&c.export, "export", "", "export images to dir. e.g. n=10,size=1M")
 	flag.BoolVar(&c.foreground, "fg", false, "run in foreground")
 	flag.BoolVar(&c.dryRun, "dry", false, "dry run in image importing (for debug)")
+	flag.BoolVar(&c.fix, "fix", false, "fix database fields, like perception_hash")
 	flag.BoolVar(&c.version, "version", false, "print version")
 	flag.BoolVar(&c.debug, "debug", false, "enable debug moed")
 	flag.IntVar(&c.page, "page", 1, "page no (for pixabay/wallhaven)")
 	flag.IntVar(&c.workers, "workers", 10, "goroutine workers")
 
-	sizeArg := ArgSize{
-		Value: 20 * 1024,
-	}
+	sizeArg := ss.FlagSize(20 * 1024)
 	flag.Var(&sizeArg, "minSize", "min image size with units, e.g. 1K, 1M, etc. (default 20K)")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: aimg [options] [url1] [url2] [imageURL] [importDbFilePath] [/dir/img.png] [/dir/imgdir:X] [:port] \n\n")
@@ -118,9 +116,14 @@ func parseFlags() (c *Config) {
 		os.Exit(0)
 	}
 
-	c.minSize = int(sizeArg.Value)
+	c.minSize = int(sizeArg)
 	c.reuseTodayPageID()
 	c.expandDBFile()
+
+	if c.fix {
+		fixDB(c)
+		os.Exit(0)
+	}
 
 	if c.export != "" {
 		exportImages(c)
@@ -221,22 +224,6 @@ func (c *Config) reuseTodayPageID() {
 		c.pageID = ksuid.New().String()
 		_ = tmpjson.Write("aimg.json", AimgState{PageID: c.pageID})
 	}
-}
-
-func main() {
-	c := parseFlags()
-
-	pool := pond.New(c.workers, c.workers)
-	listen := c.handleArgs(pool)
-
-	go func() {
-		pool.StopAndWait()
-		close(c.StatChan)
-	}()
-
-	c.summary(listen)
-	dealListen(c, listen, c.db)
-	log.Printf("Exited!")
 }
 
 func (c *Config) dealPixabay(_ ksuid.KSUID, pixabayURL string) {
