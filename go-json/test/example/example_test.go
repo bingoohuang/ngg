@@ -33,23 +33,58 @@ func ExampleMarshal() {
 	os.Stdout.Write(b)
 	os.Stdout.Write([]byte("\n"))
 
-	strategy := json.NamingStrategy(func(flags uint16, key string) string {
+	namingStrategy := json.NamingStrategy(func(flags uint16, key string) string {
 		return strings.ToLower(key[:1]) + key[1:]
 	})
 
-	b, err = json.MarshalWithOption(group, strategy)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
+	b, _ = json.MarshalWithOption(group, namingStrategy)
 	os.Stdout.Write(b)
 
 	os.Stdout.Write([]byte("\n"))
-	json.NewEncoder(os.Stdout).EncodeWithOption(group, strategy)
+	json.NewEncoder(os.Stdout).EncodeWithOption(group, namingStrategy)
+
+	// “string”: turn numeric or boolean fields into string types when converting to and from JSON.
+	type Person struct {
+		Name string `json:"name,string"`
+		Age  int    `json:"age,string"`
+		Ban  bool   `json:"ban,string"`
+	}
+
+	aiden := Person{Name: "Aiden", Age: 30, Ban: false}
+	json.NewEncoder(os.Stdout).EncodeWithOption(aiden)
+
+	type Vehicle struct {
+		Model   string
+		Version string
+	}
+
+	type Person2 struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+		Vehicle
+	}
+
+	aiden2 := Person2{Name: "Aiden", Age: 30, Vehicle: Vehicle{Model: "秦DMI", Version: "2024版"}}
+	json.NewEncoder(os.Stdout).EncodeWithOption(aiden2)
+
+	type Person3 struct {
+		Name string
+		Age  int
+		Ban  bool
+	}
+	aiden3 := Person3{Name: "Aiden", Age: -30, Ban: false}
+	quoteNumberStrategy := json.QuoteNumberStrategy(func(numBitSize uint8, negative, unsigned bool, u64 uint64) bool {
+		return true
+	})
+	json.NewEncoder(os.Stdout).EncodeWithOption(aiden3, namingStrategy, quoteNumberStrategy)
 
 	// Output:
 	// {"ID":1,"Name":"Reds","Colors":["Crimson","Red","Ruby","Maroon"]}
 	// {"iD":1,"name":"Reds","colors":["Crimson","Red","Ruby","Maroon"]}
 	// {"iD":1,"name":"Reds","colors":["Crimson","Red","Ruby","Maroon"]}
+	// {"name":"\"Aiden\"","age":"30","ban":"false"}
+	// {"name":"Aiden","age":30,"Model":"秦DMI","Version":"2024版"}
+	// {"name":"Aiden","age":"-30","ban":false}
 }
 
 func ExampleUnmarshal() {

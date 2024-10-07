@@ -21,12 +21,14 @@ const (
 )
 
 type Option struct {
-	Flag           OptionFlag
-	ColorScheme    *ColorScheme
-	Context        context.Context
-	DebugOut       io.Writer
-	DebugDOTOut    io.WriteCloser
-	NamingStrategy api.NamingStrategy
+	Flag        OptionFlag
+	ColorScheme *ColorScheme
+	Context     context.Context
+	DebugOut    io.Writer
+	DebugDOTOut io.WriteCloser
+
+	NamingStrategy      api.NamingStrategy
+	QuoteNumberStrategy api.QuoteNumberStrategy
 }
 
 func (o *Option) Reset() {
@@ -36,6 +38,7 @@ func (o *Option) Reset() {
 	o.DebugOut = nil
 	o.DebugDOTOut = nil
 	o.NamingStrategy = func(flags uint16, key string) string { return key }
+	o.QuoteNumberStrategy = func(numBitSize uint8, negative, unsigned bool, u64 uint64) bool { return false }
 }
 
 func (o *Option) ConvertKey(code *Opcode) string {

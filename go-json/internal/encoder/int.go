@@ -77,7 +77,7 @@ func numMask(numBitSize uint8) uint64 {
 	return 1<<numBitSize - 1
 }
 
-func AppendInt(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
+func AppendInt(rc *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 	var u64 uint64
 	switch code.NumBitSize {
 	case 8:
@@ -92,11 +92,19 @@ func AppendInt(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 	mask := numMask(code.NumBitSize)
 	n := u64 & mask
 	negative := (u64>>(code.NumBitSize-1))&1 == 1
+	shouldQuote := rc.Option.QuoteNumberStrategy(code.NumBitSize, negative, false, u64)
+
 	if !negative {
 		if n < 10 {
+			if shouldQuote {
+				return append(out, '"', byte(n+'0'), '"')
+			}
 			return append(out, byte(n+'0'))
 		} else if n < 100 {
 			u := intLELookup[n]
+			if shouldQuote {
+				return append(out, '"', byte(u), byte(u>>8), '"')
+			}
 			return append(out, byte(u), byte(u>>8))
 		}
 	} else {
@@ -128,10 +136,17 @@ func AppendInt(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 		b[i] = '-'
 	}
 
-	return append(out, b[i:]...)
+	if shouldQuote {
+		out = append(out, '"')
+	}
+	out = append(out, b[i:]...)
+	if shouldQuote {
+		out = append(out, '"')
+	}
+	return out
 }
 
-func AppendUint(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
+func AppendUint(rc *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 	var u64 uint64
 	switch code.NumBitSize {
 	case 8:
@@ -145,10 +160,18 @@ func AppendUint(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 	}
 	mask := numMask(code.NumBitSize)
 	n := u64 & mask
+	shouldQuote := rc.Option.QuoteNumberStrategy(code.NumBitSize, false, true, u64)
+
 	if n < 10 {
+		if shouldQuote {
+			return append(out, '"', byte(n+'0'), '"')
+		}
 		return append(out, byte(n+'0'))
 	} else if n < 100 {
 		u := intLELookup[n]
+		if shouldQuote {
+			return append(out, '"', byte(u), byte(u>>8), '"')
+		}
 		return append(out, byte(u), byte(u>>8))
 	}
 
@@ -172,5 +195,14 @@ func AppendUint(_ *RuntimeContext, out []byte, p uintptr, code *Opcode) []byte {
 	if n < 10 {
 		i++ // remove leading zero
 	}
-	return append(out, b[i:]...)
+
+	if shouldQuote {
+		out = append(out, '"')
+	}
+	out = append(out, b[i:]...)
+	if shouldQuote {
+		out = append(out, '"')
+	}
+
+	return out
 }

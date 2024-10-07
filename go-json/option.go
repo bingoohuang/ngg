@@ -71,6 +71,13 @@ func NamingStrategy(strategy api.NamingStrategy) EncodeOptionFunc {
 	}
 }
 
+// QuoteNumberStrategy sets the customized number quoting (as string) strategy.
+func QuoteNumberStrategy(quoteNumber api.QuoteNumberStrategy) EncodeOptionFunc {
+	return func(opt *EncodeOption) {
+		opt.QuoteNumberStrategy = quoteNumber
+	}
+}
+
 type DecodeOption = decoder.Option
 type DecodeOptionFunc func(*DecodeOption)
 
