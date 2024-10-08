@@ -9,23 +9,40 @@ import (
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
 	"github.com/golang-module/carbon/v2"
+	"github.com/robfig/cron/v3"
 	"go.uber.org/multierr"
 )
 
 // recycleLoop 回收循环，以指定的间隔循环
 func (q *Sqliter) recycleLoop() {
-	t := time.NewTicker(q.RecycleInterval)
-	defer t.Stop()
-
 	ctx, cancel := context.WithCancel(context.Background())
 	q.recycleCancel = cancel
 
-	for {
-		select {
-		case <-t.C:
+	if q.RecycleCron != "" {
+		parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.DowOptional | cron.Descriptor)
+		cron := cron.New(cron.WithParser(parser))
+		cron.Start()
+		defer cron.Stop()
+		// @midnight
+		// @every 5m
+		// 每秒: * * * * * ?
+		// 每5分钟: 0 5 * * * *", every5min(time.Local)},
+		cron.AddFunc(q.RecycleCron, func() {
 			q.tickRecycle(*q.TimeSeriesKeep)
-		case <-ctx.Done():
-			return
+		})
+
+		ctx.Done()
+	} else {
+		t := time.NewTicker(q.RecycleInterval)
+		defer t.Stop()
+
+		for {
+			select {
+			case <-t.C:
+				q.tickRecycle(*q.TimeSeriesKeep)
+			case <-ctx.Done():
+				return
+			}
 		}
 	}
 }

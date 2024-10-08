@@ -65,6 +65,20 @@ type Config struct {
 	// TimeSeriesMaxSize 保留打点文件最大大小, 默认0表示不限制
 	TimeSeriesMaxSize int64
 
+	// RecycleCron 回收时间间隔 Cron 表达式，优先级比 RecycleInterval 高
+	// 示例:
+	// 午夜: @midnight 或 @daily
+	// 每5分钟: @every 5m
+	// 每时: @hourly
+	// 每周: @weekly
+	// 带秒的cron表达式:
+	// 每秒: * * * * * ?
+	// 每5分钟: 0 5 * * * *", every5min(time.Local)}
+	// 每天2点: 0 0 2 * * ?
+	// cron 表达式帮助: https://tool.lu/crontab/
+	// cron 表达式帮助: https://www.bejson.com/othertools/cron/
+	// 代码帮助: https://github.com/robfig/cron/blob/master/parser.go
+	RecycleCron string
 	// RecycleInterval 回收时间间隔, 默认 DefaultRecycleInterval
 	RecycleInterval time.Duration
 	// DividedBy 按时间分库模式

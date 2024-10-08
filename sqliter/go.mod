@@ -13,6 +13,7 @@ require (
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/nxadm/tail v1.4.11
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	go.etcd.io/bbolt v1.3.11
