@@ -12,25 +12,22 @@ import (
 )
 
 func init() {
-	fc := &subCmd{}
 	c := &cobra.Command{
 		Use:   "time",
 		Short: "convert unix time and human-readable format",
-		RunE:  fc.run,
 	}
-
-	root.AddCommand(c, fc)
+	root.AddCommand(c, &subCmd{})
 }
 
 type subCmd struct {
 }
 
-func (f *subCmd) run(_ *cobra.Command, args []string) error {
+func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		printTime("", time.Now())
 		return nil
 	}
-
+NEXT:
 	for i, arg := range args {
 		if i > 0 {
 			fmt.Println()
@@ -38,7 +35,13 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 
 		if regexp.MustCompile(`^\d+$`).MatchString(arg) {
 			found := false
-			for _, f := range []string{`20060102150405`, `200601021504`, `2006010215`, `20060102`} {
+			for _, f := range []string{
+				`20060102150405000000`,
+				`20060102150405000`,
+				`20060102150405`,
+				`200601021504`,
+				`2006010215`,
+				`20060102`} {
 				t, err := time.ParseInLocation(f, arg, time.Local)
 				if err == nil {
 					printTime(arg, t)
@@ -53,11 +56,18 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 			continue
 		}
 
-		t, err := time.Parse(time.RFC3339, arg)
-		if err == nil {
-			printTime(arg, t)
-			continue
+		for _, f := range []string{
+			time.RFC3339Nano,
+			time.RFC3339,
+		} {
+
+			t, err := time.Parse(f, arg)
+			if err == nil {
+				printTime(arg, t)
+				goto NEXT
+			}
 		}
+
 		formats := []string{
 			`2006-01-02T15:04:05`,
 			`2006-01-02T15:04`,
@@ -68,7 +78,7 @@ func (f *subCmd) run(_ *cobra.Command, args []string) error {
 			`2006-01-02`,
 		}
 		for _, f := range formats {
-			t, err = time.ParseInLocation(f, arg, time.Local)
+			t, err := time.ParseInLocation(f, arg, time.Local)
 			if err == nil {
 				printTime(arg, t)
 				break
@@ -86,23 +96,23 @@ func printUnixTime(arg string) {
 	v, _ := strconv.ParseInt(arg, 10, 64)
 
 	if d := time.Unix(v, 0); d.Year() <= 9999 {
-		fmt.Println("as unix:\t", d.Format(time.RFC3339))
+		fmt.Println("as unix:  ", d.Format(time.RFC3339Nano))
 	} else if d = time.UnixMilli(v); d.Year() <= 9999 {
-		fmt.Println("as unix milli:\t", d.Format(time.RFC3339))
+		fmt.Println("as milli: ", d.Format(time.RFC3339Nano))
 	} else if d = time.Unix(v/1e9, v%1e9); d.Year() <= 9999 {
-		fmt.Println("as unix nano:\t", d.Format(time.RFC3339))
+		fmt.Println("as nano:  ", d.Format(time.RFC3339Nano))
 	}
 }
 
-func printTime(arg string, now time.Time) {
+func printTime(arg string, t time.Time) {
 	if arg != "" {
 		fmt.Println(arg, "intercepted:")
 	}
-	fmt.Println("now:\t\t", now.Format(time.RFC3339))
-	fmt.Println("unix:\t\t", now.Unix())
-	fmt.Println("unix milli:\t", now.UnixMilli())
-	fmt.Println("unix micro:\t", now.UnixMicro())
-	fmt.Println("unix nano:\t", now.UnixNano())
+	fmt.Println("now:   ", t.Format(time.RFC3339Nano))
+	fmt.Println("unix:  ", t.Unix())
+	fmt.Println("milli: ", t.UnixMilli())
+	fmt.Println("micro: ", t.UnixMicro())
+	fmt.Println("nano:  ", t.UnixNano())
 }
 
 // List of supported time layouts.

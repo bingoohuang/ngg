@@ -13,6 +13,7 @@ import (
 
 func main() {
 	port := flag.Int("port", 0, "http port")
+	dur := flag.Duration("dur", 100*time.Millisecond, "generate interval")
 
 	flag.Parse()
 	if *port > 0 {
@@ -38,7 +39,7 @@ func main() {
 	}
 
 	f := func() {
-		time.Sleep(100 + time.Duration(rand.Int31n(900))*time.Millisecond)
+		time.Sleep(*dur + time.Duration(rand.Int31n(900))*time.Millisecond)
 	}
 
 	for i := 0; ; i++ {
