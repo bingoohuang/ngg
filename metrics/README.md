@@ -4,22 +4,27 @@ metrics golang client library.
 
 ## metrics
 
-| \#  | TYPE         | Meaning        | v1         | v2    | v3-v9                                   |
-|-----|--------------|----------------|------------|-------|-----------------------------------------|
-| 1   | RT           | 平均响应时间，单位毫秒 ms | 累计响应时间(ms） | 累计次数  | v3: 300-400ms 总次数, ..., v9: >=900ms 总次数 |
-| 2   | QPS          | 业务量(次数)        | 次数         | 0     | 0                                       |
-| 3   | SUCCESS_RATE | 成功率            | 累计成功数      | 累计调用数 | 0                                       |
-| 4   | FAIL_RATE    | 失败率            | 累计失败数      | 累计调用数 | 0                                       |
-| 5   | HIT_RATE     | 命中率            | 累计命中数      | 累计调用数 | 0                                       |
-| 6   | CUR          | 瞬时值            | 累计瞬时值      | 0     | 0                                       |
+| \#  | TYPE         | 值类型 | Meaning            | v1           | v2         | v3-v9                                         | n          | min/max 计算基准 |
+| --- | ------------ | ------ | ------------------ | ------------ | ---------- | --------------------------------------------- | ---------- | ---------------- |
+| 1   | RT           | -      | 平均响应时间(毫秒) | 累计响应时间 | 累计次数   | v3: 300-400ms 总次数, ..., v9: >=900ms 总次数 | 累积打点数 | 单次打点值的 v1  |
+| 2   | QPS          | -      | 业务量(次数)       | 累积次数     | 0          | 0                                             | 累积打点数 | NA               |
+| 3   | SUCCESS_RATE | 百分比 | 成功率             | 累计成功数   | 累计调用数 | 0                                             | 累积打点数 | NA               |
+| 4   | FAIL_RATE    | 百分比 | 失败率             | 累计失败数   | 累计调用数 | 0                                             | 累积打点数 | NA               |
+| 5   | HIT_RATE     | 百分比 | 命中率             | 累计命中数   | 累计调用数 | 0                                             | 累积打点数 | NA               |
+| 6   | CUR          | 离散值 | 瞬时值             | 累计瞬时值   | 0          | 0                                             | 累积打点数 | NA               |
+
+注:
+
+1. "记录周期" 指 `METRICS_INTERVAL` 定义的周期，一个“记录周期"内，可能累积多次打点，上面表格内的 `n` 即为记录周期内的多次打点数目
+2. min/max 指一个“记录周期”内的 最小/最大
 
 ## HB
 
 心跳
 
-| \#  | TYPE | Meaning | v1  | v2-v9 |
-|-----|------|---------|-----|-------|
-| 1   | HB   | 一次心跳    | 1   | 0     |
+| \#  | TYPE | Meaning  | v1  | v2-v9 |
+| --- | ---- | -------- | --- | ----- |
+| 1   | HB   | 一次心跳 | 1   | 0     |
 
 ## Client Usage
 
@@ -153,46 +158,29 @@ func YourBusinessDemoCur() {
 
 ### Demo
 
-1. build `make`
-2. build for linux
-
-    - `make linux`
-    - `bssh scp -H A-gw-test2 ~/go/bin/linux_amd64/gometrics r:./bingoohuang/gometrics`
-
-3. run `GOLOG_STDOUT=true ENV_FILE=testdata/golden.env gometrics`
+1. build `cd cmd/metrics/; make -f ../../../ver/Makefile`
+2. run `ENV_FILE=testdata/golden.env metrics`
 
 ```bash
 $ tail -f /tmp/metricslog/metrics-hb.bingoohuangapp.log
-{"time":"20220210151532000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210151850000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210151918000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210151918000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210151938000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210151958000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210152018000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
-{"time":"20220210152038000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":0}
+{"time":"20220210151532000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210151850000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210151918000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210151918000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210151938000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210151958000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210152018000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
+{"time":"20220210152038000","key":"bingoohuangapp.hb","hostname":"bogon","logtype":"HB","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0}
 ```
 
 ```bash
 $ tail -f /tmp/metricslog/metrics-key.bingoohuangapp.log
-{"time":"20220210153842000","key":"key1#key2#key3","hostname":"bogon","logtype":"RT","v1":493.182544,"v2":1,"v3":0,"v4":1,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0.002651,"max":895.039581}
-{"time":"20220210153842000","key":"key1#key2#key3","hostname":"bogon","logtype":"QPS","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"RT","v1":406.150128,"v2":1,"v3":0,"v4":1,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0.002651,"max":895.039581}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"QPS","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"SUCCESS_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"FAIL_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"HIT_RATE","v1":1,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":100,"max":100}
-{"time":"20220210153845000","key":"key1#key2#key3","hostname":"bogon","logtype":"CUR","v1":100,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"FAIL_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"HIT_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"CUR","v1":200,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"RT","v1":174.261568,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0.002651,"max":895.039581}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"QPS","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153848000","key":"key1#key2#key3","hostname":"bogon","logtype":"SUCCESS_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153851000","key":"key1#key2#key3","hostname":"bogon","logtype":"RT","v1":425.397096,"v2":1,"v3":0,"v4":1,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0.002651,"max":895.039581}
-{"time":"20220210153851000","key":"key1#key2#key3","hostname":"bogon","logtype":"QPS","v1":1,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":-1,"max":-1}
-{"time":"20220210153851000","key":"key1#key2#key3","hostname":"bogon","logtype":"SUCCESS_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
-{"time":"20220210153851000","key":"key1#key2#key3","hostname":"bogon","logtype":"FAIL_RATE","v1":0,"v2":1,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"min":0,"max":100}
+{"k1":"key1","k2":"key2","k3":"key3","k4":"k4","key":"key1#key2#key3","logtype":"RT","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","min":299.582723,"max":705.085427,"v1":1347.0127029999999,"v2":3,"v3":1,"v4":0,"v5":0,"v6":0,"v7":1,"v8":0,"v9":0,"n":3}
+{"k1":"key1","k2":"key2","k3":"key3","key":"key1#key2#key3","logtype":"QPS","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","v1":3,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"n":3}
+{"k1":"key1","k2":"key2","k3":"key3","key":"key1#key2#key3","logtype":"SUCCESS_RATE","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","v1":1,"v2":3,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"n":4}
+{"k1":"key1","k2":"key2","k3":"key3","key":"key1#key2#key3","logtype":"FAIL_RATE","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","v1":0,"v2":3,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"n":3}
+{"k1":"key1","k2":"key2","k3":"key3","key":"key1#key2#key3","logtype":"HIT_RATE","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","v1":0,"v2":2,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"n":2}
+{"k1":"key1","k2":"key2","k3":"key3","key":"key1#key2#key3","logtype":"CUR","time":"20241009082454000","hostname":"bingoodeMacBook-Pro.local","v1":100,"v2":0,"v3":0,"v4":0,"v5":0,"v6":0,"v7":0,"v8":0,"v9":0,"n":1}
 ```
 
 ## benchmark

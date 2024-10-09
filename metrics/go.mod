@@ -6,7 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/bingoohuang/ngg/ss v0.0.0-20240926053310-909e0b596767
-	github.com/caarlos0/env/v6 v6.10.1
+	github.com/caarlos0/env/v11 v11.2.2
 	github.com/creasty/defaults v1.8.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0

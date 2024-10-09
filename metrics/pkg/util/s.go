@@ -39,34 +39,23 @@ func Esc(s string) string {
 }
 
 // JSONCompact compact the JSON encoding of data silently.
-func JSONCompact(data interface{}) string {
+func JSONCompact(data interface{}) []byte {
 	return ss.Pick1(JSONCompactE(data))
 }
 
 // JSONCompactE compact the JSON encoding of data.
-func JSONCompactE(data interface{}) (string, error) {
+func JSONCompactE(data interface{}) ([]byte, error) {
 	switch v := data.(type) {
 	case string:
 		buffer := new(bytes.Buffer)
-		if err := json.Compact(buffer, []byte(v)); err != nil {
-			return "", err
-		}
-
-		return buffer.String(), nil
+		err := json.Compact(buffer, []byte(v))
+		return buffer.Bytes(), err
 	case []byte:
 		buffer := new(bytes.Buffer)
-		if err := json.Compact(buffer, v); err != nil {
-			return "", err
-		}
-
-		return buffer.String(), nil
+		err := json.Compact(buffer, v)
+		return buffer.Bytes(), err
 	default:
-		b, err := json.Marshal(data)
-		if err != nil {
-			return "", err
-		}
-
-		return string(b), nil
+		return json.Marshal(data)
 	}
 }
 

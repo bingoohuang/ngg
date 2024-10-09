@@ -1,13 +1,13 @@
 package metric_test
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/bingoohuang/ngg/metrics/metric"
 	"github.com/bingoohuang/ngg/metrics/pkg/ks"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRT(t *testing.T) {
@@ -170,13 +170,13 @@ func BenchmarkCur(b *testing.B) {
 func TestFloat64(t *testing.T) {
 	a := 0.15 + float64(0.15)
 	b := 0.1 + float64(0.2)
-	fmt.Println(a == b)
-	fmt.Println(metric.FloatEquals(a, b))
+	assert.True(t, a != b)
+	assert.True(t, metric.FloatEquals(a, b))
 
 	a = float64(0.15) - float64(0.15)
 	b = float64(0.1) - float64(0.1)
-	fmt.Println(a == b)
-	fmt.Println(a == float64(0.))
+	assert.True(t, a == b)
+	assert.True(t, a == float64(0.))
 
-	fmt.Println(metric.FloatEquals(a, b))
+	assert.True(t, metric.FloatEquals(a, b))
 }

@@ -4,8 +4,8 @@ github.com/bingoohuang/ngg/ver v0.0.0-20240926053310-909e0b596767 h1:Cpm6V9Fg+Gc
 github.com/bingoohuang/ngg/ver v0.0.0-20240926053310-909e0b596767/go.mod h1:AMbGjgUESq+WgEcYZU4K+SAGU/7OzTRMDCBjovNL56c=
 github.com/bingoohuang/ngg/yaml v0.0.0-20240926053310-909e0b596767 h1:ry6XqlP0yU5CKZW/fUNJ7/RlZqzcsISr68O1UJ7KGjU=
 github.com/bingoohuang/ngg/yaml v0.0.0-20240926053310-909e0b596767/go.mod h1:WZI5bVsBLHZQFLhEWO5DNyAy8bfR8hP/ANRVTQsdHmI=
-github.com/caarlos0/env/v6 v6.10.1 h1:t1mPSxNpei6M5yAeu1qtRdPAK29Nbcf/n3G7x+b3/II=
-github.com/caarlos0/env/v6 v6.10.1/go.mod h1:hvp/ryKXKipEkcuYjs9mI4bBCg+UI0Yhgm5Zu0ddvwc=
+github.com/caarlos0/env/v11 v11.2.2 h1:95fApNrUyueipoZN/EhA8mMxiNxrBwDa+oAZrMWl3Kg=
+github.com/caarlos0/env/v11 v11.2.2/go.mod h1:JBfcdeQiBoI3Zh1QRAWfe+tpiNTmDtcCj/hHHHMx0vc=
 github.com/creasty/defaults v1.8.0 h1:z27FJxCAa0JKt3utc0sCImAEb+spPucmKoOdLHvHYKk=
 github.com/creasty/defaults v1.8.0/go.mod h1:iGzKe6pbEHnpMPtfDXZEr0NVxWnPTjb1bbDy08fPzYM=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

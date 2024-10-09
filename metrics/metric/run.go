@@ -147,13 +147,12 @@ func (r *Runner) logMetrics() {
 
 	for k, pv := range r.cache {
 		v := *pv
-
 		// 处理瞬间current > total的情况.
 		if v.LogType.isPercent() && v.V1 > v.V2 {
 			v.V1 = v.V2
 		}
 
-		if FloatEquals(v.V1, 0) && FloatEquals(v.V2, 0) {
+		if v.N == 0 {
 			if v.hasExtraKeys() {
 				delete(r.cache, k)
 			}
@@ -176,8 +175,9 @@ func (r *Runner) logMetrics() {
 			pv.V9 -= v.V9
 
 			// 重置 Min, Max
-			pv.Min = -1
-			pv.Max = -1
+			pv.Min = 0
+			pv.Max = 0
+			pv.N = 0
 		}
 	}
 }
@@ -196,8 +196,9 @@ func (r *Runner) writeLog(file io.Writer, v Line) {
 	}
 
 	content := util.JSONCompact(v)
+	content = append(content, '\n')
 
-	if _, err := file.Write([]byte(content + "\n")); err != nil {
+	if _, err := file.Write(content); err != nil {
 		log.Printf("W! fail to write log of metrics, error %+v", err)
 	}
 }
@@ -215,11 +216,22 @@ func (r *Runner) mergeLog(l *Line) {
 			c.V7 = l.V7
 			c.V8 = l.V8
 			c.V9 = l.V9
+		} else {
+			c.updateMinMax(l, r)
+		}
+	} else {
+		if l.LogType == KeyRT {
+			minVal, maxVal := l.Min, l.Max
+			l.Min = Min(l.N, l.Min, l.V1)
+			l.Max = Max(l.N, l.Max, l.V1)
+			if r.option.Debug {
+				log.Printf("[%s][%s] n: %d, lastMin: %g, lastMax: %g, l.V1: %g, min: %g, max: %g",
+					l.LogType, l.Key, l.N, minVal, maxVal, l.V1, l.Min, l.Max)
+			}
 		}
 
-		c.updateMinMax(l)
-	} else {
 		r.cache[k] = l
+		l.N = 1
 	}
 }
 
@@ -235,35 +247,27 @@ func (r *Runner) logHB() {
 	})
 }
 
-func (l *Line) updateMinMax(n *Line) {
-	uv1, uv2, curMin, curMax := l.V1+n.V1, l.V2+n.V2, l.Min, l.Max
-	uv3 := l.V3 + n.V3
-	uv4 := l.V4 + n.V4
-	uv5 := l.V5 + n.V5
-	uv6 := l.V6 + n.V6
-	uv7 := l.V7 + n.V7
-	uv8 := l.V8 + n.V8
-	uv9 := l.V9 + n.V9
+func (l *Line) updateMinMax(newLine *Line, r *Runner) {
+	uv1, uv2 := l.V1+newLine.V1, l.V2+newLine.V2
+	uv3 := l.V3 + newLine.V3
+	uv4 := l.V4 + newLine.V4
+	uv5 := l.V5 + newLine.V5
+	uv6 := l.V6 + newLine.V6
+	uv7 := l.V7 + newLine.V7
+	uv8 := l.V8 + newLine.V8
+	uv9 := l.V9 + newLine.V9
 
-	// 百分比类型时，uv1 > uv2没意义（可能是分子还没更新，分母累积提前到达）
-	if n.V2 <= EPSILON || n.LogType.isPercent() && uv1 > uv2 {
-		l.update(uv1, uv2, uv3, uv4, uv5, uv6, uv7, uv8, uv9, curMin, curMax)
-
-		return
+	var newMin, newMax float64
+	if l.LogType == KeyRT {
+		newMin = Min(l.N, l.Min, newLine.V1)
+		newMax = Max(l.N, l.Max, newLine.V1)
+		if r.option.Debug {
+			log.Printf("[%s][%s] n: %d, lastMin: %g, lastMax: %g, n.V1: %g, min: %g, max: %g",
+				l.LogType, l.Key, l.N, l.Min, l.Max, newLine.V1, newMin, newMax)
+		}
 	}
 
-	var ratio float64 = 1
-	if n.LogType.isPercent() {
-		ratio = 100
-	}
-
-	if n.LogType.isUseCurrent4MinMax() {
-		ratio *= n.V1 / n.V2
-	} else {
-		ratio *= uv1 / uv2
-	}
-
-	l.update(uv1, uv2, uv3, uv4, uv5, uv6, uv7, uv8, uv9, Min(curMin, ratio), Max(curMax, ratio))
+	l.update(uv1, uv2, uv3, uv4, uv5, uv6, uv7, uv8, uv9, newMin, newMax)
 }
 
 func (l *Line) update(v1, v2, v3, v4, v5, v6, v7, v8, v9, min, max float64) {
@@ -278,11 +282,12 @@ func (l *Line) update(v1, v2, v3, v4, v5, v6, v7, v8, v9, min, max float64) {
 	l.V9 = v9
 	l.Min = min
 	l.Max = max
+	l.N++
 }
 
 // Max returns the max of two number.
-func Max(max, v float64) float64 {
-	if max < EPSILON || v > max {
+func Max(n int, max, v float64) float64 {
+	if n <= 0 || v > max {
 		return v
 	}
 
@@ -290,14 +295,17 @@ func Max(max, v float64) float64 {
 }
 
 // Min returns the min of two number.
-func Min(min, v float64) float64 {
-	if min < EPSILON || v < min {
+func Min(n int, min, v float64) float64 {
+	if n <= 0 || v < min {
 		return v
 	}
 
 	return min
 }
 
+// EPSILON。 math.Nextafter(1, 2) 返回的结果是比 1 稍微大一点的浮点数，
+// 它是浮点数 1 在计算机中表示的下一个可表示的值。将这个值减去 1，得到的是
+// 浮点数 1 和它的下一个可表示值之间的差距，这通常被称为“机器精度”或 EPSILON。
 var EPSILON = math.Nextafter(1, 2) - 1
 
 func FloatEquals(a, b float64) bool {

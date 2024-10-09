@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bingoohuang/ngg/metrics/metric"
@@ -14,6 +16,7 @@ import (
 func main() {
 	port := flag.Int("port", 0, "http port")
 	dur := flag.Duration("dur", 100*time.Millisecond, "generate interval")
+	typ := flag.String("type", "", "metric type, e.g. RT, QPS, SuccessRate, FailRate, HitRate, Cur")
 
 	flag.Parse()
 	if *port > 0 {
@@ -42,10 +45,34 @@ func main() {
 		time.Sleep(*dur + time.Duration(rand.Int31n(900))*time.Millisecond)
 	}
 
+	typNum := -1
+	if *typ != "" {
+		switch strings.ToUpper(*typ) {
+		case "RT":
+			typNum = 0
+		case "QPS":
+			typNum = 1
+		case "SUCCESSRATE":
+			typNum = 2
+		case "FAILRATE":
+			typNum = 4
+		case "HITRATE":
+			typNum = 5
+		case "CUR":
+			typNum = 6
+		default:
+			log.Fatalf("unknown type %q", *typ)
+		}
+	}
+
 	for i := 0; ; i++ {
 		f()
 
 		m := i % 6
+		if typNum >= 0 {
+			m = typNum
+		}
+
 		switch m {
 		case 0:
 			func() {

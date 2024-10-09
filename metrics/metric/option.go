@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/caarlos0/env/v6"
+	"github.com/caarlos0/env/v11"
 	"github.com/creasty/defaults"
 	"github.com/joho/godotenv"
 )

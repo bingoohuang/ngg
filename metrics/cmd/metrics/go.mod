@@ -4,12 +4,12 @@ go 1.23.0
 
 replace github.com/bingoohuang/ngg/metrics => ../..
 
-require github.com/bingoohuang/ngg/metrics v0.0.0-20240926053310-909e0b596767
+require github.com/bingoohuang/ngg/metrics v0.0.0-20241008021152-464426e771e6
 
 require (
-	github.com/bingoohuang/ngg/ss v0.0.0-20240926053310-909e0b596767 // indirect
-	github.com/bingoohuang/ngg/ver v0.0.0-20240926053310-909e0b596767 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240926053310-909e0b596767 // indirect
+	github.com/bingoohuang/ngg/ss v0.0.0-20241008021152-464426e771e6 // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20241008021152-464426e771e6 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241008021152-464426e771e6 // indirect
 	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/creasty/defaults v1.8.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
@@ -33,11 +33,11 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/exp v0.0.0-20241004190924-225e2abe05e6 // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/term v0.25.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
