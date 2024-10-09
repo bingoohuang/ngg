@@ -195,8 +195,18 @@ func (r *Runner) writeLog(file io.Writer, v Line) {
 		return
 	}
 
-	content := util.JSONCompact(v)
-	content = append(content, '\n')
+	var obj any = v
+	if v.LogType != KeyRT { // 非 RT 排除 min/max 的 JSON 输出
+		obj = struct {
+			Line
+			Min any `json:"min,omitempty"` // 每次采集区间（METRICS_INTERVAL）中 v1  最小/大值
+			Max any `json:"max,omitempty"` // 只对 RT 生效
+		}{
+			Line: v,
+		}
+	}
+
+	content := append(util.JSONCompact(obj), '\n')
 
 	if _, err := file.Write(content); err != nil {
 		log.Printf("W! fail to write log of metrics, error %+v", err)

@@ -77,8 +77,8 @@ type Line struct {
 	Hostname string  `json:"hostname"`
 
 	Keys []string `json:"-"`
-	Min  float64  `json:"min,omitempty"` // 每次采集区间（METRICS_INTERVAL）中 v1  最小/大值
-	Max  float64  `json:"max,omitempty"` // 只对 RT 生效
+	Min  float64  `json:"min"` // 每次采集区间（METRICS_INTERVAL）中 v1  最小/大值
+	Max  float64  `json:"max"` // 只对 RT 生效
 
 	V1 float64 `json:"v1"` // 小数
 	V2 float64 `json:"v2"` // 只有比率类型的时候，才用到v2
