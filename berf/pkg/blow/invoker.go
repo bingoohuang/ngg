@@ -406,7 +406,7 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 
 	samplingYes := samplingFunc()
 
-	r.printReq(b1, bx, ignoreBody, statusCode, samplingYes, rr)
+	r.printReq(b1, bx, ignoreBody, statusCode, status, samplingYes)
 	b1.Reset()
 
 	header := rsp.Header.Header()
@@ -434,7 +434,7 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	}
 
 	//_, _ = b1.Write([]byte("\n\n"))
-	r.printResp(b1, bx, rsp, statusCode, samplingYes)
+	r.printResp(b1, bx, rsp, statusCode, status, samplingYes)
 
 	return nil
 }
@@ -450,22 +450,21 @@ var samplingFunc = func() func() bool {
 	}
 }()
 
-func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statusCode int, samplingYes bool, rr *berf.Result) {
-	if !samplingYes {
-		return
+func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statusCode int, status string, samplingYes bool) {
+	//if status != "status 200" {
+	//	log.Print(status)
+	//}
+	if !logStatus(r.opt.berfConfig.N, statusCode, status) {
+		bx = nil
 	}
 
-	if !logStatus(r.opt.berfConfig.N, statusCode) {
-		bx = nil
+	if bx == nil && (r.opt.printOption == 0 || !samplingYes) {
+		return
 	}
 
 	dumpHeader, dumpBody := r.dump(b, bx, ignoreBody, nil)
 	if bx != nil {
 		_, _ = bx.Write([]byte("\n"))
-	}
-
-	if r.opt.printOption == 0 && bx == nil {
-		return
 	}
 
 	printNum := 0
@@ -485,25 +484,24 @@ func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statu
 	}
 }
 
-var logStatus = func() func(n, code int) bool {
+var logStatus = func() func(n, code int, customizedStatus string) bool {
 	if env := os.Getenv("BLOW_STATUS"); env != "" {
 		excluded := ss.HasPrefix(env, "-")
 		if excluded {
 			env = env[1:]
 		}
-		status, _ := ss.Parse[int](env)
-		return func(n, code int) bool {
+		return func(n, code int, customizedStatus string) bool {
 			if n == 1 {
 				return true
 			}
 			if excluded {
-				return code != status
+				return customizedStatus != env
 			}
-			return code == status
+			return customizedStatus == env
 		}
 	}
 
-	return func(n, code int) bool {
+	return func(n, code int, status string) bool {
 		if n == 1 {
 			return true
 		}
@@ -511,12 +509,15 @@ var logStatus = func() func(n, code int) bool {
 	}
 }()
 
-func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Response, statusCode int, samplingYes bool) {
-	if !logStatus(r.opt.berfConfig.N, statusCode) {
+func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Response, statusCode int, status string, samplingYes bool) {
+	//if status != "status 200" {
+	//	log.Print(status)
+	//}
+	if !logStatus(r.opt.berfConfig.N, statusCode, status) {
 		bx = nil
 	}
 
-	if r.opt.printOption == 0 && bx == nil || !samplingYes {
+	if bx == nil && (r.opt.printOption == 0 || !samplingYes) {
 		return
 	}
 

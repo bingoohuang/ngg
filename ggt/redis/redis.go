@@ -1,17 +1,24 @@
 package redis
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
+	"strings"
+	"text/template"
 	"time"
 
+	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/jj"
@@ -21,34 +28,74 @@ import (
 	"github.com/xo/dburl"
 )
 
+var cobraCmd = &cobra.Command{
+	Use:  "redis",
+	Long: "redis client",
+}
+
 func init() {
-	c := &cobra.Command{
-		Use:  "redis",
-		Long: "redis client",
-	}
-	root.AddCommand(c, nil)
-	root.CreateSubCmd(c, "scan", "scan keys for list/del", &scanCmd{})
-	root.CreateSubCmd(c, "set", "set string key", &setCmd{})
-	root.CreateSubCmd(c, "get", "get key", &getCmd{})
-	root.CreateSubCmd(c, "export", "export keys", &exportCmd{})
-	root.CreateSubCmd(c, "import", "import keys", &importCmd{})
+	root.AddCommand(cobraCmd, nil)
+	root.CreateSubCmd(cobraCmd, "scan", "scan keys for list/del", &scanCmd{})
+	root.CreateSubCmd(cobraCmd, "set", "set string key", &setCmd{})
+	root.CreateSubCmd(cobraCmd, "get", "get key", &getCmd{})
+	root.CreateSubCmd(cobraCmd, "export", "export keys", &exportCmd{})
+	root.CreateSubCmd(cobraCmd, "import", "import keys", &importCmd{})
 }
 
 type Basic struct {
-	Server   string `short:"s" help:"redis server" default:"127.0.0.1:6379" persist:"1" env:"auto"`
+	Server   string `short:"s" help:"redis server" default:":6379" persist:"1" env:"auto"`
 	Password string `short:"p" persist:"1"  env:"auto"`
 	Db       int    `help:"default redis DB index" persist:"1"`
+
+	Timeout time.Duration `help:"timeout"`
+}
+
+func (f Basic) NewRds() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:         FulfileHostPort(f.Server, "127.0.0.1", 6379),
+		Password:     f.Password,
+		DB:           f.Db,
+		DialTimeout:  f.Timeout,
+		ReadTimeout:  f.Timeout,
+		WriteTimeout: f.Timeout,
+	})
 }
 
 type getCmd struct {
-	Basic `squash:"true"`
-	Key   string   `short:"k" help:"key"`
-	Field []string `short:"f" help:"hash field"`
-	Raw   bool     `short:"r" help:"use raw json format"`
+	Basic    `squash:"true"`
+	Key      string   `short:"k" help:"key"`
+	Field    []string `short:"f" help:"hash field"`
+	Raw      bool     `short:"r" help:"use raw json format"`
+	OnlyKeys bool     `help:"only list hash fields "`
+}
+
+// FulfileHostPort 补全 Host 和 Port
+// e.g.
+// FulfileHostPort("192.168.56.110", "127.0.0.1", 6379)  => 192.168.56.110:6379
+// FulfileHostPort(":8080", "127.0.0.1", 6379)           => 127.0.0.1:6379
+// FulfileHostPort(":", "127.0.0.1", 6379)               => 127.0.0.1:6379
+func FulfileHostPort(expr, host string, port int) string {
+	// 检查 expr 是否仅仅是 ":"
+	if expr == ":" {
+		return fmt.Sprintf("%s:%d", host, port)
+	}
+
+	// 检查 expr 是否是 IP 地址或主机名（不包含端口）
+	if net.ParseIP(expr) != nil {
+		return fmt.Sprintf("%s:%d", expr, port)
+	}
+
+	// 检查 expr 是否只包含端口
+	if strings.HasPrefix(expr, ":") {
+		return fmt.Sprintf("%s:%s", host, expr[1:])
+	}
+
+	// 默认返回 expr
+	return expr
 }
 
 func (f *getCmd) Run(cmd *cobra.Command, args []string) error {
-	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
+	rdb := f.NewRds()
 	defer rdb.Close()
 
 	typ, err := rdb.Type(cmd.Context(), f.Key).Result()
@@ -64,7 +111,12 @@ func (f *getCmd) Run(cmd *cobra.Command, args []string) error {
 		if len(f.Field) > 0 {
 			val, err = rdb.HMGet(cmd.Context(), f.Key, f.Field...).Result()
 		} else {
-			val, err = rdb.HGetAll(cmd.Context(), f.Key).Result()
+			if f.OnlyKeys {
+				val, err = rdb.HKeys(cmd.Context(), f.Key).Result()
+				sort.Strings(val.([]string))
+			} else {
+				val, err = rdb.HGetAll(cmd.Context(), f.Key).Result()
+			}
 		}
 	default:
 	}
@@ -102,19 +154,53 @@ type setCmd struct {
 	Key   string        `short:"k" help:"key"`
 	Field string        `short:"f" help:"hash field"`
 	Val   string        `short:"v" help:"value"`
+	Tmpl  bool          `help:"support go template in val, like '{{unixTime}}'"`
 	Exp   time.Duration `help:"set expiry time for the key"`
 }
 
+// 定义一个 FuncMap，将我们自定义的函数注册到模板中
+var funcMap = template.FuncMap{
+	"unixTime": func() string {
+		return strconv.FormatInt(time.Now().Unix(), 10)
+	},
+}
+
 func (f *setCmd) Run(cmd *cobra.Command, args []string) error {
-	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
+	r, err := gterm.Option{Random: true}.Open(f.Val)
+	if err != nil {
+		return fmt.Errorf("open input: %w", err)
+	}
+	defer r.Close()
+
+	data, err := r.ToBytes()
+	if err != nil {
+		return err
+	}
+
+	val := string(data)
+	if f.Tmpl {
+		// 解析模板并将 FuncMap 应用到模板中
+		t := template.Must(template.New("val").Funcs(funcMap).Parse(val))
+		var buf bytes.Buffer
+		if err := t.Execute(&buf, nil); err != nil {
+			return err
+		}
+		val1 := buf.String()
+		if val1 != val {
+			log.Printf("val interpreted to %s", val1)
+			val = val1
+		}
+	}
+
+	rdb := f.NewRds()
 	defer rdb.Close()
 
 	if f.Field == "" {
-		if err := rdb.Set(cmd.Context(), f.Key, f.Val, f.Exp).Err(); err != nil {
+		if err := rdb.Set(cmd.Context(), f.Key, val, f.Exp).Err(); err != nil {
 			log.Printf("redis set err: %v", err)
 		}
 	} else {
-		if err := rdb.HSet(cmd.Context(), f.Key, f.Field, f.Val).Err(); err != nil {
+		if err := rdb.HSet(cmd.Context(), f.Key, f.Field, val).Err(); err != nil {
 			log.Printf("redis hset err: %v", err)
 		}
 	}
@@ -128,7 +214,7 @@ type importCmd struct {
 }
 
 func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
-	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
+	rdb := f.NewRds()
 	defer rdb.Close()
 
 	file, err := os.Open(f.File)
@@ -151,20 +237,25 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 
 		switch item.Type {
 		case "string":
-			if err := rdb.Set(cmd.Context(), item.Key, (RawMessage(item.Value)).String(), 0).Err(); err != nil {
+			var str string
+			if err := json.Unmarshal(item.Value, &str); err != nil {
+				log.Printf("unmarshal value err: %v", err)
+				continue
+			}
+			if err := rdb.Set(cmd.Context(), item.Key, str, 0).Err(); err != nil {
 				log.Printf("redis set err: %v", err)
 			} else {
 				itemIndex++
 				log.Printf("%d: string key %s imported", itemIndex, item.Key)
 			}
 		case "hash":
-			var val map[string]json.RawMessage
+			var val map[string]string
 			if err := json.Unmarshal(item.Value, &val); err != nil {
 				return err
 			}
 
 			for k, v := range val {
-				if err := rdb.HSet(cmd.Context(), item.Key, k, (RawMessage(v)).String()).Err(); err != nil {
+				if err := rdb.HSet(cmd.Context(), item.Key, k, v).Err(); err != nil {
 					return err
 				}
 			}
@@ -219,7 +310,7 @@ type exportCmd struct {
 }
 
 func (f *exportCmd) Run(cmd *cobra.Command, args []string) error {
-	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
+	rdb := f.NewRds()
 	defer rdb.Close()
 
 	var err error
@@ -325,7 +416,7 @@ type scanCmd struct {
 }
 
 func (f *scanCmd) Run(cmd *cobra.Command, args []string) error {
-	rdb := redis.NewClient(&redis.Options{Addr: f.Server, Password: f.Password, DB: f.Db})
+	rdb := f.NewRds()
 	defer rdb.Close()
 
 	excluded := createKeyExcludes(f.Excludes)
