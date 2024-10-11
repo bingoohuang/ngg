@@ -20,10 +20,42 @@ type Dog struct {
 	states []*thresholdState
 }
 
+// removeFiles 删除指定目录 dir 下，符合 pattern 的文件
+func removeFiles(dir, pattern string) (removeFiles []string) {
+	if err := filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
+		if info.IsDir() || err != nil {
+			return err
+		}
+		if ok, _ := filepath.Match(pattern, info.Name()); !ok {
+			return nil
+		}
+		removeFiles = append(removeFiles, path)
+
+		return nil
+	}); err != nil {
+		log.Printf("E! walkdir: %s error: %v", dir, err)
+	}
+
+	for _, f := range removeFiles {
+		if e := os.Remove(f); e != nil {
+			log.Printf("E! clean file: %s, error: %v", f, e)
+		} else {
+			log.Printf("clean file: %s", f)
+		}
+	}
+
+	return
+}
+
 func New(options ...ConfigFn) *Dog {
 	d := &Dog{
 		Config: createConfig(options),
 	}
+
+	// 删除历史文件，例如
+	// Dog.cpu.868.20241010174315.pprof
+	// Dog.cpu.872.20241010173506.pprof
+	removeFiles(d.Dir, "Dog.*.pprof")
 
 	if d.RSSThreshold > 0 {
 		d.states = append(d.states, newThresholdState(RSS, d.RSSThreshold, d.statRSS, d.Dir, d.Pid))
