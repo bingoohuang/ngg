@@ -27,8 +27,10 @@ func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	clipboard.WriteAll(wd)
-	log.Printf("%s copied to clipboard", wd)
+	if err := clipboard.WriteAll(wd); err != nil {
+		return err
+	}
+	log.Printf("%q copied to clipboard", wd)
 
 	return nil
 }

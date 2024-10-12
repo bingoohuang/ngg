@@ -41,7 +41,7 @@ type subCmd struct {
 }
 
 func (f *subCmd) Run(_ *cobra.Command, args []string) error {
-	r, err := gterm.Option{Random: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -66,7 +66,7 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 			log.Printf("rand --key %x:hex", f.Key)
 		}
 	} else {
-		key, err := gterm.DecodeByTailTag(f.Key)
+		key, err := gterm.DecodeByTailTag(f.Key, 16, 24, 32)
 		if err != nil {
 			log.Printf("decode key error: %v", err)
 			return nil
@@ -78,7 +78,7 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 		f.IV = string(ss.Rand().Bytes(ivLen))
 		log.Printf("rand --iv %x:hex", f.IV)
 	} else {
-		iv, err := gterm.DecodeByTailTag(f.IV)
+		iv, err := gterm.DecodeByTailTag(f.IV, 12, 16)
 		if err != nil {
 			log.Printf("decode iv error: %v", err)
 			return nil

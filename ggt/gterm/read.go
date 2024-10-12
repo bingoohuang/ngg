@@ -20,7 +20,7 @@ type Option struct {
 	Random      bool
 	Required    bool
 	StripSpaces bool
-	TryDecode   bool
+	TryDecode   bool // Try decoding as base64 or hex
 }
 
 type ReaderSource int
@@ -50,6 +50,17 @@ func (r Result) ToBytes() ([]byte, error) {
 	return io.ReadAll(r.Reader)
 }
 
+func tryDecode(data []byte) []byte {
+	if buf, err := ss.Base64().DecodeBytes(data); err == nil {
+		return buf.Bytes()
+	}
+	if val, err := hex.DecodeString(string(data)); err == nil {
+		return val
+	}
+
+	return data
+}
+
 func (o Option) Open(input string) (*Result, error) {
 	if o.Random && o.RandomSize <= 0 {
 		o.RandomSize = 64
@@ -64,6 +75,9 @@ func (o Option) Open(input string) (*Result, error) {
 			dat, err := io.ReadAll(os.Stdin)
 			if err != nil {
 				return nil, err
+			}
+			if o.TryDecode {
+				dat = tryDecode(dat)
 			}
 
 			r := &Result{
@@ -92,7 +106,6 @@ func (o Option) Open(input string) (*Result, error) {
 				SourceType:  SourcePrompt,
 				SourceTitle: "prompt",
 			}, nil
-
 		}
 
 		if o.Random {
@@ -126,6 +139,10 @@ func (o Option) Open(input string) (*Result, error) {
 		input = StripSpaces(input)
 	}
 
+	if o.TryDecode {
+		input = string(tryDecode([]byte(input)))
+	}
+
 	return &Result{
 		Reader:      decorateReader(strings.NewReader(input), format),
 		Len:         len(input),
@@ -142,20 +159,27 @@ func SplitTail(s *string, c byte) (tail string) {
 	return tail
 }
 
-func DecodeByTailTag(s string) ([]byte, error) {
+func DecodeByTailTag(s string, allowedLen ...int) ([]byte, error) {
 	format := SplitTail(&s, ':')
 	switch format {
+	case "raw":
+		return []byte(s), nil
 	case "hex":
 		return hex.DecodeString(s)
 	case "base64", "b64":
 		return base64.StdEncoding.DecodeString(s)
 	default:
-		return []byte(s), nil
+		if ss.AnyOf(len(s), allowedLen...) {
+			return []byte(s), nil
+		}
+		return tryDecode([]byte(s)), nil
 	}
 }
 
 func decorateReader(r io.Reader, format string) io.Reader {
 	switch strings.ToLower(format) {
+	case "raw":
+		return r
 	case "hex":
 		return hex.NewDecoder(r)
 	case "base64", "b64":
