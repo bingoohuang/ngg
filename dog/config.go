@@ -1,6 +1,7 @@
 package dog
 
 import (
+	"log"
 	"os"
 	"runtime"
 	"time"
@@ -61,6 +62,13 @@ func createConfig(options []ConfigFn) *Config {
 	}
 	if c.Action == nil {
 		c.Action = ActionFn(DefaultAction)
+	}
+	if c.Dir == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("E! Getwd error: %v", err)
+		}
+		c.Dir = wd
 	}
 	return c
 }

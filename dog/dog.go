@@ -33,7 +33,7 @@ func removeFiles(dir, pattern string) (removeFiles []string) {
 
 		return nil
 	}); err != nil {
-		log.Printf("E! walkdir: %s error: %v", dir, err)
+		log.Printf("E! walkdir: %q error: %v", dir, err)
 	}
 
 	for _, f := range removeFiles {
