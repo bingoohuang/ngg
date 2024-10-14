@@ -1,17 +1,17 @@
 module github.com/bingoohuang/ngg/sqliter
 
-go 1.22
+go 1.22.0
 
-toolchain go1.23.1
+toolchain go1.23.2
 
 require (
-	github.com/bingoohuang/ngg/sqlrun v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ss v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/tick v0.0.0-20240907082044-e6fedc0af4e8
-	github.com/bingoohuang/ngg/ver v0.0.0-20240907082044-e6fedc0af4e8
+	github.com/bingoohuang/ngg/sqlrun v0.0.0-20241012131333-19daec88f4e9
+	github.com/bingoohuang/ngg/ss v0.0.0-20241012131333-19daec88f4e9
+	github.com/bingoohuang/ngg/tick v0.0.0-20241012131333-19daec88f4e9
+	github.com/bingoohuang/ngg/ver v0.0.0-20241012131333-19daec88f4e9
 	github.com/elliotchance/pie/v2 v2.9.0
-	github.com/golang-module/carbon/v2 v2.3.12
-	github.com/mattn/go-sqlite3 v1.14.23
+	github.com/golang-module/carbon/v2 v2.4.0
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/nxadm/tail v1.4.11
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.47.0
@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	github.com/bingoohuang/ngg/yaml v0.0.0-20240907082044-e6fedc0af4e8 // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241012131333-19daec88f4e9 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -43,11 +43,11 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/term v0.24.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/term v0.25.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect

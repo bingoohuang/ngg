@@ -147,15 +147,32 @@ type DebugDB struct {
 	maxOpenConns int
 }
 
-func NewDebugDB(dsn string, maxOpenConns int, c *Config) (*DebugDB, error) {
+func NewDebugDB(dbFile, dsn string, maxOpenConns int, c *Config) (*DebugDB, error) {
+	return newDebugDB(dbFile, dsn, maxOpenConns, c, 0)
+}
+
+func newDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, n int) (*DebugDB, error) {
 	db, err := sql.Open(c.DriverName, dsn)
 	if err != nil {
-		return nil, fmt.Errorf("openDB, driver: %s, dsn: %s: %v", c.DriverName, dsn, err)
+		return nil, fmt.Errorf("openDB, driver: %s, dsn: %s: %w", c.DriverName, dsn, err)
 	}
 	db.SetMaxOpenConns(maxOpenConns)
 	if err := db.Ping(); err != nil {
 		_ = db.Close()
-		return nil, fmt.Errorf("pingDB, driver: %s, dsn: %s: %v", c.DriverName, dsn, err)
+		return nil, fmt.Errorf("pingDB, driver: %s, dsn: %s: %w", c.DriverName, dsn, err)
+	}
+
+	if n == 0 {
+		// 如果此时，发现数据库对应的 -wal 文件存在，则主动关闭数据库后重新打开
+		// 利用关闭机制，消除 -wal 文件，顺便解决反复重启导致的 -wal 文件过大的问题
+		walFiles, err := ListFiles(dbFile, "-wal")
+		if err != nil {
+			return nil, fmt.Errorf("list db files: %w", err)
+		}
+		if len(walFiles) > 0 {
+			db.Close()
+			return newDebugDB(dbFile, dsn, maxOpenConns, c, n+1)
+		}
 	}
 
 	return &DebugDB{
@@ -286,40 +303,48 @@ func (d *DebugDB) dbPrepare(baseQuery string, batchSize int, postfix func(batchS
 	}
 }
 
-type file struct {
-	size int64
-	path string
+type FileStat struct {
+	Size int64
+	Path string
 }
 
-// RemoveFilesPrefix 删除以特定前缀开头的文件
-func RemoveFilesPrefix(prefix string, debug bool) (removeFiles []file, totalSize int64) {
+// ListFiles 列表以特定前缀后缀的文件
+func ListFiles(prefix, suffix string) (files []FileStat, err error) {
 	if stat, err := os.Stat(prefix); err != nil || stat.IsDir() {
-		return
+		return nil, err
 	}
 
 	dirPath := filepath.Dir(prefix)
-	err := filepath.WalkDir(dirPath, func(path string, info os.DirEntry, err error) error {
-		if !info.IsDir() && strings.HasPrefix(path, prefix) {
-			f := file{path: path}
+	if err := filepath.WalkDir(dirPath, func(path string, info os.DirEntry, err error) error {
+		if !info.IsDir() && strings.HasPrefix(path, prefix) && (suffix == "" || strings.HasSuffix(path, suffix)) {
+			f := FileStat{Path: path}
 			if fi, err := info.Info(); err == nil {
-				f.size = fi.Size()
+				f.Size = fi.Size()
 			}
-			removeFiles = append(removeFiles, f)
+			files = append(files, f)
 		}
 		return err
-	})
+	}); err != nil {
+		return nil, err
+	}
 
+	return files, nil
+}
+
+// RemoveFilesPrefix 删除以特定前缀开头的文件
+func RemoveFilesPrefix(prefix string, debug bool) (removeFiles []FileStat, totalSize int64) {
+	removeFiles, err := ListFiles(prefix, "")
 	if err != nil {
-		log.Printf("E! walkdir: %s error: %v", dirPath, err)
+		log.Printf("E! ListFilesPrefix: %s error: %v", prefix, err)
 	}
 
 	for _, f := range removeFiles {
-		if e := os.Remove(f.path); e != nil {
-			log.Printf("E! removeFile: %s, error: %v", f.path, e)
+		if e := os.Remove(f.Path); e != nil {
+			log.Printf("E! removeFile: %s, error: %v", f.Path, e)
 		} else {
-			totalSize += f.size
+			totalSize += f.Size
 			if debug {
-				log.Printf("removeFile: %s, size: %s", f.path, ss.IBytes(uint64(f.size)))
+				log.Printf("removeFile: %s, size: %s", f.Path, ss.IBytes(uint64(f.Size)))
 			}
 		}
 	}
