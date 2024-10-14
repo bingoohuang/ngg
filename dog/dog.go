@@ -23,7 +23,7 @@ type Dog struct {
 // removeFiles 删除指定目录 dir 下，符合 pattern 的文件
 func removeFiles(dir, pattern string) (removeFiles []string) {
 	if err := filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
-		if info.IsDir() || err != nil {
+		if err != nil || info.IsDir() {
 			return err
 		}
 		if ok, _ := filepath.Match(pattern, info.Name()); !ok {

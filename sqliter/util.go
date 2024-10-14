@@ -316,7 +316,12 @@ func ListFiles(prefix, suffix string) (files []FileStat, err error) {
 
 	dirPath := filepath.Dir(prefix)
 	if err := filepath.WalkDir(dirPath, func(path string, info os.DirEntry, err error) error {
-		if !info.IsDir() && strings.HasPrefix(path, prefix) && (suffix == "" || strings.HasSuffix(path, suffix)) {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && strings.HasPrefix(path, prefix) &&
+			(suffix == "" || strings.HasSuffix(path, suffix)) {
 			f := FileStat{Path: path}
 			if fi, err := info.Info(); err == nil {
 				f.Size = fi.Size()
