@@ -51,7 +51,7 @@ func (q *Sqliter) getReadDB(table, dividedBy string) (*readTable, error) {
 	}
 
 	dsn := q.Prefix + dbFile + "?" + q.ReadDsnOptions
-	debugDB, err := NewDebugDB(q.Prefix+dbFile, dsn, max(4, runtime.NumCPU()), q.Config)
+	debugDB, err := NewDebugDB(q.Prefix+dbFile, dsn, max(4, runtime.NumCPU()), q.Config, ModeRead)
 	if err != nil {
 		return nil, err
 	}

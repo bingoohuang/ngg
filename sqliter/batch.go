@@ -34,7 +34,7 @@ func (d *writeTable) batchInsertLoop(c *Config) {
 
 // batchItem 将 i 加入批量处理
 func (d *tableBatch) batchItem(i Insert) error {
-	names, values := SortMap(i.columns)
+	names, values := sortColumns(i.columns)
 	query := fmt.Sprintf("insert into %q(%s) values", i.metric.Name(), strings.Join(QuoteSlice(names), ","))
 	bv, ok := d.batchVarMap[query]
 	if !ok {
@@ -45,7 +45,7 @@ func (d *tableBatch) batchItem(i Insert) error {
 
 		var err error
 		if bv.Prepared, err = d.writeTable.prepareQuery(query, len(names), bv.onConflict, i.metric); err != nil {
-			log.Printf("E! batch insert %s loop err:%+v", d.Table, err)
+			log.Printf("E! batch insert %s loop err: %+v", d.Table, err)
 			return fmt.Errorf("prepareQuery err:%w", err)
 		}
 	}

@@ -113,8 +113,9 @@ func DefaultConfig() *Config {
 		WriteDsnOptions: "_journal=WAL",
 		ReadDsnOptions:  "_txlock=immediate",
 		BadTableSubs:    []string{"-shm", "-wal", "-journal"},
-		AllowDBErrors:   []string{"no such", "has no column named"},
-		AsTags:          &noopFilter{},
+		// ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint
+		AllowDBErrors: []string{"no such", "has no column named", "does not match"},
+		AsTags:        &noopFilter{},
 	}
 }
 

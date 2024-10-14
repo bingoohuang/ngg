@@ -34,7 +34,7 @@ func (q *Sqliter) getWriteTable(t time.Time, table string) (*writeTable, error) 
 	}
 
 	dsn := q.Prefix + dbFile + "?" + q.WriteDsnOptions
-	debugDB, err := NewDebugDB(q.Prefix+dbFile, dsn, 1, q.Config)
+	debugDB, err := NewDebugDB(q.Prefix+dbFile, dsn, 1, q.Config, ModeWrite)
 	if err != nil {
 		return nil, err
 	}

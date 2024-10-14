@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -23,9 +22,9 @@ import (
 	"github.com/samber/lo"
 )
 
-func SortMap(m map[string]any) (keys []string, values []any) {
+func sortColumns(m map[string]any) (keys []string, values []any) {
 	keys = lo.Keys(m)
-	sort.Strings(keys)
+	keys = uniqueIndexSort(keys)
 
 	values = pie.Map(keys, func(k string) any { return m[k] })
 	return keys, values
@@ -33,7 +32,9 @@ func SortMap(m map[string]any) (keys []string, values []any) {
 
 // OnConflictGen 生成 on conflict 子语句函数
 func OnConflictGen(tags map[string]bool) func(columns []string) string {
-	q := " on conflict(" + strings.Join(pie.Map(lo.Keys(tags), strconv.Quote), ",") + ") do update set "
+	sortedColumns := uniqueIndexSort(lo.Keys(tags))
+
+	q := " on conflict(" + strings.Join(pie.Map(sortedColumns, strconv.Quote), ",") + ") do update set "
 	return func(columns []string) string {
 		sets := pie.Of(columns).
 			Filter(func(s string) bool {
@@ -147,11 +148,19 @@ type DebugDB struct {
 	maxOpenConns int
 }
 
-func NewDebugDB(dbFile, dsn string, maxOpenConns int, c *Config) (*DebugDB, error) {
-	return newDebugDB(dbFile, dsn, maxOpenConns, c, 0)
+type ModeOpenDB int
+
+const (
+	_ ModeOpenDB = iota
+	ModeRead
+	ModeWrite
+)
+
+func NewDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, mode ModeOpenDB) (*DebugDB, error) {
+	return newDebugDB(dbFile, dsn, maxOpenConns, c, mode, 0)
 }
 
-func newDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, n int) (*DebugDB, error) {
+func newDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, mode ModeOpenDB, n int) (*DebugDB, error) {
 	db, err := sql.Open(c.DriverName, dsn)
 	if err != nil {
 		return nil, fmt.Errorf("openDB, driver: %s, dsn: %s: %w", c.DriverName, dsn, err)
@@ -162,7 +171,7 @@ func newDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, n int) (*DebugD
 		return nil, fmt.Errorf("pingDB, driver: %s, dsn: %s: %w", c.DriverName, dsn, err)
 	}
 
-	if n == 0 {
+	if mode == ModeWrite && n == 0 {
 		// 如果此时，发现数据库对应的 -wal 文件存在，则主动关闭数据库后重新打开
 		// 利用关闭机制，消除 -wal 文件，顺便解决反复重启导致的 -wal 文件过大的问题
 		walFiles, err := ListFiles(dbFile, "-wal")
@@ -170,8 +179,19 @@ func newDebugDB(dbFile, dsn string, maxOpenConns int, c *Config, n int) (*DebugD
 			return nil, fmt.Errorf("list db files: %w", err)
 		}
 		if len(walFiles) > 0 {
+			q := "PRAGMA wal_checkpoint(FULL)"
+			_, err := db.Exec(q)
 			db.Close()
-			return newDebugDB(dbFile, dsn, maxOpenConns, c, n+1)
+
+			if err != nil {
+				// error like atabase disk image is malformed
+				log.Printf("exec %q error: %v on %s, clean db files", q, err, dsn)
+				RemoveFilesPrefix(dbFile, c.Debug)
+			} else {
+				log.Printf("exec %q successfully on %s", q, dsn)
+			}
+			log.Printf("found wal: %+v, dsn: %q, reopen it", walFiles, dsn)
+			return newDebugDB(dbFile, dsn, maxOpenConns, c, mode, n+1)
 		}
 	}
 

@@ -2,6 +2,7 @@ package sqliter
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -118,7 +119,27 @@ func dropUniqueIndex(table string) string {
 }
 
 func createUniqueIndex(table string, column ...string) string {
-	quotedCols := lo.Map(column, func(c string, _ int) string { return strconv.Quote(c) })
+	sortedColumns := uniqueIndexSort(column)
+	quotedCols := lo.Map(sortedColumns, func(c string, _ int) string { return strconv.Quote(c) })
 	joinedCols := strings.Join(quotedCols, ",")
 	return fmt.Sprintf("create unique index %q on %q(%s)", "udx_"+table, table, joinedCols)
+}
+
+// uniqueIndexSort 排序：将 "timestamp" 放在第1位，其余按字典顺序排序
+func uniqueIndexSort(data []string) (result []string) {
+	var others []string
+
+	for _, s := range data {
+		if s == "timestamp" {
+			result = append(result, s)
+		} else {
+			others = append(others, s)
+		}
+	}
+
+	// 按字母顺序排序其余元素
+	sort.Strings(others)
+
+	// 将 timestamp 插入到第1位
+	return append(result, others...)
 }
