@@ -20,18 +20,26 @@ func (q *Sqliter) recycleLoop() {
 
 	if q.RecycleCron != "" {
 		parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.DowOptional | cron.Descriptor)
-		cron := cron.New(cron.WithParser(parser))
-		cron.Start()
-		defer cron.Stop()
+
+		schedule, err := parser.Parse(q.RecycleCron)
+		if err != nil {
+			log.Fatalf("fail to parse %q: %v", q.RecycleCron, err)
+		}
+
+		c := cron.New(cron.WithParser(parser))
+		c.Start()
+		defer c.Stop()
+
 		// @midnight
 		// @every 5m
 		// 每秒: * * * * * ?
 		// 每5分钟: 0 5 * * * *", every5min(time.Local)},
-		cron.AddFunc(q.RecycleCron, func() {
+		c.Schedule(schedule, cron.FuncJob(func() {
 			q.tickRecycle(*q.TimeSeriesKeep)
-		})
+		}))
 
-		ctx.Done()
+		// 等待结束
+		<-ctx.Done()
 	} else {
 		t := time.NewTicker(q.RecycleInterval)
 		defer t.Stop()
