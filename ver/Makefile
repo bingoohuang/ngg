@@ -136,17 +136,18 @@ install: init
 	# @if [ ! -d cmd ]; then mv ${gobin}/main ${gobin}/${app}; fi
 	${LS_BIN}
 
-linux1: init
+linux: init
 	GOOS=linux GOARCH=amd64 ${goinstall}
 	ls -lh  ${gobin}/linux_amd64/${app}*
-linux-upx1: linux1
+linux-upx: linux1
 	upx --best --lzma ${gobin}/linux_amd64/${app}*
 	ls -lh  ${gobin}/linux_amd64/${app}*
 
-linux: init
+-- Reliably Cross Compiling Go using Zig https://blog.afoolishmanifesto.com/posts/golang-zig-cross-compilation/
+linux-zig: init
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC="zig cc -target x86_64-linux-musl" CXX="zig c++ -target x86_64-linux-musl" ${goinstall}
 	ls -lh  ${gobin}/linux_amd64/${app}*
-linux-upx: linux
+linux-zig-upx: linux
 	upx --best --lzma ${gobin}/linux_amd64/${app}*
 	ls -lh  ${gobin}/linux_amd64/${app}*
 windows: init
@@ -156,11 +157,16 @@ windows-upx: init
 	GOOS=windows GOARCH=amd64 ${goinstall}
 	upx --best --lzma ${gobin}/windows_amd64/${app}*
 	ls -lh  ${gobin}/windows_amd64/${app}*
+arm-zig: init
+	CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC="zig cc -target arm-linux-musleabihf" CXX="zig c++ -target arm-linux-musleabihf" ${goinstall}
+	ls -lh  ${gobin}/linux_arm64/${app}*
+arm-zig-upx: arm
+	upx --best --lzma ${gobin}/linux_arm64/${app}*
+	ls -lh  ${gobin}/linux_arm64/${app}*
 arm: init
 	GOOS=linux GOARCH=arm64 ${goinstall}
 	ls -lh  ${gobin}/linux_arm64/${app}*
-arm-upx: init
-	GOOS=linux GOARCH=arm64 ${goinstall}
+arm-upx: arm
 	upx --best --lzma ${gobin}/linux_arm64/${app}*
 	ls -lh  ${gobin}/linux_arm64/${app}*
 mac-arm: init
