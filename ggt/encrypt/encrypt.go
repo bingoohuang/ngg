@@ -18,8 +18,9 @@ import (
 
 func init() {
 	c := &cobra.Command{
-		Use:   "encrypt",
-		Short: "aes/sm4 encryption/decryption",
+		Use:     "encrypt",
+		Aliases: []string{"aes", "enc"},
+		Short:   "aes/sm4 encryption/decryption",
 	}
 
 	root.AddCommand(c, &subCmd{})
@@ -35,12 +36,14 @@ type subCmd struct {
 
 	Mode       string `help:"mode" default:"GCM" enum:"CBC,GCM,CCM,CTR,ECB,CFB,OFB,WRAP" env:"auto"`
 	Additional string `help:"additional in GCM/CCM"`
+	Salt       string `default:"" help:"salt for pbkdf2"`
+	KeyLen     int    `default:"16" enum:"16,24,32" help:"key length"`
 
 	SM4     bool `help:"sm4"`
 	Verbose bool `short:"v" help:"verbose"`
 }
 
-func (f *subCmd) Run(_ *cobra.Command, args []string) error {
+func (f *subCmd) Run(*cobra.Command, []string) error {
 	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -59,14 +62,21 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 	if f.Key == "" {
 		if f.Pass != "" {
 			salt := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-			f.Key = string(pbkdf2.Key([]byte(f.Pass), salt, 10000, 16, sha256.New))
-			log.Printf("pbkdf2 --key %x:hex", f.Key)
+			if f.Salt != "" {
+				if s, err := gterm.DecodeByTailTag(f.Salt); err != nil {
+					return err
+				} else {
+					salt = s
+				}
+			}
+			f.Key = string(pbkdf2.Key([]byte(f.Pass), salt, 10000, f.KeyLen, sha256.New))
+			log.Printf("pbkdf2 --key %x:hex, salt: %x:hex", f.Key, salt)
 		} else {
 			f.Key = string(ss.Rand().Bytes(16)) // 128位
 			log.Printf("rand --key %x:hex", f.Key)
 		}
 	} else {
-		key, err := gterm.DecodeByTailTag(f.Key, 16, 24, 32)
+		key, err := gterm.DecodeByTailTag(f.Key, f.KeyLen)
 		if err != nil {
 			log.Printf("decode key error: %v", err)
 			return nil
@@ -93,17 +103,19 @@ func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 	switch strings.ToUpper(f.Mode) {
 	case "GCM":
 		if f.Additional != "" {
-			obj = obj.GCM([]byte(f.Additional)).NoPadding()
+			obj = obj.GCM([]byte(f.Additional))
 		} else {
-			obj = obj.GCM().NoPadding()
+			obj = obj.GCM()
 		}
+		obj = obj.NoPadding()
 		action += "/GCM/NoPadding"
 	case "CCM":
 		if f.Additional != "" {
-			obj = obj.CCM([]byte(f.Additional)).NoPadding()
+			obj = obj.CCM([]byte(f.Additional))
 		} else {
-			obj = obj.CCM().NoPadding()
+			obj = obj.CCM()
 		}
+		obj = obj.NoPadding()
 		action += "/CCM/NoPadding"
 	case "CTR":
 		obj = obj.CTR().NoPadding()

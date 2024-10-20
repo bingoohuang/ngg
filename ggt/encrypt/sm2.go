@@ -36,18 +36,18 @@ func init() {
 
 type sm2Cmd struct{}
 
-func (f *sm2Cmd) run(_ *cobra.Command, args []string) {}
+func (f *sm2Cmd) run(_ *cobra.Command, _ []string) {}
 
 type sm2KeyCmd struct {
 	Pass string `help:"private key password"`
 	Dir  string `help:"output dir"`
 }
 
-func (f *sm2KeyCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2KeyCmd) Run(_ *cobra.Command, _ []string) error {
 	obj := sm2.New().GenerateKey()
 
-	log.Printf("private key: %s", ss.Base64().EncodeBytes((gmsm2.PrivateKeyTo(obj.GetPrivateKey()))).V1.Bytes())
-	log.Printf("public key: %s", ss.Base64().EncodeBytes((gmsm2.PublicKeyTo(obj.GetPublicKey()))).V1.Bytes())
+	log.Printf("private key: %s", ss.Base64().EncodeBytes(gmsm2.PrivateKeyTo(obj.GetPrivateKey())).V1.Bytes())
+	log.Printf("public key: %s", ss.Base64().EncodeBytes(gmsm2.PublicKeyTo(obj.GetPublicKey())).V1.Bytes())
 
 	if f.Pass != "" {
 		obj = obj.CreatePrivateKeyWithPassword(f.Pass)
@@ -110,7 +110,7 @@ func ParsePrivate(obj sm2.SM2, key, pass string) (sm2.SM2, error) {
 	return obj, obj.Error()
 }
 
-func (f *sm2SignCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2SignCmd) Run(_ *cobra.Command, _ []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -166,13 +166,13 @@ func (f *sm2SignCmd) Run(_ *cobra.Command, args []string) error {
 type sm2VerifyCmd struct {
 	Input string `short:"i" help:"Input string, or filename"`
 	Key   string `short:"K" help:"public key pem file"`
-	Pass  string `help:"privatekey password"`
+	Pass  string `help:"private key password"`
 	Sign  string `help:"signed base64 string to be verified"`
 	Uid   string `help:"uid data"`
 	Sm3   bool   `help:"use sm3 as sign hash"`
 }
 
-func (f *sm2VerifyCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2VerifyCmd) Run(_ *cobra.Command, _ []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -229,7 +229,7 @@ type sm2EncryptCmd struct {
 	Out   string `short:"o" help:"output file name"`
 }
 
-func (f *sm2EncryptCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2EncryptCmd) Run(_ *cobra.Command, _ []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -272,12 +272,12 @@ func (f *sm2EncryptCmd) Run(_ *cobra.Command, args []string) error {
 type sm2DecryptCmd struct {
 	Input string `short:"i" help:"Input string, or filename"`
 	Key   string `short:"k" help:"private key pem file"`
-	Pass  string `help:"privatekey password"`
+	Pass  string `help:"private key password"`
 	Mode  string `help:"mode C1C3C2/C1C2C3" default:"C1C3C2"`
 	Out   string `short:"o" help:"output file name"`
 }
 
-func (f *sm2DecryptCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2DecryptCmd) Run(_ *cobra.Command, _ []string) error {
 	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
@@ -322,13 +322,13 @@ func (f *sm2DecryptCmd) Run(_ *cobra.Command, args []string) error {
 
 type sm2InspectCmd struct {
 	Pri  string `short:"k" help:"private key pem file"`
-	Pass string `help:"privatekey password"`
+	Pass string `help:"private key password"`
 
 	Pub       string `short:"K" help:"private key pem file"`
 	CheckPair bool   `short:"c" help:"check keypair 检测私钥公钥是否匹配"`
 }
 
-func (f *sm2InspectCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2InspectCmd) Run(_ *cobra.Command, _ []string) error {
 	if f.CheckPair { // 检测私钥公钥是否匹配
 		obj := sm2.New()
 
@@ -429,19 +429,19 @@ func WriteDataFile(action, out string, data []byte, base64Console bool) error {
 	}
 
 	if base64Console {
-		log.Printf("%s result: %s", action, ss.Base64().EncodeBytes(data).V1.Bytes())
+		log.Printf("%s result(Base64): %s", action, ss.Base64().EncodeBytes(data).V1.Bytes())
 	} else {
 		log.Printf("%s result: %s", action, data)
 	}
 	return nil
 }
 
-func (f *sm2RecoverCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2RecoverCmd) Run(_ *cobra.Command, _ []string) error {
 	if f.X != "" && f.Y != "" {
 		obj := sm2.New().
 			FromPublicKeyXYString(f.X, f.Y)
 
-		log.Printf("public key: %s", ss.Base64().EncodeBytes((gmsm2.PublicKeyTo(obj.GetPublicKey()))).V1.Bytes())
+		log.Printf("public key: %s", ss.Base64().EncodeBytes(gmsm2.PublicKeyTo(obj.GetPublicKey())).V1.Bytes())
 
 		obj = obj.CreatePublicKey()
 		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pub.pem"); err != nil {
@@ -453,7 +453,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, args []string) error {
 		obj := sm2.New().
 			FromPrivateKeyString(f.D)
 
-		log.Printf("private key: %s", ss.Base64().EncodeBytes((gmsm2.PrivateKeyTo(obj.GetPrivateKey()))).V1.Bytes())
+		log.Printf("private key: %s", ss.Base64().EncodeBytes(gmsm2.PrivateKeyTo(obj.GetPrivateKey())).V1.Bytes())
 
 		obj = obj.CreatePrivateKey()
 		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pri.pem"); err != nil {
@@ -466,7 +466,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, args []string) error {
 
 type sm2ConvertCmd struct {
 	Pri  string `short:"k" help:"private key pem file"`
-	Pass string `help:"privatekey password"`
+	Pass string `help:"private key password"`
 
 	Pkcs8     bool   `help:"convert private to PKCS8"`
 	Pkcs8Pass string `help:"private PCKS8 key password"`
@@ -474,7 +474,7 @@ type sm2ConvertCmd struct {
 	Dir string `help:"output dir"`
 }
 
-func (f *sm2ConvertCmd) Run(_ *cobra.Command, args []string) error {
+func (f *sm2ConvertCmd) Run(_ *cobra.Command, _ []string) error {
 	priKeyPem, err := os.ReadFile(ss.ExpandHome(f.Pri))
 	if err != nil {
 		return err
