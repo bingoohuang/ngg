@@ -204,9 +204,32 @@ func evalSQL(dialectFn BindNameAware, q0 string, maxLen int, parsePrepared bool)
 	return q, args, nil
 }
 
+// ParseBool returns the boolean value represented by the string.
+// It accepts 1, t, true, y, yes, on as true with camel case incentive
+// and accepts 0, f false, n, no, off as false with camel case incentive
+// Any other value returns an error.
+func ParseBool(s string, defaultValue bool) bool {
+	if s == "" {
+		return defaultValue
+	}
+	switch strings.ToLower(s) {
+	case "1", "t", "true", "y", "yes", "on":
+		return true
+	case "0", "f", "false", "n", "no", "off":
+		return false
+	}
+
+	log.Panicf("unknown bool env value %q", s)
+	return false
+}
+
+var UsingPing = ParseBool(os.Getenv("PING"), true)
+
 func Query(ctx context.Context, db sqlmap.Queryer, q string, args []any, formatter sqlmap.RowsScanner, options ...sqlmap.ScanConfigFn) error {
-	if err := PingDB(ctx, db, 3*time.Second); err != nil {
-		return err
+	if UsingPing {
+		if err := PingDB(ctx, db, 3*time.Second); err != nil {
+			return err
+		}
 	}
 
 	options1 := []sqlmap.ScanConfigFn{sqlmap.WithRowsScanner(formatter)}
@@ -229,8 +252,10 @@ type DBExecAware interface {
 }
 
 func Exec(ctx context.Context, db DBExecAware, q string, args []any, rowsScanner sqlmap.RowsScanner) error {
-	if err := PingDB(ctx, db, 3*time.Second); err != nil {
-		return err
+	if UsingPing {
+		if err := PingDB(ctx, db, 3*time.Second); err != nil {
+			return err
+		}
 	}
 
 	start := time.Now()
