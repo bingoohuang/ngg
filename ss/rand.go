@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"math"
 	"math/big"
+	"net"
 	"time"
 )
 
@@ -102,6 +103,17 @@ func (random) TimeBetween(min, max time.Time) time.Time {
 	minUnit, maxUnix := min.Unix(), max.Unix()
 	n, _ := rand.Int(rander, big.NewInt(maxUnix-minUnit))
 	return time.Unix(n.Int64()+minUnit, 0)
+}
+
+func (random) Port(defaultPort int) int {
+	l, err := net.Listen("tcp", ":0")
+	if err != nil {
+		return defaultPort
+	}
+
+	p := l.Addr().(*net.TCPAddr).Port
+	l.Close()
+	return p
 }
 
 func CopyShuffle[T any](a []T) []T {

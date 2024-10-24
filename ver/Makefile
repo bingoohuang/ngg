@@ -139,7 +139,7 @@ install: init
 linux: init
 	GOOS=linux GOARCH=amd64 ${goinstall}
 	ls -lh  ${gobin}/linux_amd64/${app}*
-linux-upx: linux1
+linux-upx: linux
 	upx --best --lzma ${gobin}/linux_amd64/${app}*
 	ls -lh  ${gobin}/linux_amd64/${app}*
 
