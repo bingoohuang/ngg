@@ -36,6 +36,11 @@ var Endpoints = []string{
 	"curlmyip.com",
 	"ip.appspot.com",
 	"www.trackip.net/ip",
+
+	"https://myexternalip.com/raw",
+	"http://checkip.amazonaws.com",
+	"http://myip.dnsomatic.com/",
+	"http://diagnostic.opendns.com/myip",
 }
 
 func init() {
@@ -91,7 +96,11 @@ func invoke(ipUrl string, ipv4ch chan<- []string) {
 		if data := res.Bytes(); len(data) > 0 {
 			ipv4s = ipv4Reg.FindAllString(string(data), -1)
 			data = cutBlanks.ReplaceAll(data, []byte(" "))
-			log.Printf("[%s] %s: %s", FormatDuration(time.Since(start)), ipUrl, data)
+			if len(ipv4s) == 1 && ipv4s[0] == string(data) {
+				log.Printf("%v\t%s\t%s", ipv4s, FormatDuration(time.Since(start)), ipUrl)
+			} else {
+				log.Printf("%v\t%s\t%s\t%s", ipv4s, FormatDuration(time.Since(start)), ipUrl, data)
+			}
 		}
 	}
 }

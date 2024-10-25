@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.1
 
 replace (
+	github.com/bingoohuang/ngg/gnet => ../gnet
 	github.com/bingoohuang/ngg/godbtest => ../godbtest
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/jj => ../jj
@@ -60,6 +61,7 @@ require (
 	github.com/schollz/progressbar/v3 v3.16.1
 	github.com/segmentio/ksuid v1.0.4
 	github.com/shirou/gopsutil/v4 v4.24.9
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1026

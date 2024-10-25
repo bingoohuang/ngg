@@ -128,7 +128,7 @@ func ListIP(predicate func(net.IP) bool, ifaceNames ...string) ([]net.IP, error)
 	}
 
 	ips := make([]net.IP, 0)
-	matcher := newIfaceNameMatcher(ifaceNames)
+	matcher := newIfaceNameMatcher(ifaceNames, false)
 
 	for _, i := range list {
 		f := i.Flags
@@ -219,7 +219,7 @@ func findMainIPByIfconfig(ifaceName []string) string {
 	names := ListIfaceNames()
 
 	var matchedNames []string
-	matcher := newIfaceNameMatcher(ifaceName)
+	matcher := newIfaceNameMatcher(ifaceName, false)
 	for _, n := range names {
 		if matcher.Matches(n) {
 			matchedNames = append(matchedNames, n)
@@ -263,16 +263,20 @@ func findMainIPByIfconfig(ifaceName []string) string {
 
 type ifaceNameMatcher struct {
 	ifacePatterns map[string]bool
+	listAll       bool
 }
 
-func newIfaceNameMatcher(names []string) ifaceNameMatcher {
-	return ifaceNameMatcher{ifacePatterns: ss.ToSet(names)}
+func newIfaceNameMatcher(names []string, listAll bool) ifaceNameMatcher {
+	return ifaceNameMatcher{ifacePatterns: ss.ToSet(names), listAll: listAll}
 }
+
+var re = regexp.MustCompile(`^(veth|br\-|docker|lo|EHC|XHC|bridge|gif|stf|p2p|awdl|utun|tun|tap)`)
 
 func (i ifaceNameMatcher) Matches(name string) bool {
 	if len(i.ifacePatterns) == 0 {
-		return true
+		return i.listAll || !re.MatchString(name)
 	}
+
 	if i.ifacePatterns[name] {
 		return true
 	}
