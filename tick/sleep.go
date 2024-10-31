@@ -13,23 +13,25 @@ import (
 // SleepRandom will sleep for a random amount of time up to max.
 // If the shutdown channel is closed, it will return before it has finished
 // sleeping.
-func SleepRandom(ctx context.Context, max time.Duration) {
+func SleepRandom(ctx context.Context, max time.Duration) error {
 	var ns time.Duration
 	maxSleep := big.NewInt(max.Nanoseconds())
 	if j, err := rand.Int(rand.Reader, maxSleep); err == nil {
 		ns = time.Duration(j.Int64())
 	}
 
-	select {
-	case <-ctx.Done():
-	case <-time.After(ns):
-	}
+	return Sleep(ctx, ns)
 }
 
-func Sleep(ctx context.Context, d time.Duration) {
+func Sleep(ctx context.Context, d time.Duration) error {
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+
 	select {
 	case <-ctx.Done():
-	case <-time.After(d):
+		return ctx.Err()
+	case <-timer.C:
+		return nil
 	}
 }
 

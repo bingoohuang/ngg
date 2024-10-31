@@ -153,8 +153,10 @@ func serveHTTP(l net.Listener, proxy, target string) error {
 	if targetURL.Port() == "" {
 		if targetURL.Scheme == "http" {
 			targetHost += ":80"
-		} else {
+		} else if targetURL.Scheme == "https" {
 			targetHost += ":443"
+		} else {
+			targetHost += ":80"
 		}
 	}
 
