@@ -1,4 +1,4 @@
-package dbtest
+package main
 
 import (
 	"fmt"
@@ -7,12 +7,25 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/ggt/root"
-	"github.com/spf13/cobra"
-
 	"github.com/bingoohuang/ngg/godbtest"
 	"github.com/bingoohuang/ngg/godbtest/conf"
+	"github.com/bingoohuang/ngg/ss"
+	"github.com/bingoohuang/ngg/ver"
+	"github.com/spf13/cobra"
 	_ "github.com/bingoohuang/ngg/godbtest/drivers"
 )
+
+var cmd = func() *cobra.Command {
+	r := &cobra.Command{
+		Use:  "ggtdb",
+		Long: "use ggt db -e %help for more usages",
+	}
+
+	r.Version = "version"
+	r.SetVersionTemplate(ver.Version() + "\n")
+
+	return r
+}()
 
 type subCmd struct {
 	Conf      string   `short:"c" help:"config file path, or new to create demo one"`
@@ -21,18 +34,7 @@ type subCmd struct {
 	Evaluates []string `short:"e" help:"Evaluate query or file"`
 }
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:  "dbtest",
-		Long: "use ggt db -e %help for more usages",
-		RunE: fc.run,
-	}
-
-	root.AddCommand(c, fc)
-}
-
-func (fc *subCmd) run(_ *cobra.Command, args []string) error {
+func (fc *subCmd) Run(_ *cobra.Command, args []string) error {
 	if fc.Conf == "new" {
 		fc.Conf = "db-" + time.Now().Format(`20060102150405.yml`)
 		if err := os.WriteFile(fc.Conf, godbtest.DemoConf, os.ModePerm); err != nil {
@@ -48,4 +50,27 @@ func (fc *subCmd) run(_ *cobra.Command, args []string) error {
 	}
 	c.Go(fc.Dsn, fc.Evaluates, args)
 	return nil
+}
+
+func main() {
+	RootCommand(cmd, &subCmd{})
+
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+	}
+}
+
+func RootCommand(c *cobra.Command, fc any) {
+	if fc != nil && !c.DisableFlagParsing {
+		ss.PanicErr(root.InitFlags(fc, c.Flags(), c.PersistentFlags()))
+	}
+	if runer, ok := fc.(interface {
+		Run(cmd *cobra.Command, args []string) error
+	}); ok {
+		c.Run = func(cmd *cobra.Command, args []string) {
+			if err := runer.Run(cmd, args); err != nil {
+				log.Printf("error occured: %v", err)
+			}
+		}
+	}
 }
