@@ -7,15 +7,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/bingoohuang/ngg/cmd"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
@@ -36,21 +33,33 @@ func init() {
 type subCmd struct {
 	InstanceId string `short:"i" help:"InstanceId."`
 	File       string `short:"f" help:"防火墙规则JSON文件, e.g. firewall-xxx.json"`
+	Config     string `short:"c" help:"腾讯云Credential, e.g. tencent.json"`
 }
 
 func (r *subCmd) run(cmd *cobra.Command, args []string) error {
-	if r.File != "" {
-		return r.modifyRules(r.File)
-	}
-	return r.listRules()
-}
-
-func (r *subCmd) modifyRules(file string) error {
-	if _, err := os.Stat(file); err != nil {
+	conf, err := ParseLightHouseConf(r.Config)
+	if err != nil {
 		return err
 	}
 
-	fileData, err := os.ReadFile(file)
+	client, err := conf.NewClient()
+	if err != nil {
+		return err
+	}
+
+	if r.File != "" {
+		return r.modifyRules(client, r.File)
+	}
+	return r.listRules(conf, client)
+}
+
+func (r *subCmd) modifyRules(client *lighthouse.Client, file string) error {
+	f, err := ss.ExpandFilename(file)
+	if err != nil {
+		return err
+	}
+
+	fileData, err := os.ReadFile(f)
 	if err != nil {
 		return err
 	}
@@ -74,7 +83,7 @@ func (r *subCmd) modifyRules(file string) error {
 		}
 	}
 
-	rsp, err := getClient().ModifyFirewallRules(rq)
+	rsp, err := client.ModifyFirewallRules(rq)
 	if err != nil {
 		return err
 	}
@@ -84,16 +93,16 @@ func (r *subCmd) modifyRules(file string) error {
 	return nil
 }
 
-func (r *subCmd) listRules() error {
+func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) error {
 	rq := lighthouse.NewDescribeFirewallRulesRequest()
 	if r.InstanceId == "" {
-		r.InstanceId = LightHouse.InstanceId
+		r.InstanceId = conf.InstanceId
 	}
 	rq.InstanceId = &r.InstanceId
 
 	// https://console.cloud.tencent.com/api/explorer?Product=lighthouse&Version=2020-03-24&Action=DescribeFirewallRules
 	// 返回的resp是一个DescribeFirewallRulesResponse的实例，与请求对象对应
-	response, err := getClient().DescribeFirewallRules(rq)
+	response, err := client.DescribeFirewallRules(rq)
 	if err != nil {
 		return err
 	}
@@ -144,11 +153,7 @@ func (r *subCmd) listRules() error {
 		return nil
 	}
 
-	if err := r.modifyRules(file); err != nil {
-		return err
-	}
-
-	return nil
+	return r.modifyRules(client, file)
 }
 
 type FirewallRule struct {
@@ -203,73 +208,47 @@ func (r *InstanceFirewallRules) mergeRules() {
 	r.Rules = rules
 }
 
-var (
-	_clientOnce sync.Once
-	_client     *lighthouse.Client
-)
-
-func getClient() *lighthouse.Client {
-	_clientOnce.Do(func() {
-		// 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
-		// 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，
-		// 建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
-		// 密钥可前往官网控制台 https://console.cloud.tencent.com/cam/capi 进行获取
-		c := common.NewCredential(LightHouse.SecretID, LightHouse.SecretKey)
-		// 实例化一个client选项，可选的，没有特殊需求可以跳过
-		p := profile.NewClientProfile()
-		p.HttpProfile.Endpoint = LightHouse.Endpoint
-		// 实例化要请求产品的client对象,clientProfile是可选的
-		var err error
-		_client, err = lighthouse.NewClient(c, LightHouse.Region, p)
-		if err != nil {
-			panic(err)
-		}
-	})
-
-	return _client
+func (l *LightHouseConf) NewClient() (*lighthouse.Client, error) {
+	// 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
+	// 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，
+	// 建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
+	// 密钥可前往官网控制台 https://console.cloud.tencent.com/cam/capi 进行获取
+	c := common.NewCredential(l.SecretID, l.SecretKey)
+	// 实例化一个client选项，可选的，没有特殊需求可以跳过
+	p := profile.NewClientProfile()
+	p.HttpProfile.Endpoint = l.Endpoint
+	// 实例化要请求产品的client对象,clientProfile是可选的
+	return lighthouse.NewClient(c, l.Region, p)
 }
 
-const jsonFile = ".lighthouse.json"
+func ParseLightHouseConf(tencentCredenialJsonFile string) (*LightHouseConf, error) {
+	overwrite := false
+	if tencentCredenialJsonFile == "" {
+		tencentCredenialJsonFile = "~/.lighthouse.json"
+	}
 
-var LightHouse = func() (lh LightHouseConf) {
-	jsonFileRewrite := false
-
-	ReadHomeJsonFile(jsonFile, &lh)
-
-	if env := os.Getenv("LIGHTHOUSE_SECRET"); env != "" {
-		parts := strings.Split(env, ":")
-		if len(parts) < 2 {
-			log.Printf("bad $LIGHTHOUSE_SECRET")
-		} else {
-			lh.SecretID = parts[0]
-			lh.SecretKey = parts[1]
-			if len(parts) > 2 {
-				lh.InstanceId = parts[2]
-			}
-			if len(parts) > 3 {
-				lh.Region = parts[3]
-			}
-			jsonFileRewrite = true
-		}
+	var lh LightHouseConf
+	if _, err := ReadJSONFile(tencentCredenialJsonFile, &lh); err != nil {
+		return nil, err
 	}
 
 	if lh.Region == "" {
 		lh.Region = "ap-beijing"
-		jsonFileRewrite = true
+		overwrite = true
 	}
 	if lh.Endpoint == "" {
 		lh.Endpoint = "lighthouse.tencentcloudapi.com"
-		jsonFileRewrite = true
+		overwrite = true
 	}
 
-	if jsonFileRewrite {
-		if err := WriteHomeJsonFile(jsonFile, lh); err != nil {
-			log.Printf("write %s error: %v", jsonFile, err)
+	if overwrite {
+		if err := WriteJSONFile(tencentCredenialJsonFile, lh); err != nil {
+			return nil, err
 		}
 	}
 
-	return lh
-}()
+	return &lh, nil
+}
 
 type LightHouseConf struct {
 	SecretID   string `json:"secretID"`
@@ -291,33 +270,17 @@ func FindAvailableCmd(cmds ...string) (string, error) {
 	return "", errors.New("cmc not found")
 }
 
-func WriteHomeJsonFile[T any](name string, v T) error {
-	home, err := homedir.Dir()
-	if err != nil {
-		return fmt.Errorf("home dir: %w", err)
-	}
-
-	f := filepath.Join(home, name)
-	return WriteJSONFile(f, v)
-}
-
-func ReadHomeJsonFile[T any](name string, v *T) (*T, error) {
-	home, err := homedir.Dir()
-	if err != nil {
-		return nil, fmt.Errorf("home dir: %w", err)
-	}
-
-	f := filepath.Join(home, name)
-	return ReadJSONFile(f, v)
-}
-
 func WriteJSONFile[T any](file string, v T) error {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
 	}
 
-	if err := os.WriteFile(file, data, os.ModePerm); err != nil {
+	f, err := ss.ExpandFilename(file)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(f, data, os.ModePerm); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
 
@@ -325,7 +288,12 @@ func WriteJSONFile[T any](file string, v T) error {
 }
 
 func ReadJSONFile[T any](file string, v *T) (*T, error) {
-	data, err := os.ReadFile(file)
+	f, err := ss.ExpandFilename(file)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(f)
 	if err != nil {
 		return nil, fmt.Errorf("read %s: %w", file, err)
 	}
