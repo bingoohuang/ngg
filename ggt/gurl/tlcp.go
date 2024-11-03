@@ -15,7 +15,7 @@ import (
 var tlcpSessionCache tlcp.SessionCache
 
 func init() {
-	if cacheSize, _ := ss.Getenv[int](`TLS_SESSION_CACHE`, 32); cacheSize > 0 {
+	if cacheSize, _ := ss.Getenv[int](`TLCP_SESSION_CACHE`, 32); cacheSize > 0 {
 		tlcpSessionCache = tlcp.NewLRUSessionCache(cacheSize)
 	}
 }
