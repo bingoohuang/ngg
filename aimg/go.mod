@@ -2,7 +2,10 @@ module github.com/bingoohuang/aimg
 
 go 1.23
 
-replace github.com/bingoohuang/ngg/go-json => ../go-json
+replace (
+	github.com/bingoohuang/ngg/go-json => ../go-json
+	github.com/bingoohuang/ngg/ss => ../ss
+)
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.0

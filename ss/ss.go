@@ -466,3 +466,7 @@ func MapJoin[K comparable, V any](m map[K]V, kkSep, kvSep string) string {
 
 	return strings.Join(ss, kkSep)
 }
+
+func Ptr[T any](val T) *T {
+	return &val
+}

@@ -79,9 +79,6 @@ type AimgState struct {
 	PageID string `json:"pageID"`
 }
 
-func Ptr[T any](val T) *T {
-	return &val
-}
 
 func parseFlags() (c *Config) {
 	c = &Config{

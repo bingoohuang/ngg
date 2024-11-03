@@ -29,12 +29,12 @@ func ExpandHome(s string) string {
 func ExpandFilename(file string) (string, error) {
 	filename := ExpandHome(file)
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		return "", err
+		return filename, err
 	}
 
 	s, err := filepath.EvalSymlinks(filename)
 	if err != nil {
-		return "", fmt.Errorf("EvalSymlinks %s: %w", filename, err)
+		return filename, fmt.Errorf("EvalSymlinks %s: %w", filename, err)
 	}
 	return s, nil
 }
