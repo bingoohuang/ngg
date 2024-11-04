@@ -20,21 +20,21 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/BurntSushi/toml v1.4.0
 	github.com/atotto/clipboard v0.1.4
-	github.com/bingoohuang/ngg/cmd v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/daemon v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/gnet v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/gossh v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/gum v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/jj v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/rotatefile v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/ss v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/tick v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/ver v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241031233625-b602daab93f5
+	github.com/bingoohuang/ngg/cmd v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/daemon v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/gnet v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/gossh v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/gum v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/jj v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/rotatefile v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/ss v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/tick v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/ver v0.0.0-20241103104547-2d1bf667deef
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241103104547-2d1bf667deef
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/chzyer/readline v1.5.1
 	github.com/cloudwego/hertz v0.9.3
-	github.com/deatil/go-cryptobin v1.0.4023
+	github.com/deatil/go-cryptobin v1.0.4025
 	github.com/dustin/go-humanize v1.0.1
 	github.com/emmansun/gmsm v0.29.1
 	github.com/expr-lang/expr v1.16.9
@@ -50,7 +50,6 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.8
 	github.com/mattn/go-isatty v0.0.20
 	github.com/minio/sio v0.4.1
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/pion/stun/v2 v2.0.0
 	github.com/redis/go-redis/v9 v9.7.0
@@ -58,12 +57,12 @@ require (
 	github.com/schollz/pake/v3 v3.0.5
 	github.com/schollz/progressbar/v3 v3.17.0
 	github.com/segmentio/ksuid v1.0.4
-	github.com/shirou/gopsutil/v4 v4.24.9
+	github.com/shirou/gopsutil/v4 v4.24.10
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1033
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse v1.0.1033
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1034
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse v1.0.1034
 	github.com/vthiery/retry v0.1.0
 	github.com/xo/dburl v0.23.2
 	github.com/zeebo/blake3 v0.2.4
@@ -79,14 +78,14 @@ require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
-	github.com/alecthomas/kong v1.2.1 // indirect
+	github.com/alecthomas/kong v1.3.0 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/q v0.0.0-20241031233625-b602daab93f5 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20241031233625-b602daab93f5 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20241103104547-2d1bf667deef // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20241103104547-2d1bf667deef // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
@@ -100,7 +99,7 @@ require (
 	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v1.0.0 // indirect
 	github.com/charmbracelet/x/ansi v0.4.2 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20241031190439-d4ae2598b939 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20241101155414-3df16cb7eefd // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cheggaaa/pb/v3 v3.1.5 // indirect
 	github.com/cloudflare/circl v1.5.0 // indirect
@@ -117,7 +116,7 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gobars/cmd v0.0.0-20210215022658-cd78beda9673 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
+	github.com/google/pprof v0.0.0-20241101162523-b92577c0c142 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -141,6 +140,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
@@ -201,7 +201,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.31.2 // indirect
-	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6 // indirect
+	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	modernc.org/libc v1.61.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect

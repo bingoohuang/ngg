@@ -19,6 +19,7 @@ import (
 	"syscall"
 
 	"github.com/bingoohuang/ngg/ggt/root"
+	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/yaml"
 	"github.com/fatedier/frp"
@@ -39,7 +40,6 @@ func init() {
 type subCmd struct {
 	FrpCnf      string `short:"c" help:"FRP yaml config file" default:"~/.frp.yaml"`
 	ProxyConfig string `short:"p" help:"YAML config file for proxy target" default:"~/.proxytarget.yaml"`
-	ProxyOnly   bool   `short:"P" help:"porxy only"`
 }
 
 type TargetConfig struct {
@@ -55,18 +55,57 @@ type Config struct {
 }
 
 func (f *subCmd) run(cmd *cobra.Command, args []string) error {
-	if !f.ProxyOnly {
-		go func() {
-			if err := frp.Run(f.FrpCnf); err != nil {
-				log.Printf("E! frp error: %v", err)
-			}
-		}()
+	if f.FrpCnf == "" {
+		f.FrpCnf = "~/.frp.yaml"
 	}
+
+	frpConf, err := os.ReadFile(ss.ExpandHome(f.FrpCnf))
+	if err != nil {
+		return err
+	}
+
+	var configValues map[string]any
+	if err := yaml.Unmarshal(frpConf, &configValues); err != nil {
+		return err
+	}
+	serverPort := configValues["serverPort"]
+	tempFile := false
+	if multiPorts, ok := serverPort.(string); ok {
+		ports := ss.Split(multiPorts, ",")
+		chosen, err := gum.Choose(ports, 1)
+		if err != nil {
+			return err
+		}
+		log.Printf("choose server port: %v", chosen)
+
+		configValues["serverPort"], _ = ss.Parse[int](chosen[0])
+		newConfig, err := yaml.Marshal(configValues)
+		if err != nil {
+			return err
+		}
+		// Create a temporary file
+		file, err := ss.WriteTempFile("", "*.yaml", newConfig, false)
+		if err != nil {
+			return err
+		}
+		tempFile = true
+		f.FrpCnf = file
+		defer os.Remove(f.FrpCnf)
+	}
+
+	go func() {
+		if err := frp.Run(f.FrpCnf); err != nil {
+			log.Printf("E! frp error: %v", err)
+		}
+	}()
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-ch
+		if tempFile {
+			os.Remove(f.FrpCnf)
+		}
 		os.Exit(1)
 	}()
 
