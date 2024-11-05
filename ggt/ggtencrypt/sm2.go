@@ -1,7 +1,7 @@
 package ggtencrypt
 
 import (
-	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -15,15 +15,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	fc := &sm2Cmd{}
+func initSm2(rootCmd *cobra.Command) {
 	c := &cobra.Command{
 		Use:   "sm2",
 		Short: "sm2 公钥私钥生成、签名验签、加解密",
-		Run:   fc.run,
 	}
 
-	root.AddCommand(c, fc)
+	rootCmd.AddCommand(c)
 	root.CreateCmd(c, "newkey", "生成公钥私钥", &sm2KeyCmd{})
 	root.CreateCmd(c, "sign", "签名", &sm2SignCmd{})
 	root.CreateCmd(c, "verify", "验签", &sm2VerifyCmd{})
@@ -34,10 +32,6 @@ func init() {
 	root.CreateCmd(c, "convert", "私钥证书编码格式转换 / Change PrivateKey type", &sm2ConvertCmd{})
 }
 
-type sm2Cmd struct{}
-
-func (f *sm2Cmd) run(_ *cobra.Command, _ []string) {}
-
 type sm2KeyCmd struct {
 	Pass string `help:"private key password"`
 	Dir  string `help:"output dir"`
@@ -46,8 +40,13 @@ type sm2KeyCmd struct {
 func (f *sm2KeyCmd) Run(_ *cobra.Command, _ []string) error {
 	obj := sm2.New().GenerateKey()
 
-	log.Printf("private key: %s", ss.Base64().EncodeBytes(gmsm2.PrivateKeyTo(obj.GetPrivateKey())).V1.Bytes())
-	log.Printf("public key: %s", ss.Base64().EncodeBytes(gmsm2.PublicKeyTo(obj.GetPublicKey())).V1.Bytes())
+	pri := gmsm2.PrivateKeyTo(obj.GetPrivateKey())
+	pub := gmsm2.PublicKeyTo(obj.GetPublicKey())
+
+	log.Printf("private key (Base64): %s", ss.Base64().EncodeBytes(pri).V1.Bytes())
+	log.Printf("public key  (Base64): %s", ss.Base64().EncodeBytes(pub).V1.Bytes())
+	log.Printf("private key (Hex): %s", hex.EncodeToString(pri))
+	log.Printf("public key  (Hex): %s", hex.EncodeToString(pub))
 
 	if f.Pass != "" {
 		obj = obj.CreatePrivateKeyWithPassword(f.Pass)
@@ -69,8 +68,9 @@ func (f *sm2KeyCmd) Run(_ *cobra.Command, _ []string) error {
 type sm2SignCmd struct {
 	Input string `short:"i" help:"Input string, or filename"`
 	Key   string `short:"k" help:"private key pem file"`
-	Pass  string `help:"privatekey password"`
-	Uid   string `help:"uid data"`
+	Pass  string `help:"private key password"`
+	Uid   string `default:"1234567812345678" help:"uid data"`
+	Hash  string `default:"SM3" help:"sign hash"`
 }
 
 func ParsePublic(obj sm2.SM2, key string) (sm2.SM2, error) {
@@ -168,8 +168,8 @@ type sm2VerifyCmd struct {
 	Key   string `short:"K" help:"public key pem file"`
 	Pass  string `help:"private key password"`
 	Sign  string `help:"signed base64 string to be verified"`
-	Uid   string `help:"uid data"`
-	Sm3   bool   `help:"use sm3 as sign hash"`
+	Uid   string `default:"1234567812345678" help:"uid data"`
+	Hash  string `default:"SM3" help:"sign hash"`
 }
 
 func (f *sm2VerifyCmd) Run(_ *cobra.Command, _ []string) error {
@@ -200,11 +200,7 @@ func (f *sm2VerifyCmd) Run(_ *cobra.Command, _ []string) error {
 		obj = obj.WithUID(uid)
 	}
 
-	if f.Sm3 {
-		obj = obj.SetSignHash("SM3")
-	} else {
-		obj = obj.WithSignHash(md5.New)
-	}
+	obj = obj.SetSignHash(f.Hash)
 
 	// WithUID(uid).
 	// SetSignHash("SM3").
@@ -227,6 +223,7 @@ type sm2EncryptCmd struct {
 	Key   string `short:"K" help:"public key pem file"`
 	Mode  string `help:"mode C1C3C2/C1C2C3" default:"C1C3C2"`
 	Out   string `short:"o" help:"output file name"`
+	Uid   string `default:"1234567812345678" help:"uid data"`
 }
 
 func (f *sm2EncryptCmd) Run(_ *cobra.Command, _ []string) error {
@@ -247,7 +244,8 @@ func (f *sm2EncryptCmd) Run(_ *cobra.Command, _ []string) error {
 	// 公钥加密
 	// public key Encrypt data
 	obj := sm2.New().
-		FromBytes(data)
+		FromBytes(data).
+		WithUID([]byte(f.Uid))
 
 	obj, err = ParsePublic(obj, f.Key)
 	if err != nil {
@@ -274,11 +272,12 @@ type sm2DecryptCmd struct {
 	Key   string `short:"k" help:"private key pem file"`
 	Pass  string `help:"private key password"`
 	Mode  string `help:"mode C1C3C2/C1C2C3" default:"C1C3C2"`
+	Uid   string `default:"1234567812345678" help:"uid data"`
 	Out   string `short:"o" help:"output file name"`
 }
 
 func (f *sm2DecryptCmd) Run(_ *cobra.Command, _ []string) error {
-	r, err := gterm.Option{Random: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -292,7 +291,8 @@ func (f *sm2DecryptCmd) Run(_ *cobra.Command, _ []string) error {
 	// 私钥解密
 
 	obj := sm2.New().
-		FromBytes(data)
+		FromBytes(data).
+		WithUID([]byte(f.Uid))
 
 	obj, err = ParsePrivate(obj, f.Key, f.Pass)
 	if err != nil {

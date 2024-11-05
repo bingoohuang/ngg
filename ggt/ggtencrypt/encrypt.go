@@ -19,6 +19,7 @@ import (
 
 func Run() {
 	c := root.CreateCmd(nil, "ggtencrypt", "aes/sm4 encryption/decryption", &subCmd{})
+	initSm2(c)
 	if err := c.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 	}
