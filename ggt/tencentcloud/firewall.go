@@ -1,4 +1,4 @@
-package firewall
+package main
 
 import (
 	"context"
@@ -19,15 +19,11 @@ import (
 	lighthouse "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse/v20200324"
 )
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:   "tencentcloud",
-		Short: "tencentcloud firewall",
-		RunE:  fc.run,
+func main() {
+	c := root.CreateCmd(nil, "tencentcloud", "tencentcloud firewall", &subCmd{})
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-
-	root.AddCommand(c, fc)
 }
 
 type subCmd struct {
@@ -36,7 +32,7 @@ type subCmd struct {
 	Config     string `short:"c" help:"腾讯云Credential, e.g. tencent.json"`
 }
 
-func (r *subCmd) run(cmd *cobra.Command, args []string) error {
+func (r *subCmd) Run(cmd *cobra.Command, args []string) error {
 	conf, err := ParseLightHouseConf(r.Config)
 	if err != nil {
 		return err

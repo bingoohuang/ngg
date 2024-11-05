@@ -1,4 +1,4 @@
-package frp
+package main
 
 import (
 	"bytes"
@@ -26,15 +26,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
+func main() {
 	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:   "frp",
-		Short: "frp with proxytarget",
-		RunE:  fc.run,
+	c := root.CreateCmd(nil, "frp", "frp with proxytarget", fc)
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-
-	root.AddCommand(c, fc)
 }
 
 type subCmd struct {
@@ -54,7 +51,7 @@ type Config struct {
 	Proxies   []TargetConfig
 }
 
-func (f *subCmd) run(cmd *cobra.Command, args []string) error {
+func (f *subCmd) Run(*cobra.Command, []string) error {
 	if f.FrpCnf == "" {
 		f.FrpCnf = "~/.frp.yaml"
 	}

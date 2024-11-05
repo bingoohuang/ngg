@@ -1,4 +1,4 @@
-package codec
+package main
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"hash"
 	"io"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -20,12 +21,11 @@ import (
 	"github.com/zeebo/blake3"
 )
 
-func init() {
-	c := &cobra.Command{
-		Use:   "codec",
-		Short: "hash, baseXx, and etc.",
+func main() {
+	c := root.CreateCmd(nil, "codec", "hash, baseXx, and etc.", &codec{})
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-	root.AddCommand(c, &codec{})
 }
 
 type codec struct {

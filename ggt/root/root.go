@@ -17,9 +17,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func CreateSubCmd(parent *cobra.Command, use, short string, obj interface {
+func CreateCmd(parent *cobra.Command, use, short string, obj interface {
 	Run(*cobra.Command, []string) error
-}) {
+}) *cobra.Command {
 	c := &cobra.Command{
 		Use:   use,
 		Short: short,
@@ -30,7 +30,12 @@ func CreateSubCmd(parent *cobra.Command, use, short string, obj interface {
 		},
 	}
 	ss.PanicErr(InitFlags(obj, c.Flags(), c.PersistentFlags()))
-	parent.AddCommand(c)
+
+	if parent != nil {
+		parent.AddCommand(c)
+	}
+
+	return c
 }
 
 func AddCommand(c *cobra.Command, fc any) {

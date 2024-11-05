@@ -37,26 +37,22 @@ import (
 	"github.com/zeebo/blake3"
 )
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:  "gurl",
-		Long: "curl in golang",
-		RunE: fc.run,
-	}
-	initFlags(c.Flags())
+func Run() {
+	c := root.CreateCmd(nil, "gurl", "curl in golang", &subCmd{})
 	c.SetHelpFunc(func(command *cobra.Command, i []string) {
 		out := command.OutOrStdout()
 		_, _ = out.Write([]byte(help))
 	})
-	root.AddCommand(c, fc)
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+	}
 }
 
 type subCmd struct{}
 
 const DryRequestURL = `http://dry.run.url`
 
-func (f *subCmd) run(cmd *cobra.Command, args []string) error {
+func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 	nonFlagArgs := filter(args)
 	if err := createDemoEnvFile(); err != nil {
 		if errors.Is(err, io.EOF) {

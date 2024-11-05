@@ -1,4 +1,4 @@
-package jj
+package main
 
 import (
 	"bytes"
@@ -25,23 +25,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:   "jj",
-		Short: "json stream editor/creator",
-		RunE:  fc.run,
-
-		DisableFlagParsing: true,
+func main() {
+	c := root.CreateCmd(nil, "jj", "json stream editor/creator", &subCmd{})
+	c.DisableFlagParsing = true
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-
-	root.AddCommand(c, fc)
 }
 
 type subCmd struct {
 }
 
-func (f *subCmd) run(_ *cobra.Command, args []string) error {
+func (f *subCmd) Run(_ *cobra.Command, args []string) error {
 	run(args)
 	return nil
 }

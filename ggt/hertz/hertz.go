@@ -1,4 +1,4 @@
-package hertz
+package main
 
 import (
 	"context"
@@ -29,14 +29,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:  "hertz",
-		Long: "hertz 测试服务器",
-		RunE: fc.run,
+func main() {
+	c := root.CreateCmd(nil, "hertz", "hertz 测试服务器", &subCmd{})
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-	root.AddCommand(c, fc)
 }
 
 type subCmd struct {
@@ -51,7 +48,7 @@ type subCmd struct {
 	Procs      int         `short:"t" help:"maximum number of CPUs" default:"runtime.GOMAXPROCS(0)"`
 }
 
-func (f *subCmd) run(cmd *cobra.Command, args []string) error {
+func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 	if f.Procs > 0 {
 		runtime.GOMAXPROCS(f.Procs)
 	}

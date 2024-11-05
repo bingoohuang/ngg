@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/bingoohuang/ngg/ggt/goup/codec"
 	"github.com/bingoohuang/ngg/ggt/root"
@@ -14,15 +15,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	fc := &subCmd{}
-	c := &cobra.Command{
-		Use:  "goup",
-		Long: "go upload client and server",
-		RunE: fc.run,
+func Run() {
+	c := root.CreateCmd(nil, "goup", "go upload client and server", &subCmd{})
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
 	}
-
-	root.AddCommand(c, fc)
 }
 
 type subCmd struct {
@@ -39,7 +36,7 @@ type subCmd struct {
 	Paths      []string          `flag:"path" help:"Short URLs"`
 }
 
-func (c *subCmd) run(cmd *cobra.Command, args []string) error {
+func (c *subCmd) Run(cmd *cobra.Command, args []string) error {
 	c.processCode()
 	log.Printf("Args: %s", ss.Json(c))
 

@@ -1,4 +1,4 @@
-package redis
+package main
 
 import (
 	"bytes"
@@ -28,18 +28,21 @@ import (
 	"github.com/xo/dburl"
 )
 
-var cobraCmd = &cobra.Command{
-	Use:  "redis",
-	Long: "redis client",
-}
+func main() {
+	var cobraCmd = &cobra.Command{
+		Use:  "redis",
+		Long: "redis client",
+	}
 
-func init() {
-	root.AddCommand(cobraCmd, nil)
-	root.CreateSubCmd(cobraCmd, "scan", "scan keys for list/del", &scanCmd{})
-	root.CreateSubCmd(cobraCmd, "set", "set string key", &setCmd{})
-	root.CreateSubCmd(cobraCmd, "get", "get key", &getCmd{})
-	root.CreateSubCmd(cobraCmd, "export", "export keys", &exportCmd{})
-	root.CreateSubCmd(cobraCmd, "import", "import keys", &importCmd{})
+	root.CreateCmd(cobraCmd, "scan", "scan keys for list/del", &scanCmd{})
+	root.CreateCmd(cobraCmd, "set", "set string key", &setCmd{})
+	root.CreateCmd(cobraCmd, "get", "get key", &getCmd{})
+	root.CreateCmd(cobraCmd, "export", "export keys", &exportCmd{})
+	root.CreateCmd(cobraCmd, "import", "import keys", &importCmd{})
+
+	if err := cobraCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+	}
 }
 
 type Basic struct {

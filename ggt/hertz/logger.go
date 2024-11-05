@@ -1,4 +1,4 @@
-package hertz
+package main
 
 import (
 	"context"
