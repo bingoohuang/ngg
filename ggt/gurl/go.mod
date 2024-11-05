@@ -8,6 +8,7 @@ require (
 	gitee.com/Trisia/gotlcp v1.3.23
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000
+	github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241105045816-9aa1e96e9d2f
 	github.com/bingoohuang/ngg/gnet v0.0.0-20241104133609-bea46d5d635d
 	github.com/bingoohuang/ngg/jj v0.0.0-20241104133609-bea46d5d635d
 	github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d

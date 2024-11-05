@@ -6,6 +6,8 @@ github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2 h1:+vx7roKuyA63n
 github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2/go.mod h1:HBCaDeC1lPdgDeDbhX8XFpy1jqjK0IBG8W5K+xYqA0w=
 github.com/Pallinder/go-randomdata v1.2.0 h1:DZ41wBchNRb/0GfsePLiSwb0PHZmT67XY00lCDlaYPg=
 github.com/Pallinder/go-randomdata v1.2.0/go.mod h1:yHmJgulpD2Nfrm0cR9tI/+oAgRqCQQixsA8HyRZfV9Y=
+github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241105045816-9aa1e96e9d2f h1:l5Vsr3U7ebXj5j/Zn43TYLXvArtG1VnwzDdKsN/jvLk=
+github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241105045816-9aa1e96e9d2f/go.mod h1:JTg8+XQKA4iXgNwrhgIvCmLZ0ej1tVRozg/tbWcFRmc=
 github.com/bingoohuang/ngg/gnet v0.0.0-20241104133609-bea46d5d635d h1:P3WkFgTeAo5WHGMP5YAkSGYDz2ppWm4REjXj8bdgU9w=
 github.com/bingoohuang/ngg/gnet v0.0.0-20241104133609-bea46d5d635d/go.mod h1:N5c3n3n7rb0+uzTmFt9yPzIMbQUZMgcX+kOuIvtXijE=
 github.com/bingoohuang/ngg/jj v0.0.0-20241104133609-bea46d5d635d h1:0RVbgLvHsRx7BYsVeWy3cTOA/+t6POj3Pacv2xRdQSU=
@@ -157,8 +159,8 @@ github.com/tscholl2/siec v0.0.0-20240310163802-c2c6f6198406/go.mod h1:KL9+ubr1JZ
 github.com/vthiery/retry v0.1.0 h1:Xn0JLeGkKVQXg1oxvWWTKtWTssUkguv04658/qN/g1Q=
 github.com/vthiery/retry v0.1.0/go.mod h1:Sh63cZdujKR5y4YNcO1ZDARpAFr6fkaZQ58KMTuqhxw=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-github.com/zeebo/assert v1.3.0 h1:g7C04CbJuIDKNPFHmsk4hwZDO5O+kntRxzaUoNXj+IQ=
-github.com/zeebo/assert v1.3.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
+github.com/zeebo/assert v1.1.0 h1:hU1L1vLTHsnO8x8c9KAR5GmM5QscxHg5RNU5z5qbUWY=
+github.com/zeebo/assert v1.1.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
 github.com/zeebo/blake3 v0.2.4 h1:KYQPkhpRtcqh0ssGYcKLG1JYvddkEA8QwCM/yBqhaZI=
 github.com/zeebo/blake3 v0.2.4/go.mod h1:7eeQ6d2iXWRGF6npfaxl2CU+xy2Fjo2gxeyZGCRUjcE=
 github.com/zeebo/pcg v1.0.1 h1:lyqfGeWiv4ahac6ttHs+I5hwtH/+1mrhlCtVNQM2kHo=
