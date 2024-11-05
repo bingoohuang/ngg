@@ -86,8 +86,25 @@ init:
 lint-all:
 	golangci-lint run --enable-all
 
+lint-init:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 lint:
 	golangci-lint run ./...
+
+vuln-init:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+vuln:
+	govulncheck
+
+sec-init:
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+sec:
+	gosec ./...
+
+static-init:
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+static:
+	staticcheck ./...
 
 fmt-update:
 	go install mvdan.cc/gofumpt@latest
