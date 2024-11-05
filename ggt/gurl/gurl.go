@@ -43,6 +43,8 @@ func Run() {
 		out := command.OutOrStdout()
 		_, _ = out.Write([]byte(help))
 	})
+
+	initFlags(c.Flags())
 	if err := c.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 	}
