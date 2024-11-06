@@ -2,7 +2,10 @@ module codec
 
 go 1.23.2
 
-replace github.com/bingoohuang/ngg/ggt => ..
+replace (
+	github.com/bingoohuang/ngg/gum => ../../gum
+	github.com/bingoohuang/ngg/ggt => ..
+)
 
 require (
 	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000

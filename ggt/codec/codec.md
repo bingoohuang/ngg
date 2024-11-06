@@ -39,3 +39,7 @@ $  ggt codec -i /Users/bingoo/Downloads/1.jpeg -t xxhash
 2024-09-29 09:12:23.328 [INFO ] 15201 --- [1     ] [-] : xxhash hex: 5f25657e823784cd (len: 16)
 2024-09-29 09:12:23.328 [INFO ] 15201 --- [1     ] [-] : xxhash base64: XyVlfoI3hM0= (len: 12)
 ```
+
+## Changes
+
+- 2024年11月06日 `codec -i 68656c6c -t base64` 支持 choose 提示，输入格式是 Hex, Base64，Raw.

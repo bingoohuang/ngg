@@ -51,14 +51,33 @@ func (r Result) ToBytes() ([]byte, error) {
 }
 
 func tryDecode(data []byte) []byte {
-	if buf, err := ss.Base64().DecodeBytes(data); err == nil {
-		return buf.Bytes()
-	}
-	if val, err := hex.DecodeString(string(data)); err == nil {
-		return val
+	if len(data) ==0 {
+		return data
 	}
 
-	return data
+	buf, err1 := ss.Base64().DecodeBytes(data)
+	val, err2 := hex.DecodeString(string(data))
+
+	if err1 == nil && err2 != nil {
+		return buf.Bytes()
+	} else if err1 != nil && err2 == nil {
+		return val
+	} else if err1 != nil && err2 != nil {
+		return data
+	} else { // err1 == nil && err2 == nil
+		chosen, err := gum.Choose("format "+string(data), []string{"Hex", "Base64", "Raw"}, 1)
+		if err != nil {
+			panic(err)
+		}
+		switch chosen[0] {
+		case "Hex":
+			return val
+		case "Base64":
+			return buf.Bytes()
+		default:
+			return data
+		}
+	}
 }
 
 func (o Option) Open(input string) (*Result, error) {

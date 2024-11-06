@@ -27,14 +27,15 @@ var kongVars = kong.Vars{
 
 func Confirm(prompt string) (bool, error) {
 	option := &confirm.Options{}
-	kongParse(option, kongVars)
+	KongParse(option, kongVars)
 	option.Prompt = prompt
 	return option.Run()
 }
 
-func Choose(options []string, limit int) ([]string, error) {
+func Choose(header string, options []string, limit int) ([]string, error) {
 	option := &choose.Options{}
-	kongParse(option, kongVars)
+	KongParse(option, kongVars)
+	option.Header = header
 	option.Options = options
 	option.Limit = limit
 	return option.Run()
@@ -42,14 +43,14 @@ func Choose(options []string, limit int) ([]string, error) {
 
 func Input(prompt, placeholder string) (string, error) {
 	option := &input.Options{}
-	kongParse(option, kongVars)
+	KongParse(option, kongVars)
 	option.Prompt = prompt
 	option.Placeholder = placeholder
 	return option.Run()
 }
 
-// kongParse constructs a new parser and parses the default command-line.
-func kongParse(cli interface{}, options ...kong.Option) *kong.Context {
+// KongParse constructs a new parser and parses the default command-line.
+func KongParse(cli interface{}, options ...kong.Option) *kong.Context {
 	parser, err := kong.New(cli, options...)
 	if err != nil {
 		panic(err)

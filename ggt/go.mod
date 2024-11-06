@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.1
 
 replace (
+	github.com/bingoohuang/ngg/gum => ../gum
 	github.com/bingoohuang/ngg/gnet => ../gnet
 	github.com/bingoohuang/ngg/gossh => ../gossh
 	github.com/bingoohuang/ngg/jj => ../jj

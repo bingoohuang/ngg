@@ -38,7 +38,7 @@ type codec struct {
 }
 
 func (f *codec) Run(cmd *cobra.Command, args []string) error {
-	r, err := gterm.Option{Random: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -57,27 +57,44 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 	f.Key = string(key)
 
 	var d []byte
+	var dd dongle.Decoder
 	switch algo := strings.ToLower(f.From); algo {
 	case "string", "":
 		d = data
 	case "hex":
-		d = dongle.Decode.FromBytes(data).ByHex().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByHex()
+		d = dd.ToBytes()
 	case "base32":
-		d = dongle.Decode.FromBytes(data).ByBase32().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase32()
+		d = dd.ToBytes()
 	case "base45":
-		d = dongle.Decode.FromBytes(data).ByBase45().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase45()
+		d = dd.ToBytes()
 	case "base58":
-		d = dongle.Decode.FromBytes(data).ByBase58().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase58()
+		d = dd.ToBytes()
 	case "base85":
-		d = dongle.Decode.FromBytes(data).ByBase85().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase85()
+		d = dd.ToBytes()
 	case "base64":
-		d = dongle.Decode.FromBytes(convertBase64ToRawStd(data)).ByBase64().ToBytes()
+		p := ss.Base64().Decode(string(data))
+		dd.Error = p.V2
+		if p.V2 == nil {
+			d = p.V1.Bytes()
+		}
 	case "base91":
-		d = dongle.Decode.FromBytes(data).ByBase91().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase91()
+		d = dd.ToBytes()
 	case "base100":
-		d = dongle.Decode.FromBytes(data).ByBase100().ToBytes()
+		dd = dongle.Decode.FromBytes(data).ByBase100()
+		d = dd.ToBytes()
 	case "safeURL":
-		d = dongle.Decode.FromBytes(data).BySafeURL().ToBytes()
+		dd = dongle.Decode.FromBytes(data).BySafeURL()
+		d = dd.ToBytes()
+	}
+
+	if dd.Error != nil {
+		return dd.Error
 	}
 
 	if len(f.To) == 0 {
@@ -224,7 +241,7 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func convertBase64ToRawStd(s []byte) []byte {
+func ToBase64RawStd(s []byte) []byte {
 	s = bytes.TrimSpace(s)
 	s = bytes.TrimRight(s, "=")
 	// // the standard encoding with - and _ substituted for + and /.
