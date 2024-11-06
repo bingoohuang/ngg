@@ -3,34 +3,35 @@ module frp
 go 1.23.2
 
 replace (
-	github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 	github.com/bingoohuang/ngg/ggt => ..
+	// github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
+	github.com/fatedier/frp => ../../../frp
 )
 
 require (
-	github.com/bingoohuang/ngg/ggt v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/gum v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241104133609-bea46d5d635d
+	github.com/bingoohuang/ngg/ggt v0.0.0-20241106023544-988035e4708f
+	github.com/bingoohuang/ngg/gum v0.0.0-20241106023544-988035e4708f
+	github.com/bingoohuang/ngg/ss v0.0.0-20241106023544-988035e4708f
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241106023544-988035e4708f
 	github.com/fatedier/frp v0.61.0
 	github.com/spf13/cobra v1.8.1
 )
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
-	github.com/alecthomas/kong v1.3.0 // indirect
+	github.com/alecthomas/kong v1.4.0 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/ver v0.0.0-20241103104547-2d1bf667deef // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20241106023544-988035e4708f // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
 	github.com/charmbracelet/bubbletea v1.1.2 // indirect
 	github.com/charmbracelet/gum v0.14.5 // indirect
 	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v1.0.0 // indirect
-	github.com/charmbracelet/x/ansi v0.4.2 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20241101155414-3df16cb7eefd // indirect
+	github.com/charmbracelet/x/ansi v0.4.5 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20241105165749-d3dd7340b31f // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
@@ -94,7 +95,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.31.2 // indirect
-	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
+	k8s.io/utils v0.0.0-20241104163129-6fe5fd82f078 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )

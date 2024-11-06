@@ -27,11 +27,7 @@ import (
 )
 
 func main() {
-	fc := &subCmd{}
-	c := root.CreateCmd(nil, "frp", "frp with proxytarget", fc)
-	if err := c.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-	}
+	root.RunCmd(nil, "frp", "frp with proxytarget", &subCmd{})
 }
 
 type subCmd struct {
@@ -69,7 +65,7 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	tempFile := false
 	if multiPorts, ok := serverPort.(string); ok {
 		ports := ss.Split(multiPorts, ",")
-		chosen, err := gum.Choose(ports, 1)
+		chosen, err := gum.Choose("choose serverPort", ports, 1)
 		if err != nil {
 			return err
 		}

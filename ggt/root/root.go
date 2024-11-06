@@ -17,6 +17,15 @@ import (
 	"github.com/spf13/pflag"
 )
 
+func RunCmd(parent *cobra.Command,use, short string, obj interface {
+	Run(*cobra.Command, []string) error
+}) {
+	c := CreateCmd(parent, use, short, obj)
+	if err := c.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+	}
+}
+
 func CreateCmd(parent *cobra.Command, use, short string, obj interface {
 	Run(*cobra.Command, []string) error
 }) *cobra.Command {
