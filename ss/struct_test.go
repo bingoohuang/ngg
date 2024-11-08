@@ -35,13 +35,19 @@ func TestStructEnv(t *testing.T) {
 		Bool     *bool          `env:"TEST_BOOL"`
 		Float    *float64       `env:"TEST_FLOAT"`
 
-		TestString   string
-		TestString2  string
-		TestDuration time.Duration
-		TestUint     uint64
-		TestInt      int64
-		TestBool     bool
-		TestFloat    float64
+		TestString    string
+		TestString2   string
+		TestString3   *string
+		TestDuration  time.Duration
+		TestDuration2 *time.Duration
+		TestUint      uint64
+		TestUint2     *uint64
+		TestInt       int64
+		TestInt2      *int64
+		TestBool      bool
+		TestBool2     *bool
+		TestFloat     float64
+		TestFloat2    *float64
 
 		TestFloatIgnore float64 `env:"-"`
 
