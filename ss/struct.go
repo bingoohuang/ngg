@@ -77,8 +77,8 @@ func structEnv(v any, opt *StructEnvOptions) error {
 		envValue := os.Getenv(envName)
 		if envValue == "" {
 			if fieldType == timeDurationType {
-				if  Pick1(ParseBool(os.Getenv("STRUCT_ENV_VERBOSE"))) {
-					log.Printf("env %s can be set as %s (current: %v)", envName, fieldType, field.Interface())
+				if Pick1(ParseBool(os.Getenv("STRUCT_ENV_VERBOSE"))) {
+					log.Printf("Can set env %s (%s), current: %v", envName, fieldType, field.Interface())
 				}
 			} else {
 				switch kind {
@@ -86,8 +86,8 @@ func structEnv(v any, opt *StructEnvOptions) error {
 					reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint,
 					reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int,
 					reflect.Float32, reflect.Float64:
-					if  Pick1(ParseBool(os.Getenv("STRUCT_ENV_VERBOSE"))) {
-						log.Printf("env %s can be set as %s (current: %v)", envName, kind, field.Interface())
+					if Pick1(ParseBool(os.Getenv("STRUCT_ENV_VERBOSE"))) {
+						log.Printf("Can set env %s (%s), current: %v", envName, kind, field.Interface())
 					}
 				default:
 					// ignore other types
@@ -96,6 +96,8 @@ func structEnv(v any, opt *StructEnvOptions) error {
 
 			continue
 		}
+
+		log.Printf("Will set env %s set to %s", envName, envValue)
 
 		if fieldType == timeDurationType {
 			d, _, err := ParseDur(envValue)
