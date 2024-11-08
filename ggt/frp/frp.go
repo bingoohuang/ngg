@@ -23,11 +23,12 @@ import (
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/yaml"
 	"github.com/fatedier/frp"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
 func main() {
-	root.RunCmd(nil, "frp", "frp with proxytarget", &subCmd{})
+	root.RunCmd(nil, "frp", "frp with proxy target", &subCmd{})
 }
 
 type subCmd struct {
@@ -52,42 +53,15 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 		f.FrpCnf = "~/.frp.yaml"
 	}
 
-	frpConf, err := os.ReadFile(ss.ExpandHome(f.FrpCnf))
+	f.FrpCnf = ss.ExpandHome(f.FrpCnf)
+	tempFile, err := chooseServerPort(f.FrpCnf)
 	if err != nil {
 		return err
 	}
-
-	var configValues map[string]any
-	if err := yaml.Unmarshal(frpConf, &configValues); err != nil {
-		return err
-	}
-	serverPort := configValues["serverPort"]
-	tempFile := false
-	if multiPorts, ok := serverPort.(string); ok {
-		ports := ss.Split(multiPorts, ",")
-		chosen, err := gum.Choose("choose serverPort", ports, 1)
-		if err != nil {
-			return err
-		}
-		log.Printf("choose server port: %v", chosen)
-
-		configValues["serverPort"], _ = ss.Parse[int](chosen[0])
-		newConfig, err := yaml.Marshal(configValues)
-		if err != nil {
-			return err
-		}
-		// Create a temporary file
-		file, err := ss.WriteTempFile("", "*.yaml", newConfig, false)
-		if err != nil {
-			return err
-		}
-		tempFile = true
-		f.FrpCnf = file
-		defer os.Remove(f.FrpCnf)
-	}
+	tempFile = ss.Or(tempFile, f.FrpCnf)
 
 	go func() {
-		if err := frp.Run(f.FrpCnf); err != nil {
+		if err := frp.Run(tempFile); err != nil {
 			log.Printf("E! frp error: %v", err)
 		}
 	}()
@@ -96,8 +70,8 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-ch
-		if tempFile {
-			os.Remove(f.FrpCnf)
+		if tempFile != f.FrpCnf {
+			os.Remove(tempFile)
 		}
 		os.Exit(1)
 	}()
@@ -142,6 +116,41 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	return nil
 }
 
+func chooseServerPort(frpFile string) (string, error) {
+	frpConf, err := os.ReadFile(frpFile)
+	if err != nil {
+		return "", err
+	}
+
+	var configValues map[string]any
+	if err := yaml.Unmarshal(frpConf, &configValues); err != nil {
+		return "", err
+	}
+	serverPort := configValues["serverPort"]
+	if multiPorts, ok := serverPort.(string); ok {
+		ports := ss.Split(multiPorts, ",")
+		chosen, err := gum.Choose("choose serverPort", ports, 1)
+		if err != nil {
+			return "", err
+		}
+		log.Printf("choose server port: %v", chosen)
+
+		configValues["serverPort"], _ = ss.Parse[int](chosen[0])
+		newConfig, err := yaml.Marshal(configValues)
+		if err != nil {
+			return "", err
+		}
+		// Create a temporary file
+		file, err := ss.WriteTempFile("", "*.yaml", newConfig, false)
+		if err != nil {
+			return "", err
+		}
+		return file, nil
+	}
+
+	return frpFile, nil
+}
+
 func (t *TargetConfig) Serve() error {
 	if t.TargetAddr == "" {
 		return fmt.Errorf("target parameter is required")
@@ -183,13 +192,10 @@ func serveHTTP(l net.Listener, proxy, target string) error {
 
 	targetHost := targetURL.Host
 	if targetURL.Port() == "" {
-		if targetURL.Scheme == "http" {
-			targetHost += ":80"
-		} else if targetURL.Scheme == "https" {
-			targetHost += ":443"
-		} else {
-			targetHost += ":80"
-		}
+		targetHost += lo.Switch[string, string](targetURL.Scheme).
+			Case("http", ":80").
+			Case("https", ":443").
+			Default(":80")
 	}
 
 	// 忽略证书验证的 HTTPS 客户端
