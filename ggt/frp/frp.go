@@ -18,6 +18,7 @@ import (
 	"sync"
 	"syscall"
 
+	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
@@ -60,12 +61,6 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	}
 	tempFile = ss.Or(tempFile, f.FrpCnf)
 
-	go func() {
-		if err := frp.Run(tempFile); err != nil {
-			log.Printf("E! frp error: %v", err)
-		}
-	}()
-
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
@@ -76,16 +71,22 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 		os.Exit(1)
 	}()
 
+	proxyConfigFile, _ := ss.ExpandFilename(f.ProxyConfig)
+	if ok, _ := ss.Exists(proxyConfigFile); !ok {
+		return frp.Run(tempFile)
+	}
+
+	go func() {
+		if err := frp.Run(tempFile); err != nil {
+			log.Printf("E! frp error: %v", err)
+		}
+	}()
+
 	if f.ProxyConfig == "" {
 		return fmt.Errorf("config file is required")
 	}
 
-	yamlFile, err := ss.ExpandFilename(f.ProxyConfig)
-	if err != nil {
-		return fmt.Errorf("expand yaml config file: %w", err)
-	}
-
-	yamlFileData, err := os.ReadFile(yamlFile)
+	yamlFileData, err := os.ReadFile(proxyConfigFile)
 	if err != nil {
 		return fmt.Errorf("read yaml config file: %w", err)
 	}

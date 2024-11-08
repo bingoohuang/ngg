@@ -4,16 +4,19 @@ go 1.23.2
 
 replace (
 	github.com/bingoohuang/ngg/ggt => ..
+	github.com/bingoohuang/ngg/ss => ../../ss
 	// github.com/fatedier/frp => github.com/bingoohuang/frp v0.0.0-20240921114209-e8b9689f39d9
 	github.com/fatedier/frp => ../../../frp
 )
 
 require (
+	github.com/bingoohuang/ngg/daemon v0.0.0-20241103104547-2d1bf667deef
 	github.com/bingoohuang/ngg/ggt v0.0.0-20241106023544-988035e4708f
 	github.com/bingoohuang/ngg/gum v0.0.0-20241106023544-988035e4708f
 	github.com/bingoohuang/ngg/ss v0.0.0-20241106023544-988035e4708f
 	github.com/bingoohuang/ngg/yaml v0.0.0-20241106023544-988035e4708f
 	github.com/fatedier/frp v0.61.0
+	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
 )
 
@@ -23,6 +26,7 @@ require (
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/bingoohuang/ngg/q v0.0.0-20241103104547-2d1bf667deef // indirect
 	github.com/bingoohuang/ngg/ver v0.0.0-20241106023544-988035e4708f // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
@@ -45,6 +49,7 @@ require (
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/klauspost/reedsolomon v1.12.4 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -66,9 +71,10 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/quic-go v0.48.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
-	github.com/samber/lo v1.47.0 // indirect
+	github.com/sevlyar/go-daemon v0.1.6 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
