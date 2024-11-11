@@ -77,10 +77,6 @@ git.commit:
 	echo ${gitCommit} > git.commit
 	echo ${gitBranch} > git.branch
 
-sec:
-	@gosec ./...
-	@echo "[OK] Go security check was completed!"
-
 init:
 
 lint-all:
