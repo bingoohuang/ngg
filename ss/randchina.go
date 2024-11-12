@@ -9,7 +9,7 @@ import (
 
 // ProvinceCity 返回随机省/城市
 func (r random) ProvinceCity() string {
-	return provinceCity[r.IntBetween(0, len(provinceCity))]
+	return provinceCity[r.Intn(len(provinceCity))]
 }
 
 // Address 返回随机地址

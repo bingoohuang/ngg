@@ -2,23 +2,29 @@ module github.com/bingoohuang/ngg/godbtest
 
 go 1.23.0
 
+replace (
+	github.com/bingoohuang/ngg/ggt => ../ggt
+	github.com/bingoohuang/ngg/jj => ../jj
+	github.com/bingoohuang/ngg/ss => ../ss
+)
+
 require (
-	gitee.com/chunanyong/dm v1.8.16
+	gitee.com/chunanyong/dm v1.8.17
 	gitee.com/opengauss/openGauss-connector-go-pq v1.0.4
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alecthomas/chroma v0.10.0
-	github.com/bingoohuang/ngg/ggt v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/jj v0.0.0-20241031135519-ebcfa38cd448
-	github.com/bingoohuang/ngg/pp v0.0.0-20241031135519-ebcfa38cd448
-	github.com/bingoohuang/ngg/sqlparser v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/ss v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/tick v0.0.0-20241031233625-b602daab93f5
-	github.com/bingoohuang/ngg/ver v0.0.0-20241031233625-b602daab93f5
+	github.com/bingoohuang/ngg/ggt v0.0.0-20241111024643-606708777bda
+	github.com/bingoohuang/ngg/jj v0.0.0-20241112022615-8089608eff4b
+	github.com/bingoohuang/ngg/pp v0.0.0-20241112022615-8089608eff4b
+	github.com/bingoohuang/ngg/sqlparser v0.0.0-20241111024643-606708777bda
+	github.com/bingoohuang/ngg/ss v0.0.0-20241112022615-8089608eff4b
+	github.com/bingoohuang/ngg/tick v0.0.0-20241112022615-8089608eff4b
+	github.com/bingoohuang/ngg/ver v0.0.0-20241112022615-8089608eff4b
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/creasty/defaults v1.8.0
-	github.com/deatil/go-cryptobin v1.0.4023
+	github.com/deatil/go-cryptobin v1.0.4026
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-sql-driver/mysql v1.8.1
@@ -40,7 +46,7 @@ require (
 	github.com/xo/dburl v0.23.2
 	go.uber.org/atomic v1.11.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/net v0.30.0
+	golang.org/x/net v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -48,8 +54,8 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20241031135519-ebcfa38cd448 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241031233625-b602daab93f5 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20241112022615-8089608eff4b // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241112022615-8089608eff4b // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/chzyer/test v1.0.0 // indirect
 	github.com/cloudflare/circl v1.5.0 // indirect
@@ -61,7 +67,7 @@ require (
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
+	github.com/google/pprof v0.0.0-20241101162523-b92577c0c142 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -98,14 +104,14 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	go.uber.org/mock v0.5.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
-	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
-	golang.org/x/tools v0.26.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/term v0.26.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/tools v0.27.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

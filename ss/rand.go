@@ -70,6 +70,7 @@ func (random) Intn(n int) int {
 
 func (r random) Int() int { return int(r.Int32()) }
 
+// IntBetween returns a random integer between min and max (inclusive).
 func (r random) IntBetween(min, max int) int { return r.Intn(max-min+1) + min }
 
 func (random) Int32n(n int) int32 {

@@ -152,7 +152,7 @@ func init() {
 > insert into t2(id,name,addr,email,phone,age,idc) values('@ksuid','@姓名','@地址','@邮箱','@手机','@random_int(15-95)','@身份证')\P
 
 可以使用的插值表达式：
-1. @uuid @ksuid @name @address @state
+1. @uuid @ksuid @tsid @name @address @state
 2. @汉字 @姓名 @性别 @地址 @手机 @身份证 @发证机关 @邮箱 @银行卡
 3. @random(5-10) @random(red,green,blue)  @random(1,2,3)
 4. @regex([abc]{10}) @regex([a-z]{5}@xyz[.]cn)
