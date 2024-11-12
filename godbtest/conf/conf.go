@@ -151,8 +151,8 @@ func (c *Config) getDSS(dsn string, evaluateNum int, options *replOptions, args 
 			}
 		}
 
-		if driverName, dataSourceName := AutoTestConnect(dsn); driverName != "" {
-			return connectDB(driverName, dataSourceName, nil, options.verbose, options.maxOpenConns)
+		if driverName, _ := AutoTestConnect(dsn); driverName != "" {
+			return connectDB(driverName, dsn, nil, options.verbose, options.maxOpenConns)
 		}
 	}
 
@@ -333,10 +333,10 @@ func dealScriptFile(fileName string, options *replOptions) {
 	}
 }
 
-func connectDB(driverName, dataSourceName string, dss []*DataSource, verbose, maxOpenConns int) []*DataSource {
+func connectDB(driverName, dataSourceURL string, dss []*DataSource, verbose, maxOpenConns int) []*DataSource {
 	ds := &DataSource{
-		DriverName:     driverName,
-		DataSourceName: dataSourceName,
+		DriverName:    driverName,
+		DataSourceURL: dataSourceURL,
 	}
 	if err := ds.Connect(false, verbose, maxOpenConns); err != nil {
 		log.Printf("Connect error: %v", err)
@@ -405,7 +405,7 @@ type DataSource struct {
 
 	Name            string `yaml:"name"`
 	DriverName      string `yaml:"driverName"`
-	DataSourceName  string `yaml:"dataSourceName"`
+	DataSourceURL   string `yaml:"dataSourceName"`
 	DataSourceEnv   string `yaml:"dataSourceEnv"`
 	currentDatabase string
 	Disabled        bool `yaml:"disabled"`
@@ -414,7 +414,7 @@ type DataSource struct {
 func (d *DataSource) ItemTitle() string { return ss.Or(d.Name, d.DriverName) }
 func (d *DataSource) ItemDesc() string  { return d.GetDataSourceName() }
 func (d *DataSource) GetDataSourceName() string {
-	return ss.Or(d.DataSourceName, os.Getenv(d.DataSourceEnv))
+	return ss.Or(d.DataSourceURL, os.Getenv(d.DataSourceEnv))
 }
 
 func (d *DataSource) Connect(panicOnError bool, verbose int, maxOpenConns int) (err error) {

@@ -12,7 +12,6 @@ import (
 )
 
 func init() {
-
 	// process url query parameters, e.g. SESSION_CURRENT_SCHEMA=MSP_AUTH
 	RegisterSchemeUpdate("oracle", func(u *url.URL) DBFixer {
 		sessionParams := make(map[string]string)

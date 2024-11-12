@@ -9,28 +9,27 @@ import (
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/godbtest"
 	"github.com/bingoohuang/ngg/godbtest/conf"
+	_ "github.com/bingoohuang/ngg/godbtest/drivers"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
 	"github.com/spf13/cobra"
-	_ "github.com/bingoohuang/ngg/godbtest/drivers"
 )
 
 var cmd = func() *cobra.Command {
 	r := &cobra.Command{
-		Use:  "ggtdb",
+		Use:  "godbtest",
 		Long: "use ggt db -e %help for more usages",
 	}
 
 	r.Version = "version"
 	r.SetVersionTemplate(ver.Version() + "\n")
-
 	return r
 }()
 
 type subCmd struct {
 	Conf      string   `short:"c" help:"config file path, or new to create demo one"`
 	Driver    string   `short:"d" help:"driver name to filter, e.g. ora, my"`
-	Dsn       string   `help:"data source name"`
+	Dsn       string   `help:"data source name" env:"auto"`
 	Evaluates []string `short:"e" help:"Evaluate query or file"`
 }
 
@@ -64,11 +63,11 @@ func RootCommand(c *cobra.Command, fc any) {
 	if fc != nil && !c.DisableFlagParsing {
 		ss.PanicErr(root.InitFlags(fc, c.Flags(), c.PersistentFlags()))
 	}
-	if runer, ok := fc.(interface {
+	if r, ok := fc.(interface {
 		Run(cmd *cobra.Command, args []string) error
 	}); ok {
 		c.Run = func(cmd *cobra.Command, args []string) {
-			if err := runer.Run(cmd, args); err != nil {
+			if err := r.Run(cmd, args); err != nil {
 				log.Printf("error occured: %v", err)
 			}
 		}
