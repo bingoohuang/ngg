@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bingoohuang/ngg/cmd"
 	"github.com/bingoohuang/ngg/godbtest/files"
 	"github.com/bingoohuang/ngg/godbtest/label"
 	"github.com/bingoohuang/ngg/godbtest/sqlmap"
@@ -192,6 +193,16 @@ func (c *Config) getNamedSqls(dss []*DataSource, options *replOptions) []DsSql {
 }
 
 func executeInput(q string, options *replOptions) {
+	if strings.HasPrefix(q, "!") {
+		result, err := cmd.Run(context.Background(), q[1:])
+		if err != nil {
+			fmt.Printf("%v", err)
+		} else if result != "" {
+			fmt.Printf("%s", result)
+		}
+		return
+	}
+
 	var qq []string
 	if strings.HasPrefix(q, "%") {
 		qq = []string{q}

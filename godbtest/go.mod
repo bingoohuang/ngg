@@ -3,6 +3,7 @@ module github.com/bingoohuang/ngg/godbtest
 go 1.23.0
 
 replace (
+	github.com/bingoohuang/ngg/cmd => ../cmd
 	github.com/bingoohuang/ngg/ggt => ../ggt
 	github.com/bingoohuang/ngg/jj => ../jj
 	github.com/bingoohuang/ngg/ss => ../ss
@@ -14,6 +15,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/alecthomas/chroma v0.10.0
+	github.com/bingoohuang/ngg/cmd v0.0.0-00010101000000-000000000000
 	github.com/bingoohuang/ngg/ggt v0.0.0-20241111024643-606708777bda
 	github.com/bingoohuang/ngg/jj v0.0.0-20241112022615-8089608eff4b
 	github.com/bingoohuang/ngg/pp v0.0.0-20241112022615-8089608eff4b
