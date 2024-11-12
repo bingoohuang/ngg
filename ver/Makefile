@@ -101,6 +101,8 @@ static-init:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 static:
 	staticcheck ./...
+dep: # 依赖分析
+	go mod graph | deptree -d 2 -t -a
 
 fmt-update:
 	go install mvdan.cc/gofumpt@latest
