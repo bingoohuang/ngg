@@ -167,8 +167,9 @@ func (j *JsonRowsScanner) AddRow(rowIndex int, columns []any) bool {
 }
 
 func (j *JsonRowsScanner) Complete() {
-	if j.options&sqlmap.ShowCost == sqlmap.ShowCost {
-		log.Printf("Cost %s", time.Since(j.start))
+	cost := time.Since(j.start)
+	if j.options&sqlmap.ShowCost == sqlmap.ShowCost || cost > time.Second {
+		log.Printf("Cost %s", cost)
 	}
 
 	if j.jsonFile != nil {
@@ -311,11 +312,12 @@ func writeTempFile(content, extension string) {
 }
 
 func (t TableRowsScanner) Complete() {
-	if t.options&sqlmap.ShowCost == sqlmap.ShowCost {
-		defer func() {
-			log.Printf("Cost %s", time.Since(t.start))
-		}()
-	}
+	defer func() {
+		cost := time.Since(t.start)
+		if t.options&sqlmap.ShowCost == sqlmap.ShowCost || cost > time.Second {
+			log.Printf("Cost %s", cost)
+		}
+	}()
 	if t.RowVertical {
 		return
 	}
