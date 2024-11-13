@@ -362,3 +362,9 @@ Example:
     - 解决方案 建议尽早将Sarama Go客户端替换为Confluent Go客户端。 Confluent Go客户端的Demo地址，请访问 [kafka-confluent-go-demo](https://github.com/AliwareMQ/aliware-kafka-demos/tree/master/kafka-confluent-go-demo)。
 5. [一些关于 kafka 客户端库实践经验汇总](https://pandaychen.github.io/2022/02/08/A-KAFKA-USAGE-SUMUP-3/)
 6. Modern CLI for Apache Kafka, written in Go. [birdayz/kaf](https://github.com/birdayz/kaf)
+
+
+## kafka-proxy 使用
+
+1. 编译: [kafka-proxy](https://github.com/grepplabs/kafka-proxy), `make -f /Volumes/e2t/Github/ngg/ver/Makefile`, [我的fork版本](https://github.com/goldstd/kafka-proxy)
+2. 启动: `BOOTSTRAP_SERVER_MAPPING="192.168.126.18:9092,0.0.0.0:19002 192.168.126.18:9091,0.0.0.0:19001 192.168.126.18:9093,0.0.0.0:19003" kafka-proxy server`

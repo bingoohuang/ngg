@@ -7,7 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"syscall"
@@ -339,29 +338,21 @@ func (p *PrintMessageConsumer) Consume(m *sarama.ConsumerMessage) {
 		return
 	}
 
-	msg := p.newConsumedMessage(m)
-	buf, err := p.Marshal(msg)
-	if err != nil {
-		switch mv := msg.Value.(type) {
-		case string:
-			buf = []byte(mv)
-		case json.RawMessage:
-			buf = mv
-		default:
-			buf = []byte(fmt.Sprintf("%+v", msg.Value))
-		}
-	}
-
 	n := atomic.AddInt64(&p.n, 1)
 	if p.N > 0 && n >= p.N {
 		defer os.Exit(1)
 	}
 
-	fmt.Printf("#%03d topic: %s offset: %d partition: %d key: %s timestamp: %s valueSize: %s msg: %s\n",
-		n, m.Topic, m.Offset, m.Partition, m.Key,
+	val := m.Value
+	if !RawMessageFlag {
+		val = jj.FreeInnerJSON(val)
+	}
+
+	fmt.Printf("#%03d topic: %s offset: %d partition: %d timestamp: %s valueSize: %s key: [[%s]] value: [[%s]]\n",
+		n, m.Topic, m.Offset, m.Partition,
 		m.Timestamp.Format("2006-01-02 15:04:05.000"),
 		ss.Bytes(uint64(len(m.Value))),
-		clean(string(buf), `\\`, `\`, `\"`, `"`),
+		m.Key, val,
 	)
 
 	if p.sseSender != nil {
@@ -371,7 +362,7 @@ func (p *PrintMessageConsumer) Consume(m *sarama.ConsumerMessage) {
 			Partition: strconv.FormatInt(int64(m.Partition), 10),
 			Key:       string(m.Key),
 			Timestamp: m.Timestamp.Format("2006-01-02 15:04:05.000"),
-			Message:   clean(jj.GetBytes(buf, "value").Raw, `\\`, `\`, `\"`, `"`),
+			Message:   string(val),
 		}
 		b.MessageSize = ss.Bytes(uint64(len(b.Message)))
 		e, _ := json.Marshal(b)
@@ -379,30 +370,7 @@ func (p *PrintMessageConsumer) Consume(m *sarama.ConsumerMessage) {
 	}
 }
 
-var cleanEnvFlag = os.Getenv("CLEAN_MSG") == "1"
-
-func clean(input string, pairs ...string) string {
-	if !cleanEnvFlag {
-		return input
-	}
-
-	for i := 0; i+1 < len(pairs); i += 2 {
-		input = replaceRecursive(input, pairs[i], pairs[i+1])
-	}
-
-	return input
-}
-
-func replaceRecursive(input, replace, new string) string {
-	// 检查字符串中是否包含 '\\'
-	if !strings.Contains(input, replace) {
-		return input
-	}
-	// 将 '\\' 替换为 '\'
-	input = strings.ReplaceAll(input, replace, new)
-	// 递归调用直到不包含 '\\'
-	return replaceRecursive(input, replace, new)
-}
+var RawMessageFlag, _ = ss.GetenvBool("RAW_MESSAGE", false)
 
 type sseBean struct {
 	Topic       string
@@ -412,48 +380,4 @@ type sseBean struct {
 	Timestamp   string
 	Message     string
 	MessageSize string
-}
-
-type consumedMessage struct {
-	Value     any               `json:"value,omitempty"`
-	Timestamp *time.Time        `json:"timestamp,omitempty"`
-	Headers   map[string]string `json:"headers,omitempty"`
-	Key       string            `json:"key,omitempty"`
-	Offset    int64             `json:"offset"`
-	Partition int32             `json:"partition"`
-}
-
-func (p *PrintMessageConsumer) newConsumedMessage(m *sarama.ConsumerMessage) consumedMessage {
-	keyEnc, valEnc := p.KeyEncoder, p.ValEncoder
-	result := consumedMessage{
-		Partition: m.Partition,
-		Offset:    m.Offset,
-		Key:       encodeBytes(m.Key, keyEnc),
-	}
-
-	value := encodeBytes(m.Value, valEnc)
-	if jj.Parse(value).IsJSON() {
-		result.Value = json.RawMessage(value)
-	} else {
-		result.Value = value
-	}
-
-	if !m.Timestamp.IsZero() {
-		result.Timestamp = &m.Timestamp
-	}
-
-	result.Headers = make(map[string]string)
-	for _, h := range m.Headers {
-		result.Headers[string(h.Key)] = string(h.Value)
-	}
-
-	return result
-}
-
-func encodeBytes(data []byte, encoder BytesEncoder) string {
-	if data == nil {
-		return ""
-	}
-
-	return encoder.Encode(data)
 }
