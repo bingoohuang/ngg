@@ -33,6 +33,7 @@ func main() {
 }
 
 type subCmd struct {
+	ServerPort  int    `short:"P" help:"frp server port"`
 	FrpCnf      string `short:"c" help:"FRP yaml config file" default:"~/.frp.yaml"`
 	ProxyConfig string `short:"p" help:"YAML config file for proxy target" default:"~/.proxytarget.yaml"`
 }
@@ -55,7 +56,8 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	}
 
 	f.FrpCnf = ss.ExpandHome(f.FrpCnf)
-	tempFile, err := chooseServerPort(f.FrpCnf)
+
+	tempFile, err := chooseServerPort(f.FrpCnf, f.ServerPort)
 	if err != nil {
 		return err
 	}
@@ -117,7 +119,7 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	return nil
 }
 
-func chooseServerPort(frpFile string) (string, error) {
+func chooseServerPort(frpFile string, flagServerPort int) (string, error) {
 	frpConf, err := os.ReadFile(frpFile)
 	if err != nil {
 		return "", err
@@ -129,14 +131,19 @@ func chooseServerPort(frpFile string) (string, error) {
 	}
 	serverPort := configValues["serverPort"]
 	if multiPorts, ok := serverPort.(string); ok {
-		ports := ss.Split(multiPorts, ",")
-		chosen, err := gum.Choose("choose serverPort", ports, 1)
-		if err != nil {
-			return "", err
-		}
-		log.Printf("choose server port: %v", chosen)
+		if flagServerPort > 0 {
+			configValues["serverPort"] = flagServerPort
+		} else {
+			ports := ss.Split(multiPorts, ",")
+			chosen, err := gum.Choose("choose serverPort", ports, 1)
+			if err != nil {
+				return "", err
+			}
+			log.Printf("choose server port: %v", chosen)
 
-		configValues["serverPort"], _ = ss.Parse[int](chosen[0])
+			configValues["serverPort"], _ = ss.Parse[int](chosen[0])
+		}
+
 		newConfig, err := yaml.Marshal(configValues)
 		if err != nil {
 			return "", err
