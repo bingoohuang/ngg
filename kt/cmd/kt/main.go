@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bingoohuang/ngg/ver"
 	"os"
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
@@ -16,6 +17,7 @@ func main() {
 		Short: "kafka cli tools",
 		Long:  ktHelpLong,
 	}
+	root.CreateCmd(rootCmd, "version", "show kt version", &versionCmd{})
 	root.CreateCmd(rootCmd, "cluster", "cluster consume for 0.10.0.0", &clusterConsumer{})
 	root.CreateCmd(rootCmd, "admin", "asic cluster administration", &adminCmd{})
 	root.CreateCmd(rootCmd, "perf", "produce messages for performance test", &perfProduceCmd{})
@@ -45,3 +47,10 @@ const ktHelpLong = `
     1. 随机字符串写入压测: kt perf
     2. 使用 JSON 模板生成写入压测： kt perf --json_template '{"id":"@objectId","sex":"@random(male,female)"}'
 `
+
+type versionCmd struct{}
+
+func (r *versionCmd) Run(*cobra.Command, []string) error {
+	fmt.Printf("%s", ver.Version())
+	return nil
+}
