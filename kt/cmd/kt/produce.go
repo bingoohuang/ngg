@@ -23,7 +23,6 @@ type produceCmd struct {
 	Partition    int32  `help:"Partition to produce to (defaults to 0)"`
 	Batch        int    `default:"1" help:"Max size of a batch before sending it off"`
 	Json         bool   `help:"Interpret stdin line as JSON"`
-	Stats        bool   `help:"Print only final stats info"`
 	Compress     string `help:"Kafka message compress codec" enum:"gzip,snappy,lz4"`
 	Partitioner  string `help:"Optional partitioner" default:"hash" enum:"hash,rand"`
 	BufSize      int    `default:"16777216" help:"Buffer size for scanning stdin, default 16M"`
@@ -66,7 +65,7 @@ func (c *produceCmd) Run(*cobra.Command, []string) (err error) {
 	go c.deserializeLines(lines, messages, int32(len(c.leaders)))
 	go c.batchRecords(messages, batchedMessages)
 	go c.produce(batchedMessages)
-	kt.PrintOutStats(c.out, c.Stats)
+	kt.PrintOutStats(c.out)
 
 	return nil
 }

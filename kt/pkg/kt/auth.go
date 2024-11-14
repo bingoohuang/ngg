@@ -9,10 +9,11 @@ import (
 	"strings"
 
 	"github.com/IBM/sarama"
+	"github.com/bingoohuang/ngg/ss"
 )
 
 type AuthConfig struct {
-	AuthMode    string `json:"mode" default:"sasl" enum:"sasl,tls,tls-1way" help:"auth mode" persistent:"1"`
+	AuthMode    string `json:"mode" enum:",sasl,tls,tls-1way" help:"auth mode" persistent:"1"`
 	Cert        string `json:"ca" help:"root ca cert file" persistent:"1"`
 	ClientCert  string `json:"cert" help:"client cert file" persistent:"1"`
 	ClientKey   string `json:"key" help:"client cert key" persistent:"1"`
@@ -31,6 +32,10 @@ func (t AuthConfig) SetupAuth(sc *sarama.Config) error {
 		return t.setupAuthTLS1Way(sc)
 
 	case t.AuthMode == "":
+		if env := os.Getenv("KT_AUTH"); env != "" {
+			user, pwd := ss.Split2(env, ":")
+			return AuthConfig{AuthMode: "sasl", SASLUsr: user, SASLPwd: pwd}.setupSASL(sc)
+		}
 		return nil
 	default:
 		return fmt.Errorf("unsupport auth mode: %#v", t.AuthMode)

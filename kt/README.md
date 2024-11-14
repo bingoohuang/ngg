@@ -3,33 +3,33 @@
 ## kt 使用简介
 
 1. 通用设置 brokers 和 topic
-    1. 环境变量 `export KT_BROKERS=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092; export KT_TOPIC=elastic.backup`
-    2. 命令参数 `kt tail -brokers=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 -topic elastic.backup`
+    1. 环境变量 `export KT_B 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092; export KT_TOPIC=elastic.backup`
+    2. 命令参数 `kt consume -b 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 -t elastic.backup`
        ，不方便的是，导致命令过长，每次执行，都得带上这两个参数
-2. 消费最新消息 `kt tail`
+2. 消费最新消息 `kt consume`
 3. 生产消息
-    1. 直接消息：`echo '你要发送的消息载荷' | kt produce -literal`
+    1. 直接消息：`echo '你要发送的消息载荷' | kt produce`
     2. 指定 key 和
-       partition ，`echo '{"key": "id-23", "value": "消息载荷", "partition": 0}' | kt produce -topic greetings`
+       partition ，`echo '{"key": "id-23", "value": "消息载荷", "partition": 0}' | kt produce --json -t greetings`
     3. 使用 JJ
-       命令生成随机消息：`JJ_N=3 jj -gu a=@姓名 b=@汉字 c=@性别 d=@地址 e=@手机 f=@身份证 g=@发证机关 h=@邮箱 i=@银行卡 j=@name k=@ksuid l=@objectId m='@random(男,女)' n='@random_int(20-60)' o='@random_time(yyyy-MM-dd)' p=@random_bool q='@regex([a-z]{5}@xyz[.]cn)' | kt produce -literal`
-    4. 从文件中读取,每一行作为一个消息： `cat p20w.txt | kt produce -literal -stats`
+       命令生成随机消息：`JJ_N=3 jj -gu a=@姓名 b=@汉字 c=@性别 d=@地址 e=@手机 f=@身份证 g=@发证机关 h=@邮箱 i=@银行卡 j=@name k=@ksuid l=@objectId m='@random(男,女)' n='@random_int(20-60)' o='@random_time(yyyy-MM-dd)' p=@random_bool q='@regex([a-z]{5}@xyz[.]cn)' | kt produce`
+    4. 从文件中读取,每一行作为一个消息： `cat p20w.txt | kt produce`
 4. 生产消息性能压测
     1. 随机字符串写入压测 `kt perf`
-    2. 使用 JSON 模板生成写入压测： `kt perf -msg-json-template '{"id":"@objectId","sex":"@random(male,female)"}'`
+    2. 使用 JSON 模板生成写入压测： `kt perf --json_template '{"id":"@objectId","sex":"@random(male,female)"}'`
 5. 其它，看帮助
-    1. 子命令列表：`kt help`
-    2. 子命令帮助：`kt tail -help`
+    1. 子命令列表：`kt -h`
+    2. 子命令帮助：`kt consume -h`
 
 ## 示例日志
 
 ```sh
-# kt tail -brokers=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 -topic elastic.backup
+# kt consume -b 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092  -t elastic.backup
 topic: elastic.backup offset: 42840172 partition: 1 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":1,"offset":42840172,"value":"AHn3XiZADEPb1UG36b3Eh3yEM84csGvMgJ77A8cJyRiue5FeQQwBH9PeZILJT2MIWZlgTUllCiYFT2Xdi1n4mJsbKtdz5hoqkenj","timestamp":"2022-07-06T09:16:29.011+08:00"}
 topic: elastic.backup offset: 43249889 partition: 0 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":0,"offset":43249889,"value":"ufLYBbGHJ6okJoziJOcTtKwNQECXdAwczyoSGSYl3prCHpKQJdGlW6p3l3d7S6pYe9clGkt0zoJ2fBnYdNPhjPPgC7JBwA1rCt2V","timestamp":"2022-07-06T09:16:29.011+08:00"}
 topic: elastic.backup offset: 42835575 partition: 2 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":2,"offset":42835575,"value":"oubuyjAFVdCoN0aB4lJHgYnagkOg3Ivf8zT0Ui5SEotX9SsAqv4VTbQtcSvC2AKIms50VioUa7DpJJBDQOIOjCHjjmcCB4SvOMBU","timestamp":"2022-07-06T09:16:29.011+08:00"}
 ^C
-# export KT_BROKERS=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092
+# export KT_BROKERS 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092
 # export KT_TOPIC=elastic.backup
 # kt tail
 topic: elastic.backup offset: 43249889 partition: 0 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":0,"offset":43249889,"value":"ufLYBbGHJ6okJoziJOcTtKwNQECXdAwczyoSGSYl3prCHpKQJdGlW6p3l3d7S6pYe9clGkt0zoJ2fBnYdNPhjPPgC7JBwA1rCt2V","timestamp":"2022-07-06T09:16:29.011+08:00"}
@@ -38,10 +38,10 @@ topic: elastic.backup offset: 42835575 partition: 2 key:  timestamp: 2022-07-06 
 ```
 
 ```sh
-$ kt perf-produce
+$ kt perf
 50000 records sent, 98584.6 records/sec (9.40 MiB/sec ingress, 4.93 MiB/sec egress), 209.7 ms avg latency, 161.2 ms stddev, 191.0 ms 50th, 369.5 ms 75th, 429.0 ms 95th, 429.0 ms 99th, 429.0 ms 99.9th, 0 total req. in flight
 
-$ kt perf-produce -msg-json-template '{"id":"@objectId","sex":"@random(male,female)"}'
+$ kt perf --json_template '{"id":"@objectId","sex":"@random(male,female)"}'
 50000 records sent, 608952.2 records/sec (58.07 MiB/sec ingress, 5.23 MiB/sec egress), 164.1 ms avg latency, 170.8 ms stddev, 119.0 ms 50th, 405.8 ms 75th, 420.0 ms 95th, 420.0 ms 99th, 420.0 ms 99.9th, 0 total req. in flight
 ```
 
@@ -68,7 +68,7 @@ issue!
 <details><summary>Read details about topics that match a regex</summary>
 
 ```sh
-$ kt topic -filter news -partitions
+$ kt topic --filter news --partitions
 {
   "name": "actor-news",
   "partitions": [
@@ -86,19 +86,19 @@ $ kt topic -filter news -partitions
 <details><summary>Produce messages</summary>
 
 ```sh
-$ echo 'Alice wins Oscar' | kt produce -topic actor-news -literal
+$ echo 'Alice wins Oscar' | kt produce -t actor-news 
 {
   "count": 1,
   "partition": 0,
   "startOffset": 0
 }
-$ echo 'Bob wins Oscar' | kt produce -topic actor-news -literal
+$ echo 'Bob wins Oscar' | kt produce  -t actor-news 
 {
   "count": 1,
   "partition": 0,
   "startOffset": 0
 }
-$ for i in {6..9} ; do echo Bourne sequel $i in production. | kt produce -topic actor-news -literal ;done
+$ for i in {6..9} ; do echo Bourne sequel $i in production. | kt produce  -t actor-news  ;done
 {
   "count": 1,
   "partition": 0,
@@ -126,7 +126,7 @@ $ for i in {6..9} ; do echo Bourne sequel $i in production. | kt produce -topic 
 <details><summary>Or pass in JSON object to control key, value and partition</summary>
 
 ```sh
-$ echo '{"value": "Terminator terminated", "key": "Arni", "partition": 0}' | kt produce -topic actor-news
+$ echo '{"value": "Terminator terminated", "key": "Arni", "partition": 0}' | kt produce  -t actor-news
 {
   "count": 1,
   "partition": 0,
@@ -139,7 +139,7 @@ $ echo '{"value": "Terminator terminated", "key": "Arni", "partition": 0}' | kt 
 <details><summary>Read messages at specific offsets on specific partitions</summary>
 
 ```sh
-$ kt consume -topic actor-news -offsets 0=1:2
+$ kt consume  -t actor-news --offsets 0=1:2
 {
   "partition": 0,
   "offset": 1,
@@ -161,7 +161,7 @@ $ kt consume -topic actor-news -offsets 0=1:2
 <details><summary>Follow a topic, starting relative to newest offset</summary>
 
 ```sh
-$ kt consume -topic actor-news -offsets all=newest-1:
+$ kt consume  -t actor-news --offsets all=newest-1:
 {
   "partition": 0,
   "offset": 4,
@@ -185,7 +185,7 @@ shutting down partition consumer for partition 0
 <details><summary>View offsets for a given consumer group</summary>
 
 ```sh
-$ kt group -group enews -topic actor-news -partitions 0
+$ kt group --group enews  -t actor-news --partitions 0
 found 1 groups
 found 1 topics
 {
@@ -206,7 +206,7 @@ found 1 topics
 <details><summary>Change consumer group offset</summary>
 
 ```sh
-$ kt group -group enews -topic actor-news -partitions 0 -reset 1
+$ kt group --group enews  -t actor-news --partitions 0 --reset 1
 found 1 groups
 found 1 topics
 {
@@ -220,7 +220,7 @@ found 1 topics
     }
   ]
 }
-$ kt group -group enews -topic actor-news -partitions 0
+$ kt group --group enews  -t actor-news --partitions 0
 found 1 groups
 found 1 topics
 {
@@ -241,12 +241,12 @@ found 1 topics
 <details><summary>Create and delete a topic</summary>
 
 ```sh
-$ kt admin -topic.create morenews -topic.config $(jsonify =NumPartitions 1 =ReplicationFactor 1)
+$ kt admin  --create_topic morenews  --config $(jsonify =NumPartitions 1 =ReplicationFactor 1)
 $ kt topic -filter news
 {
   "name": "morenews"
 }
-$ kt admin -topic.delete morenews
+$ kt admin  -t.delete morenews
 $ kt topic -filter news
 ```
 
@@ -261,49 +261,10 @@ $ kt <command> <option>
 
 </details>
 
-## Installation
-
-You can download kt via the [Releases](https://github.com/fgeller/kt/releases) section.
-
-Alternatively, the usual way via the go tool, for example:
-
-    $ go get -u github.com/fgeller/kt
-
-Or via Homebrew on OSX:
-
-    $ brew tap fgeller/tap
-    $ brew install kt
-
-### Docker
-
-[@Paxa](https://github.com/Paxa) maintains an image to run kt in a Docker environment - thanks!
-
-For more information: [https://github.com/Paxa/kt](https://github.com/Paxa/kt)
 
 ## Usage:
 
-    $ kt -help
-    kt is a tool for Kafka.
-
-    Usage:
-
-            kt command [arguments]
-
-    The commands are:
-
-            consume        consume messages.
-            produce        produce messages.
-            topic          topic information.
-            group          consumer group information and modification.
-            admin          basic cluster administration.
-
-    Use "kt [command] -help" for for information about the command.
-
-    Authentication:
-
-    Authentication with Kafka can be configured via a JSON file.
-    You can set the file name via an "-auth" flag to each command or
-    set it via the environment variable KT_AUTH.
+    $ kt -h
 
 ## Authentication / Encryption
 
@@ -344,7 +305,7 @@ Example:
 
 ## handy scripts
 
-1. `kt consume -brokers 192.168.18.14:9092 -topic metrics -version 0.10.0.0`
+1. `kt consume  -b 192.168.18.14:9092  -t metrics -version 0.10.0.0`
 
 ## relative resources
 

@@ -47,10 +47,10 @@ func ParseKafkaVersion(s string) (sarama.KafkaVersion, error) {
 }
 
 func PrintOut(in <-chan PrintContext) {
-	PrintOutStats(in, false)
+	PrintOutStats(in)
 }
 
-func PrintOutStats(in <-chan PrintContext, stats bool) {
+func PrintOutStats(in <-chan PrintContext) {
 	messageNum := 0
 	valueSize := 0
 	start := time.Now()
@@ -66,14 +66,12 @@ func PrintOutStats(in <-chan PrintContext, stats bool) {
 		messageNum += ctx.MessageNum
 		valueSize += ctx.ValueSize
 
-		if !stats {
-			buf, err := json.Marshal(ctx.Output)
-			if err != nil {
-				log.Printf("E! marshal Output %#v: %v", ctx.Output, err)
-			}
-
-			fmt.Println(string(jj.Color(buf, nil, nil)))
+		buf, err := json.Marshal(ctx.Output)
+		if err != nil {
+			log.Printf("E! marshal Output %#v: %v", ctx.Output, err)
 		}
+
+		fmt.Println(string(jj.Color(buf, nil, nil)))
 		close(ctx.Done)
 	}
 }
