@@ -100,13 +100,13 @@ func NewConsumerFromClient(client *Client, groupID string, topics []string) (*Co
 // Messages returns the read channel for the messages that are returned by
 // the broker.
 //
-// This channel will only return if Config.Group.Mode option is set to
+// This channel will only return if Config.Group.AuthMode option is set to
 // ConsumerModeMultiplex (default).
 func (c *Consumer) Messages() <-chan *sarama.ConsumerMessage { return c.messages }
 
 // Partitions returns the read channels for individual partitions of this broker.
 //
-// This channel will only return if Config.Group.Mode option is set to
+// This channel will only return if Config.Group.AuthMode option is set to
 // ConsumerModePartitions.
 //
 // The Partitions() channel must be listened to for the life of this consumer;
@@ -209,7 +209,7 @@ func (c *Consumer) Subscriptions() map[string][]int32 {
 
 // CommitOffsets allows to manually commit previously marked offsets. By default there is no
 // need to call this function as the consumer will commit offsets automatically
-// using the Config.Consumer.Offsets.CommitInterval setting.
+// using the Config.Consumer.Offset.CommitInterval setting.
 //
 // Please be aware that calling this function during an internal rebalance cycle may return
 // broker errors (e.g. sarama.ErrUnknownMemberId or sarama.ErrIllegalGeneration).

@@ -5,37 +5,33 @@ import (
 	"os"
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
-	"github.com/bingoohuang/ngg/kt/pkg/kt"
-	"github.com/bingoohuang/ngg/ver"
+	"github.com/bingoohuang/ngg/ggt/root"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/spf13/cobra"
 )
 
-var usageMessage = fmt.Sprintf(`kt is a tool for Kafka.
-Usage:
-	kt command [arguments]
+func main() {
+	rootCmd := &cobra.Command{
+		Use:   "kt",
+		Short: "kafka cli tools",
+		Long:  ktHelpLong,
+	}
+	root.CreateCmd(rootCmd, "cluster", "cluster consume for 0.10.0.0", &clusterConsumer{})
+	root.CreateCmd(rootCmd, "admin", "asic cluster administration", &adminCmd{})
+	root.CreateCmd(rootCmd, "perf", "produce messages for performance test", &perfProduceCmd{})
+	root.CreateCmd(rootCmd, "produce", "produce messages", &produceCmd{})
+	root.CreateCmd(rootCmd, "consume", "consume messages", &consumeCmd{})
+	root.CreateCmd(rootCmd, "topic", "topic info", &topicCmd{})
+	root.CreateCmd(rootCmd, "group", "consumer group information and modification", &groupCmd{})
 
-The commands are:
-	consume/tail consume messages.
-	produce      produce messages.
-	perf-produce produce messages performance testing.
-	kiss-consume KISS consume messages.
-	kiss-produce KISS produce messages.
-	topic        topic information.
-	group        consumer group information and modification.
-	admin        basic cluster administration.
-	version      print program version and exit.
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+	}
 
-Use "kt [command] -help" for more information about the command.
-Use "kt -version" for details on what version you are running.
+}
 
-Authentication:
-Authentication with Kafka can be configured via a JSON file.
-You can set the file name via an "-auth" flag to each command or
-set it via the environment variable %s.
-
-You can find more details at https://github.com/bingoohuang/ngg/kt
-
-Ussage demo:
+const ktHelpLong = `
+用法示例:
 1. 通用设置 brokers 和 topic
     1. 通过环境变量: export KT_BROKERS=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 KT_TOPIC=topic.test KT_VERSION=0.10.0.0 KT_AUTH=usr:user,pwd:123123
     2. 通过命令参数: kt tail -brokers=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 -topic elastic.backup -version 0.10.0.0，不方便的是，导致命令过长，每次执行，都得带上这两个参数
@@ -51,45 +47,4 @@ Ussage demo:
 5. 其它，看帮助
     1. 子命令列表：kt help
     2. 子命令帮助，例如：kt tail -help
-`, kt.EnvAuth)
-
-func parseArgs() command {
-	if len(os.Args) < 2 {
-		failf(usageMessage)
-	}
-
-	switch os.Args[1] {
-	case "consume", "consumer", "tail":
-		return &consumeCmd{}
-	case "console-consume", "console-consumer", "console-tail":
-		return &consoleConsumerCmd{}
-	case "console-produce", "console-producer":
-		return &consoleProducerCmd{}
-	case "produce", "producer":
-		return &produceCmd{}
-	case "perf", "perf-produce", "perf-producer":
-		return &perfProduceCmd{}
-	case "topic":
-		return &topicCmd{}
-	case "group":
-		return &groupCmd{}
-	case "kiss-consume", "kiss-consumer":
-		return &kissConsumer{}
-	case "kiss-produce", "kiss-producer":
-		return &kissProducer{}
-	case "admin":
-		return &adminCmd{}
-	case "-h", "-help", "--help":
-		quitf(usageMessage)
-	case "-version", "--version", "version", "-v", "--v", "v":
-		quitf(ver.Version())
-	default:
-		failf(usageMessage)
-	}
-	return nil
-}
-
-func main() {
-	cmd := parseArgs()
-	cmd.run(os.Args[2:])
-}
+`

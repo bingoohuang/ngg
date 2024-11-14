@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func RunCmd(parent *cobra.Command,use, short string, obj interface {
+func RunCmd(parent *cobra.Command, use, short string, obj interface {
 	Run(*cobra.Command, []string) error
 }) {
 	c := CreateCmd(parent, use, short, obj)
@@ -26,18 +26,29 @@ func RunCmd(parent *cobra.Command,use, short string, obj interface {
 	}
 }
 
+type CmdLongHelper interface {
+	LongHelp() string
+}
+
 func CreateCmd(parent *cobra.Command, use, short string, obj interface {
 	Run(*cobra.Command, []string) error
 }) *cobra.Command {
+	longHelp := ""
+	if l, ok := obj.(CmdLongHelper); ok {
+		longHelp = l.LongHelp()
+	}
+
 	c := &cobra.Command{
 		Use:   use,
 		Short: short,
+		Long:  longHelp,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := obj.Run(cmd, args); err != nil {
 				log.Printf("error occured: %v", err)
 			}
 		},
 	}
+
 	ss.PanicErr(InitFlags(obj, c.Flags(), c.PersistentFlags()))
 
 	if parent != nil {
@@ -123,20 +134,22 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			}
 		}
 
-		defaultVal := tags.GetTag("default")
-		if defaultVal == "" {
-			if t, _ := tags.Get("env"); t != nil && t.Raw != "-" {
-				env := t.Raw
-				if t.Raw == "auto" {
-					env = ss.ToSnakeUpper(name)
-				}
-				defaultVal = os.Getenv(env)
-				help = appendHelp(name, help, fmt.Sprintf("env: $%s.", env))
+		var defaultVal string
+		if t, _ := tags.Get("env"); t != nil && t.Raw != "-" {
+			env := t.Raw
+			if t.Raw == "auto" {
+				env = ss.ToSnakeUpper(name)
 			}
+			defaultVal = os.Getenv(env)
+			help = appendHelp(name, help, fmt.Sprintf("env: $%s.", env))
 		}
+		if defaultVal == "" {
+			defaultVal = tags.GetTag("default")
+		}
+
 		var enumValues []string
 		if v, _ := tags.Get("enum"); v != nil {
-			enumValues = ss.Split(v.Raw, ",")
+			enumValues = SplitSeps(v.Raw, ",")
 			help = appendHelp(name, help, fmt.Sprintf("allowed: %s.", v.Raw))
 		}
 
@@ -164,7 +177,6 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 
 		switch field.Type.Kind() {
 		case reflect.String:
-
 			if aware, ok := f.(DefaultPlagValuesAware); ok {
 				if val, ok := aware.DefaultPlagValues(field.Name); ok {
 					defaultVal = val.(string)
@@ -197,12 +209,56 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 					}
 				}
 			}
-			if len(enumValues) > 0 {
-				p.VarP(NewEnumInt(enumValues, pp.(*int), curDefault), name, short, help)
+
+			if ss.Pick1(ss.ParseBool(tags.GetTag("count"))) {
+				p.CountVarP(pp.(*int), name, short, help)
 			} else {
-				p.IntVarP(pp.(*int), name, short, curDefault, help)
+				if len(enumValues) > 0 {
+					p.VarP(NewEnumInt(enumValues, pp.(*int), curDefault), name, short, help)
+				} else {
+					p.IntVarP(pp.(*int), name, short, curDefault, help)
+				}
+			}
+		case reflect.Int32:
+			curDefault := int32(0)
+			if defaultVal != "" {
+				curDefault, err = ss.Parse[int32](defaultVal)
+				if err != nil {
+					log.Panicf("default %s is not int", defaultVal)
+				}
 			}
 
+			p.Int32VarP(pp.(*int32), name, short, curDefault, help)
+		case reflect.Int64:
+			curDefault := int64(0)
+			if defaultVal != "" {
+				curDefault, err = ss.Parse[int64](defaultVal)
+				if err != nil {
+					log.Panicf("default %s is not int", defaultVal)
+				}
+			}
+
+			p.Int64VarP(pp.(*int64), name, short, curDefault, help)
+		case reflect.Float32:
+			curDefault := float32(0)
+			if defaultVal != "" {
+				curDefault, err = ss.Parse[float32](defaultVal)
+				if err != nil {
+					log.Panicf("default %s is not int", defaultVal)
+				}
+			}
+
+			p.Float32VarP(pp.(*float32), name, short, curDefault, help)
+		case reflect.Float64:
+			curDefault := float64(0)
+			if defaultVal != "" {
+				curDefault, err = ss.Parse[float64](defaultVal)
+				if err != nil {
+					log.Panicf("default %s is not int", defaultVal)
+				}
+			}
+
+			p.Float64VarP(pp.(*float64), name, short, curDefault, help)
 		case reflect.Slice:
 			elemType := field.Type.Elem()
 			switch elemType.Kind() {
@@ -218,11 +274,21 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 		case reflect.Func:
 			// ignore
 		default:
-			return fmt.Errorf(`unsupported type: %s, use kong:"-" to ignore`, field.Type)
+			return fmt.Errorf(`unsupported type: %s %s, use kong:"-" to ignore`, field.Name, field.Type)
 		}
 	}
 
 	return nil
+}
+
+func SplitSeps(s string, seps string) []string {
+	var v []string
+	for _, f := range strings.Split(s, seps) {
+		f = strings.TrimSpace(f)
+		v = append(v, f)
+	}
+
+	return v
 }
 
 func appendHelp(name, help, s string) string {

@@ -119,11 +119,11 @@ func (c *Config) Validate() error {
 	// validate the Group values
 	switch {
 	case c.Group.Offsets.Retry.Max < 0:
-		return sarama.ConfigurationError("Group.Offsets.Retry.Max must be >= 0")
+		return sarama.ConfigurationError("Group.Offset.Retry.Max must be >= 0")
 	case c.Group.Offsets.Synchronization.DwellTime <= 0:
-		return sarama.ConfigurationError("Group.Offsets.Synchronization.DwellTime must be > 0")
+		return sarama.ConfigurationError("Group.Offset.Synchronization.DwellTime must be > 0")
 	case c.Group.Offsets.Synchronization.DwellTime > 10*time.Minute:
-		return sarama.ConfigurationError("Group.Offsets.Synchronization.DwellTime must be <= 10m")
+		return sarama.ConfigurationError("Group.Offset.Synchronization.DwellTime must be <= 10m")
 	case c.Group.Heartbeat.Interval <= 0:
 		return sarama.ConfigurationError("Group.Heartbeat.Interval must be > 0")
 	case c.Group.Session.Timeout <= 0:
@@ -138,7 +138,7 @@ func (c *Config) Validate() error {
 	switch c.Consumer.Offsets.Initial {
 	case sarama.OffsetOldest, sarama.OffsetNewest:
 	default:
-		return sarama.ConfigurationError("Consumer.Offsets.Initial must be either OffsetOldest or OffsetNewest")
+		return sarama.ConfigurationError("Consumer.Offset.Initial must be either OffsetOldest or OffsetNewest")
 	}
 
 	return nil

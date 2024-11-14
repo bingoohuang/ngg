@@ -2,39 +2,13 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
 	"os/signal"
 	"time"
 	"unicode/utf16"
-
-	"github.com/IBM/sarama"
-	. "github.com/bingoohuang/ngg/kt/pkg/kt"
 )
-
-func getKtTopic(v string, required bool) string {
-	topic, err := ParseTopic(v, required)
-	if err != nil {
-		failStartup(err)
-	}
-
-	return topic
-}
-
-func kafkaVersion(v string) sarama.KafkaVersion {
-	version, err := ParseKafkaVersion(v)
-	if err != nil {
-		failStartup(err)
-	}
-
-	return version
-}
-
-type command interface {
-	run(args []string)
-}
 
 func listenForInterrupt(q chan struct{}) {
 	signals := make(chan os.Signal, 1)
@@ -42,32 +16,6 @@ func listenForInterrupt(q chan struct{}) {
 	sig := <-signals
 	log.Printf("received signal %s\n", sig)
 	close(q)
-}
-
-func parseTimeout(timeout string) *time.Duration {
-	if timeout != "" {
-		return parseDuration(timeout)
-	}
-
-	return parseDuration(os.Getenv(EnvAdminTimeout))
-}
-
-func parseDuration(s string) *time.Duration {
-	if s == "" {
-		return nil
-	}
-
-	v, err := time.ParseDuration(s)
-	if err != nil {
-		failf(err.Error())
-	}
-
-	return &v
-}
-
-func quitf(msg string, args ...any) {
-	fmt.Fprintf(os.Stdout, msg+"\n", args...)
-	os.Exit(0)
 }
 
 func failf(msg string, args ...any) {
@@ -129,10 +77,4 @@ func hashCodePartition(key string, partitions int32) int32 {
 	}
 
 	return kafkaAbs(hashCode(key)) % partitions
-}
-
-func randomString(length int) string {
-	buf := make([]byte, length)
-	random.Read(buf)
-	return fmt.Sprintf("%x", buf)[:length]
 }

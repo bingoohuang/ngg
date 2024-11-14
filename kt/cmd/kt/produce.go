@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,27 +10,65 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/kt/pkg/kt"
+	"github.com/spf13/cobra"
 )
 
-type produceArgs struct {
-	version     string
-	partitioner string
-	brokers     string
-	auth        string
-	topic       string
-	decVal      string
-	decKey      string
-	compress    string
-	batch       int
-	timeout     time.Duration
-	partition   int
-	bufSize     int
-	stats       bool
-	pretty      bool
-	literal     bool
-	verbose     bool
+type produceCmd struct {
+	kt.CommonArgs `squash:"1"`
+	Timeout       time.Duration `default:"3s"`
+
+	KeyDecoder   string `default:"string" enum:"hex,base64,string"`
+	ValueDecoder string `default:"string" enum:"hex,base64,string"`
+	Partition    int32  `help:"Partition to produce to (defaults to 0)"`
+	Batch        int    `default:"1" help:"Max size of a batch before sending it off"`
+	Json         bool   `help:"Interpret stdin line as JSON"`
+	Stats        bool   `help:"Print only final stats info"`
+	Compress     string `help:"Kafka message compress codec" enum:"gzip,snappy,lz4"`
+	Partitioner  string `help:"Optional partitioner" default:"hash" enum:"hash,rand"`
+	BufSize      int    `default:"16777216" help:"Buffer size for scanning stdin, default 16M"`
+
+	keyDecoder, valDecoder kt.StringDecoder
+	out                    chan kt.PrintContext
+
+	leaders  map[int32]*sarama.Broker
+	compress sarama.CompressionCodec
+}
+
+func (c *produceCmd) Run(*cobra.Command, []string) (err error) {
+	if err = c.CommonArgs.Validate(); err != nil {
+		return err
+	}
+
+	c.keyDecoder, err = kt.ParseStringDecoder(c.KeyDecoder)
+	if err != nil {
+		return err
+	}
+	c.valDecoder, err = kt.ParseStringDecoder(c.ValueDecoder)
+	if err != nil {
+		return err
+	}
+
+	c.compress = kafkaCompression(c.Compress)
+
+	defer c.close()
+	c.findLeaders()
+	stdin := make(chan string)
+	lines := make(chan string)
+	messages := make(chan Message)
+	batchedMessages := make(chan []Message)
+	c.out = make(chan kt.PrintContext)
+	q := make(chan struct{})
+
+	go readStdinLines(c.BufSize, stdin)
+	go listenForInterrupt(q)
+	go c.readInput(q, stdin, lines)
+	go c.deserializeLines(lines, messages, int32(len(c.leaders)))
+	go c.batchRecords(messages, batchedMessages)
+	go c.produce(batchedMessages)
+	kt.PrintOutStats(c.out, c.Stats)
+
+	return nil
 }
 
 type Message struct {
@@ -41,70 +78,6 @@ type Message struct {
 	V         *string `json:"v,omitempty"`
 	Partition *int32  `json:"partition"`
 	P         *int32  `json:"p"`
-}
-
-func (c *produceCmd) read(as []string) produceArgs {
-	var a produceArgs
-	f := flag.NewFlagSet("produce", flag.ContinueOnError)
-	f.StringVar(&a.topic, "topic", os.Getenv(kt.EnvTopic), "Topic to produce to (required).")
-	f.IntVar(&a.partition, "partition", 0, "Partition to produce to (defaults to 0).")
-	f.StringVar(&a.brokers, "brokers", os.Getenv(kt.EnvBrokers), "Comma separated list of brokers. Port defaults to 9092 if omitted (defaults to localhost:9092).")
-	f.StringVar(&a.auth, "auth", os.Getenv("EnvAuth"), fmt.Sprintf("Path to auth configuration file, can also be set via %s env variable", kt.EnvAuth))
-	f.IntVar(&a.batch, "batch", 1, "Max size of a batch before sending it off")
-	f.DurationVar(&a.timeout, "timeout", 50*time.Millisecond, "Duration to wait for batch to be filled before sending it off")
-	f.BoolVar(&a.verbose, "verbose", false, "Verbose Output")
-	f.BoolVar(&a.pretty, "pretty", false, "Control Output pretty printing.")
-	f.BoolVar(&a.literal, "literal", false, "Interpret stdin line literally and pass it as value, key as null.")
-	f.BoolVar(&a.stats, "stats", false, "Print only final stats info.")
-	f.StringVar(&a.version, "version", os.Getenv(kt.EnvVersion), fmt.Sprintf("Kafka protocol version, like 0.10.0.0, or env %s", kt.EnvVersion))
-	f.StringVar(&a.compress, "compress", "", "Kafka message compress codec [gzip|snappy|lz4], defaults to none")
-	f.StringVar(&a.partitioner, "partitioner", "hash", "Optional partitioner. hash/rand")
-	f.StringVar(&a.decKey, "dec.key", "string", "Decode message value as (string|hex|base64), defaults to string.")
-	f.StringVar(&a.decVal, "dec.val", "string", "Decode message value as (string|hex|base64), defaults to string.")
-	f.IntVar(&a.bufSize, "buf.size", 16777216, "Buffer size for scanning stdin, defaults to 16777216=16*1024*1024.")
-
-	f.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Usage of produce:")
-		f.PrintDefaults()
-		fmt.Fprint(os.Stderr, produceDocString)
-	}
-
-	err := f.Parse(as)
-	if err != nil && strings.Contains(err.Error(), "flag: help requested") {
-		os.Exit(0)
-	} else if err != nil {
-		os.Exit(2)
-	}
-
-	return a
-}
-
-func (c *produceCmd) parseArgs(as []string) {
-	a := c.read(as)
-	c.topic = getKtTopic(a.topic, true)
-
-	err := c.auth.ReadConfigFile(a.auth)
-	failStartup(err)
-
-	c.brokers = kt.ParseBrokers(a.brokers)
-
-	c.valDecoder, err = kt.ParseStringDecoder(a.decVal)
-	failStartup(err)
-
-	c.keyDecoder, err = kt.ParseStringDecoder(a.decKey)
-	failStartup(err)
-
-	c.batch = a.batch
-	c.timeout = a.timeout
-	c.verbose = a.verbose
-	c.pretty = a.pretty
-	c.stats = a.stats
-	c.literal = a.literal
-	c.partition = int32(a.partition)
-	c.partitioner = a.partitioner
-	c.version = kafkaVersion(a.version)
-	c.compress = kafkaCompression(a.compress)
-	c.bufSize = a.bufSize
 }
 
 func kafkaCompression(codecName string) sarama.CompressionCodec {
@@ -129,21 +102,21 @@ func (c *produceCmd) findLeaders() {
 		res *sarama.MetadataResponse
 	)
 
-	req := sarama.MetadataRequest{Topics: []string{c.topic}}
+	req := sarama.MetadataRequest{Topics: []string{c.Topic}}
 	cfg := sarama.NewConfig()
 	cfg.Producer.RequiredAcks = sarama.WaitForAll
-	cfg.Version = c.version
+	cfg.Version = c.KafkaVersion
 	cfg.ClientID = "kt-produce-" + kt.CurrentUserName()
-	if c.verbose {
+	if c.Verbose > 0 {
 		log.Printf("sarama client configuration %#v\n", cfg)
 	}
 
-	if err = c.auth.SetupAuth(cfg); err != nil {
-		failf("failed to setup auth err=%v", err)
+	if err := c.Validate(); err != nil {
+		failf("configuration validate: %v", err)
 	}
 
 loop:
-	for _, addr := range c.brokers {
+	for _, addr := range c.KafkaBrokers {
 		broker := sarama.NewBroker(addr)
 		if err = broker.Open(cfg); err != nil {
 			log.Printf("Failed to open broker connection to %v. err=%s\n", addr, err)
@@ -165,7 +138,7 @@ loop:
 		}
 
 		for _, tm := range res.Topics {
-			if tm.Name == c.topic {
+			if tm.Name == c.Topic {
 				if !errors.Is(tm.Err, sarama.ErrNoError) {
 					log.Printf("Failed to get metadata from %#v. err=%v\n", addr, tm.Err)
 					continue loop
@@ -193,53 +166,6 @@ loop:
 	}
 
 	failf("failed to find leader for given topic")
-}
-
-type produceCmd struct {
-	keyDecoder, valDecoder kt.StringDecoder
-	out                    chan kt.PrintContext
-
-	leaders     map[int32]*sarama.Broker
-	auth        kt.AuthConfig
-	topic       string
-	partitioner string
-	brokers     []string
-	version     sarama.KafkaVersion
-	timeout     time.Duration
-	bufSize     int
-
-	batch     int
-	partition int32
-	compress  sarama.CompressionCodec
-	literal   bool
-	stats     bool
-	pretty    bool
-	verbose   bool
-}
-
-func (c *produceCmd) run(as []string) {
-	c.parseArgs(as)
-	if c.verbose {
-		sarama.Logger = log.New(os.Stderr, "", log.LstdFlags)
-	}
-
-	defer c.close()
-	c.findLeaders()
-	stdin := make(chan string)
-	lines := make(chan string)
-	messages := make(chan Message)
-	batchedMessages := make(chan []Message)
-	c.out = make(chan kt.PrintContext)
-	q := make(chan struct{})
-
-	go readStdinLines(c.bufSize, stdin)
-
-	go listenForInterrupt(q)
-	go c.readInput(q, stdin, lines)
-	go c.deserializeLines(lines, messages, int32(len(c.leaders)))
-	go c.batchRecords(messages, batchedMessages)
-	go c.produce(batchedMessages)
-	kt.PrintOutStats(c.out, c.pretty, c.stats)
 }
 
 func (c *produceCmd) close() {
@@ -278,11 +204,11 @@ func (c *produceCmd) parseLine(l string, partitionCount int32) Message {
 		v = nil
 	}
 
-	msg := Message{Partition: &c.partition}
-	if c.literal || !jj.Valid(l) {
+	msg := Message{Partition: &c.Partition}
+	if !c.Json {
 		msg.Value = v
 	} else if err := json.Unmarshal([]byte(l), &msg); err != nil {
-		if c.verbose {
+		if c.Verbose > 0 {
 			log.Printf("Failed to unmarshal input [%v], falling back to defaults. err=%v\n", l, err)
 		}
 
@@ -304,9 +230,9 @@ func (c *produceCmd) setPartition(msg *Message, partitionCount int32) {
 
 	part := int32(0)
 	switch {
-	case c.partitioner == "rand":
+	case c.Partitioner == "rand":
 		part = randPartition(partitionCount)
-	case msg.Key != nil && c.partitioner == "hash":
+	case msg.Key != nil && c.Partitioner == "hash":
 		part = hashCodePartition(*msg.Key, partitionCount)
 	}
 
@@ -331,10 +257,10 @@ func (c *produceCmd) batchRecords(in chan Message, out chan []Message) {
 			}
 
 			messages = append(messages, m)
-			if len(messages) > 0 && len(messages) >= c.batch {
+			if len(messages) > 0 && len(messages) >= c.Batch {
 				send()
 			}
-		case <-time.After(c.timeout):
+		case <-time.After(c.Timeout):
 			if len(messages) > 0 {
 				send()
 			}
@@ -367,7 +293,7 @@ func (c *produceCmd) makeSaramaMessage(msg Message) (*sarama.Message, error) {
 		}
 	}
 
-	if c.version.IsAtLeast(sarama.V0_10_0_0) {
+	if c.KafkaVersion.IsAtLeast(sarama.V0_10_0_0) {
 		sm.Version = 1
 		sm.Timestamp = time.Now()
 	}
@@ -407,7 +333,7 @@ func (c *produceCmd) produceBatch(leaders map[int32]*sarama.Broker, batch []Mess
 			return err
 		}
 		valueSize += len(sm.Value)
-		req.AddMessage(c.topic, *msg.Partition, sm)
+		req.AddMessage(c.Topic, *msg.Partition, sm)
 	}
 
 	for broker, req := range requests {
@@ -436,7 +362,7 @@ func readPartitionOffsetResults(resp *sarama.ProduceResponse) (map[int32]partiti
 	offsets := map[int32]partitionProduceResult{}
 	for _, blocks := range resp.Blocks {
 		for blackPartition, block := range blocks {
-			if block.Err != sarama.ErrNoError {
+			if !errors.Is(block.Err, sarama.ErrNoError) {
 				log.Printf("Failed to send message. err=%v\n", block.Err)
 				return offsets, block.Err
 			}
@@ -477,36 +403,34 @@ func (c *produceCmd) readInput(q chan struct{}, stdin chan string, out chan stri
 	}
 }
 
-var produceDocString = fmt.Sprintf(`
-The values for -topic and -brokers can also be set via environment variables %s and %s respectively.
-The values supplied on the command line win over environment variable values.
-
-Input is read from stdin and separated by newlines.
+func (c *produceCmd) LongHelp() string {
+	return `Input is read from stdin and separated by newlines.
 
 To specify the key, value and partition individually pass it as a JSON object
 like the following:
     {"key": "id-23", "value": "message content", "partition": 0}
     {"k": "id-23", "v": "message content", "p": 0}
 
-In case the input line cannot be interpeted as a JSON object the key and value
+In case the input line cannot be interpreted as a JSON object the key and value
 both default to the input line and partition to 0.
 
 Examples:
 Send a single message with a specific key:
-  $ echo '{"key": "id-23", "value": "ola", "partition": 0}' | kt produce -topic greetings
+  $ echo '{"key": "id-23", "value": "ola", "partition": 0}' | kt produce --topic greetings --json
   Sent message to partition 0 at Offset 3.
-  $ echo '{"k": "id-23", "v": "ola", "p": 0}' | kt produce -topic greetings
+  $ echo '{"k": "id-23", "v": "ola", "p": 0}' | kt produce --topic greetings --json
   Sent message to partition 0 at Offset 3.
-  $ kt consume -topic greetings -timeout 1s -offsets 0:3-
+  $ kt consume --topic greetings --timeout 1s --offsets 0:3-
   {"partition":0,"Offset":3,"key":"id-23","message":"ola"}
 
 Keep reading input from stdin until interrupted (via ^C).
-  $ kt produce -topic greetings
+  $ kt produce --topic greetings
   hello.
   Sent message to partition 0 at Offset 4.
   bonjour.
   Sent message to partition 0 at Offset 5.
-  $ kt consume -topic greetings -timeout 1s -offsets 0:4-
+  $ kt consume --topic greetings --timeout 1s --offsets 0:4-
   {"partition":0,"Offset":4,"key":"hello.","message":"hello."}
   {"partition":0,"Offset":5,"key":"bonjour.","message":"bonjour."}
-`, kt.EnvTopic, kt.EnvBrokers)
+`
+}

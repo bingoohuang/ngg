@@ -1,143 +1,68 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"github.com/bingoohuang/ngg/kt/pkg/kt"
+	"github.com/bingoohuang/ngg/ss"
+	"github.com/spf13/cobra"
 	"log"
 	"net/http"
-	"os"
 	"path"
 	"regexp"
-	"strings"
-	"time"
-
-	"github.com/IBM/sarama"
-	. "github.com/bingoohuang/ngg/kt/pkg/kt"
-	"github.com/bingoohuang/ngg/ss"
 )
 
 type consumeCmd struct {
-	sseSender *SSESender
-	conf      ConsumerConfig
+	kt.ConsumerConfig `squash:"1"`
+
+	Grep         string `help:"grep message"`
+	N            int64  `help:"Max number of messages to consume"`
+	Web          bool   `help:"Start web server for HTTP requests and responses event"`
+	Context      string `help:"Web server context path if web is enable"`
+	Port         int    `help:"Web server port if web is enable"`
+	KeyEncoder   string `enum:"hex,base64,string"`
+	ValueEncoder string `enum:"hex,base64,string"`
+
+	sseSender *kt.SSESender
+	grepExpr  *regexp.Regexp
 }
 
-func (c *consumeCmd) run(args []string) {
-	c.parseArgs(args)
-	if _, err := StartConsume(c.conf); err != nil {
-		failStartup(err)
-	}
-}
-
-type consumeArgs struct {
-	grepExpr                       *regexp.Regexp
-	webContext                     string
-	offsets, group, encKey, encVal string
-	topic, brokers, auth, version  string
-
-	grep    string
-	timeout time.Duration
-	webPort int
-	n       int64
-
-	web bool
-
-	verbose, pretty bool
-}
-
-func failStartup(err error) {
-	if err != nil {
-		log.Print(err.Error())
-		failf(`"use "kt command -help" for more information"`)
-	}
-}
-
-func (c *consumeCmd) parseArgs(as []string) {
-	a := c.parseFlags(as)
-	if a.verbose {
-		sarama.Logger = log.New(os.Stderr, "", log.LstdFlags)
+func (c *consumeCmd) Run(*cobra.Command, []string) (err error) {
+	if err := c.CommonArgs.Validate(); err != nil {
+		return err
 	}
 
-	conf := ConsumerConfig{
-		Brokers: ParseBrokers(a.brokers),
-		Timeout: a.timeout, Group: a.group, Offsets: a.offsets,
-	}
-
-	var err error
-	conf.Topic, err = ParseTopic(a.topic, true)
-	failStartup(err)
-
-	conf.Version, err = ParseKafkaVersion(a.version)
-	failStartup(err)
-
-	err = conf.Auth.ReadConfigFile(a.auth)
-	failStartup(err)
-
-	valEncoder := ParseBytesEncoder(a.encVal)
-	keyEncoder := ParseBytesEncoder(a.encKey)
-
-	conf.MessageConsumer = NewPrintMessageConsumer(a.pretty, keyEncoder, valEncoder, c.sseSender, a.grepExpr, a.n)
-	c.conf = conf
-}
-
-func (c *consumeCmd) parseFlags(as []string) consumeArgs {
-	var a consumeArgs
-	f := flag.NewFlagSet("consume", flag.ContinueOnError)
-	f.StringVar(&a.topic, "topic", "", "Topic to consume (required)")
-	f.StringVar(&a.brokers, "brokers", "", "Comma separated list of brokers. Port set to 9092 when omitted (defaults to localhost:9092)")
-	f.StringVar(&a.auth, "auth", "", fmt.Sprintf("Path to auth configuration file, or by env %s", EnvAuth))
-	f.StringVar(&a.offsets, "offsets", "newest", "Specifies what messages to read by partition and offset range (defaults to newest)")
-	f.DurationVar(&a.timeout, "timeout", 0, "Timeout after not reading messages (default 0 to disable)")
-	f.BoolVar(&a.verbose, "verbose", false, "More verbose logging to stderr")
-	f.BoolVar(&a.pretty, "pretty", false, "Control Output pretty printing")
-	f.StringVar(&a.version, "version", "", fmt.Sprintf("Kafka protocol version, like 0.10.0.0, or by env %s", EnvVersion))
-	f.StringVar(&a.encVal, "enc.val", "string", "Present message value as string|hex|base64 or combinations(e.g. string,base64), defaults to string")
-	f.StringVar(&a.encKey, "enc.key", "string", "Present message key as string|hex|base64, defaults to string")
-	f.StringVar(&a.group, "group", "", "Consumer group to use for marking offsets. kt will mark offsets if this arg is supplied")
-	f.StringVar(&a.grep, "grep", "", "Grep")
-	f.BoolVar(&a.web, "web", false, `Start web server for HTTP requests and responses event`)
-	f.IntVar(&a.webPort, "webport", 0, `Web server port if web is enable`)
-	f.Int64Var(&a.n, "n", 0, `Max message to consume`)
-	f.StringVar(&a.webContext, "webcontext", "", `Web server context path if web is enable`)
-	f.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Usage of consume:")
-		f.PrintDefaults()
-		fmt.Fprint(os.Stderr, consumeDocString)
-	}
-
-	err := f.Parse(as)
-	if err != nil && strings.Contains(err.Error(), "flag: help requested") {
-		os.Exit(0)
-	} else if err != nil {
-		os.Exit(2)
-	}
-
-	if a.grep != "" {
-		if a.grepExpr, err = regexp.Compile(a.grep); err != nil {
-			log.Fatalf("compile regex %s failed: %v", a.grep, err)
+	if c.Grep != "" {
+		if c.grepExpr, err = regexp.Compile(c.Grep); err != nil {
+			return fmt.Errorf("regex %q is invalid: %v", c.Grep, err)
 		}
 	}
 
-	c.parseWeb(&a)
+	c.parseWeb()
 
-	return a
+	valEncoder := kt.ParseBytesEncoder(c.ValueEncoder)
+	keyEncoder := kt.ParseBytesEncoder(c.KeyEncoder)
+
+	c.MessageConsumer = kt.NewPrintMessageConsumer(keyEncoder, valEncoder, c.sseSender, c.grepExpr, c.N)
+
+	_, err = kt.StartConsume(c.ConsumerConfig)
+	return err
 }
-
-func (c *consumeCmd) parseWeb(a *consumeArgs) {
-	if !a.web {
+func (c *consumeCmd) parseWeb() {
+	if !c.Web {
 		return
 	}
 
-	port := a.webPort
+	port := c.Port
 	if port <= 0 {
 		port = ss.Rand().Port(19092)
 	}
 
-	stream := NewSSEStream()
-	c.sseSender = &SSESender{Stream: stream}
-	contextPath := path.Join("/", a.webContext)
+	stream := kt.NewSSEStream()
+	c.sseSender = &kt.SSESender{Stream: stream}
+	contextPath := path.Join("/", c.Context)
 	log.Printf("contextPath: %s", contextPath)
 
-	http.Handle("/", http.HandlerFunc(SSEWebHandler(contextPath, stream)))
+	http.Handle("/", http.HandlerFunc(kt.SSEWebHandler(contextPath, stream)))
 	log.Printf("start to listen on %d", port)
 	go func() {
 		addr := fmt.Sprintf(":%d", port)
@@ -149,10 +74,8 @@ func (c *consumeCmd) parseWeb(a *consumeArgs) {
 	go ss.OpenInBrowser(fmt.Sprintf("http://127.0.0.1:%d", port), contextPath)
 }
 
-var consumeDocString = fmt.Sprintf(`
-The values for -topic and -brokers can also be set via env variables %s and %s respectively.
-The values supplied on the command line win over env variable values.
-Offsets can be specified as a comma-separated list of intervals:
+func (c *consumeCmd) LongHelp() string {
+	return `Offset can be specified as a comma-separated list of intervals:
   [[partition=Start:End],...]
 The default is to consume from the oldest Offset on every partition for the given topic.
  - partition is the numeric identifier for a partition. You can use "all" to
@@ -181,4 +104,5 @@ More examples:
  - -10           Omit "newest", same with above
  - oldest+10     To skip the first 15 messages starting with the oldest Offset
  - +10           Omit "oldest",, same with above
-`, EnvTopic, EnvBrokers)
+`
+}

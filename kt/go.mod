@@ -1,10 +1,11 @@
 module github.com/bingoohuang/ngg/kt
 
-go 1.22.0
+go 1.23.0
 
 toolchain go1.23.3
 
 replace (
+	github.com/bingoohuang/ngg/ggt => ../ggt
 	github.com/bingoohuang/ngg/mapstruct => ../mapstruct
 	github.com/bingoohuang/ngg/ss => ../ss
 )
@@ -13,8 +14,8 @@ require (
 	github.com/AndrewBurian/eventsource v2.1.0+incompatible
 	github.com/IBM/sarama v1.43.3
 	github.com/bingoohuang/ngg/daemon v0.0.0-20241113020638-78201765d5cb
+	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000
 	github.com/bingoohuang/ngg/jj v0.0.0-20241113020638-78201765d5cb
-	github.com/bingoohuang/ngg/mapstruct v0.0.0-00010101000000-000000000000
 	github.com/bingoohuang/ngg/ss v0.0.0-20241113020638-78201765d5cb
 	github.com/bingoohuang/ngg/ver v0.0.0-20241113020638-78201765d5cb
 	github.com/elliotchance/pie/v2 v2.9.0
@@ -23,6 +24,7 @@ require (
 	github.com/onsi/gomega v1.35.1
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 	github.com/samber/lo v1.47.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/vmihailenco/tagparser/v2 v2.0.0
@@ -31,7 +33,6 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/bingoohuang/ngg/q v0.0.0-20241113020638-78201765d5cb // indirect
 	github.com/bingoohuang/ngg/tick v0.0.0-20241113020638-78201765d5cb // indirect
 	github.com/bingoohuang/ngg/tsid v0.0.0-20241113020638-78201765d5cb // indirect
@@ -51,6 +52,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect

@@ -5,25 +5,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"os/user"
 	"regexp"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
-	"golang.org/x/term"
-)
-
-const (
-	EnvAuth         = "KT_AUTH"
-	EnvVersion      = "KT_VERSION"
-	EnvAdminTimeout = "KT_ADMIN_TIMEOUT"
-	EnvBrokers      = "KT_BROKERS"
-	EnvTopic        = "KT_TOPIC"
 )
 
 type PrintContext struct {
@@ -34,10 +23,6 @@ type PrintContext struct {
 }
 
 func ParseBrokers(argBrokers string) []string {
-	if argBrokers == "" {
-		argBrokers = ss.Or(os.Getenv(EnvBrokers), "localhost:9092")
-	}
-
 	brokers := strings.Split(argBrokers, ",")
 	for i, b := range brokers {
 		if !strings.Contains(b, ":") {
@@ -48,52 +33,24 @@ func ParseBrokers(argBrokers string) []string {
 	return brokers
 }
 
-func ParseTopic(topic string, required bool) (string, error) {
-	if topic != "" {
-		return topic, nil
-	}
-
-	if v := os.Getenv(EnvTopic); v != "" {
-		return v, nil
-	}
-
-	if required {
-		return "", fmt.Errorf("topic name is required")
-	}
-
-	return "", nil
-}
-
 func ParseKafkaVersion(s string) (sarama.KafkaVersion, error) {
-	if s == "" {
-		s = os.Getenv(EnvVersion)
-	}
-
 	if s == "" {
 		return sarama.V2_0_0_0, nil
 	}
 
 	v, err := sarama.ParseKafkaVersion(strings.TrimPrefix(s, "v"))
 	if err != nil {
-		return v, fmt.Errorf("failed to parse kafka version %s, error %q", s, err)
+		return v, fmt.Errorf("failed to parse kafka KafkaVersion %s, error %q", s, err)
 	}
 
 	return v, nil
 }
 
-func PrintOut(in <-chan PrintContext, pretty bool) {
-	PrintOutStats(in, pretty, false)
+func PrintOut(in <-chan PrintContext) {
+	PrintOutStats(in, false)
 }
 
-func PrintOutStats(in <-chan PrintContext, pretty, stats bool) {
-	marshal := json.Marshal
-
-	if pretty && term.IsTerminal(syscall.Stdout) {
-		marshal = func(i any) ([]byte, error) {
-			return json.MarshalIndent(i, "", "  ")
-		}
-	}
-
+func PrintOutStats(in <-chan PrintContext, stats bool) {
 	messageNum := 0
 	valueSize := 0
 	start := time.Now()
@@ -110,7 +67,7 @@ func PrintOutStats(in <-chan PrintContext, pretty, stats bool) {
 		valueSize += ctx.ValueSize
 
 		if !stats {
-			buf, err := marshal(ctx.Output)
+			buf, err := json.Marshal(ctx.Output)
 			if err != nil {
 				log.Printf("E! marshal Output %#v: %v", ctx.Output, err)
 			}

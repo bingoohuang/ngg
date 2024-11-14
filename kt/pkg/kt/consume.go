@@ -9,20 +9,18 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
-	"golang.org/x/term"
 )
 
 type Consumer struct {
-	SaramaConsumer sarama.Consumer
-	OffsetManager  sarama.OffsetManager
+	sarama.Consumer
+	sarama.OffsetManager
 
-	MessageConsumer MessageConsumer
+	MessageConsumer
 
 	Client *Client
 
@@ -37,15 +35,34 @@ type Consumer struct {
 	sync.Mutex
 }
 
+type CommonArgs struct {
+	AuthConfig `squash:"1"`
+
+	Brokers string `short:"s" env:"KT_BROKERS" help:"Kafka brokers" default:"localhost:9092" persistent:"1"`
+	Topic   string `short:"t" env:"KT_TOPIC" help:"On which topic to consume/produce" persistent:"1"`
+	Version string `short:"v" env:"KT_VERSION" help:"Kafka protocol version" default:"0.10.0.0" persistent:"1"`
+	Verbose int    `count:"1" persistent:"1"`
+
+	KafkaVersion sarama.KafkaVersion `kong:"-"`
+	KafkaBrokers []string            `kong:"-"`
+}
+
+func (c *CommonArgs) Validate() (err error) {
+	c.KafkaBrokers = ParseBrokers(c.Brokers)
+	c.KafkaVersion, err = ParseKafkaVersion(c.Version)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type ConsumerConfig struct {
-	MessageConsumer MessageConsumer
-	Auth            AuthConfig
-	Group           string
-	Topic           string
-	Offsets         string
-	Brokers         []string
-	Version         sarama.KafkaVersion
-	Timeout         time.Duration
+	MessageConsumer
+	CommonArgs `squash:"1"`
+	Group      string `help:"Consumer group to use for marking offsets. kt will mark offsets if group is supplied"`
+	Offsets    string `default:"newest" help:"Specifies what messages to read by partition and offset range (defaults to newest)"`
+	Timeout    time.Duration
 }
 
 func StartConsume(conf ConsumerConfig) (c *Consumer, err error) {
@@ -64,18 +81,17 @@ func StartConsume(conf ConsumerConfig) (c *Consumer, err error) {
 		return nil, err
 	}
 
-	if c.SaramaConsumer, err = sarama.NewConsumerFromClient(c.Client.SaramaClient); err != nil {
+	if c.Consumer, err = sarama.NewConsumerFromClient(c.Client.SaramaClient); err != nil {
 		return nil, err
 	}
 
-	defer LogClose("consumer", c.SaramaConsumer)
+	defer LogClose("consumer", c.Consumer)
 
 	if c.Offsets, err = ParseOffsets(conf.Offsets); err != nil {
 		return nil, err
 	}
 
-	var partitions []int32
-	partitions, err = c.findPartitions()
+	partitions, err := c.findPartitions()
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +167,7 @@ func (c *Consumer) consumePartition(partition int32) error {
 		partition, start, end, offset.Start, offset.End)
 
 	var pc sarama.PartitionConsumer
-	if pc, err = c.SaramaConsumer.ConsumePartition(c.Topic, partition, start); err != nil {
+	if pc, err = c.Consumer.ConsumePartition(c.Topic, partition, start); err != nil {
 		log.Printf("Failed to consume partition %v err=%v\n", partition, err)
 		return nil
 	}
@@ -269,7 +285,7 @@ func (c *Consumer) partitionLoop(pc sarama.PartitionConsumer, p int32, end int64
 }
 
 func (c *Consumer) findPartitions() ([]int32, error) {
-	all, err := c.SaramaConsumer.Partitions(c.Topic)
+	all, err := c.Consumer.Partitions(c.Topic)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read partitions for topic %v err %q", c.Topic, err)
 	}
@@ -314,17 +330,9 @@ type PrintMessageConsumer struct {
 	N, n int64
 }
 
-func NewPrintMessageConsumer(pretty bool, keyEncoder, valEncoder BytesEncoder, sseSender *SSESender,
-	grep *regexp.Regexp, n int64,
-) *PrintMessageConsumer {
-	marshal := json.Marshal
-
-	if pretty && term.IsTerminal(syscall.Stdout) {
-		marshal = func(i any) ([]byte, error) { return json.MarshalIndent(i, "", "  ") }
-	}
+func NewPrintMessageConsumer(keyEncoder, valEncoder BytesEncoder, sseSender *SSESender, grep *regexp.Regexp, n int64) *PrintMessageConsumer {
 
 	return &PrintMessageConsumer{
-		Marshal:    marshal,
 		KeyEncoder: keyEncoder,
 		ValEncoder: valEncoder,
 		sseSender:  sseSender,
@@ -344,7 +352,7 @@ func (p *PrintMessageConsumer) Consume(m *sarama.ConsumerMessage) {
 	}
 
 	val := m.Value
-	if !RawMessageFlag {
+	if !RawMessageFlag && jj.ValidBytes(val) {
 		val = jj.FreeInnerJSON(val)
 	}
 

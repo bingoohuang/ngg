@@ -1,76 +1,39 @@
 package kt
 
 import (
-	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/IBM/sarama"
-	"github.com/bingoohuang/ngg/kt/pkg/tagparser"
-	"github.com/bingoohuang/ngg/mapstruct"
 )
 
 type AuthConfig struct {
-	Mode          string `json:"mode"`
-	CACert        string `json:"ca"`
-	ClientCert    string `json:"cert"`
-	ClientCertKey string `json:"key"`
-	SASLUsr       string `json:"usr"`
-	SASLPwd       string `json:"pwd"`
-	SASLVersion   *int   `json:"ver"`
-}
-
-func (t *AuthConfig) ReadConfigFile(fileName string) error {
-	envFileName := os.Getenv(EnvAuth)
-	if fileName == "" && envFileName == "" {
-		return nil
-	}
-
-	fn := fileName
-	if fn == "" {
-		fn = envFileName
-	}
-
-	data := []byte(fn)
-
-	if _, err := os.Stat(fn); err == nil {
-		data, err = os.ReadFile(fn)
-		if err != nil {
-			return fmt.Errorf("failed to read auth file, error %q", err)
-		}
-	}
-
-	if bytes.HasPrefix(data, []byte("{")) {
-		if err := json.Unmarshal(data, t); err != nil {
-			return fmt.Errorf("failed to unmarshal auth file, error %q", err)
-		}
-	} else {
-		tag := tagparser.ParseBytes(data)
-		if err := mapstruct.Decode(tag.Options, t); err != nil {
-			return fmt.Errorf("failed to unmarshal auth file, error %q", err)
-		}
-	}
-
-	return nil
+	AuthMode    string `json:"mode" default:"sasl" enum:"sasl,tls,tls-1way" help:"auth mode" persistent:"1"`
+	Cert        string `json:"ca" help:"root ca cert file" persistent:"1"`
+	ClientCert  string `json:"cert" help:"client cert file" persistent:"1"`
+	ClientKey   string `json:"key" help:"client cert key" persistent:"1"`
+	SASLUsr     string `json:"usr" help:"sasl user" persistent:"1"`
+	SASLPwd     string `json:"pwd" help:"sasl password" persistent:"1"`
+	SASLVersion *int   `json:"ver" help:"sasl KafkaVersion" default:"0" enum:"0,1" persistent:"1"`
 }
 
 func (t AuthConfig) SetupAuth(sc *sarama.Config) error {
 	switch {
-	case t.Mode == "SASL" || t.SASLUsr != "":
+	case strings.EqualFold(t.AuthMode, "SASL") || t.SASLUsr != "":
 		return t.setupSASL(sc)
-	case t.Mode == "TLS" || t.CACert != "":
+	case strings.EqualFold(t.AuthMode, "TLS") || t.Cert != "":
 		return t.setupAuthTLS(sc)
-	case t.Mode == "TLS-1way":
+	case strings.EqualFold(t.AuthMode, "TLS-1way"):
 		return t.setupAuthTLS1Way(sc)
 
-	case t.Mode == "":
+	case t.AuthMode == "":
 		return nil
 	default:
-		return fmt.Errorf("unsupport auth mode: %#v", t.Mode)
+		return fmt.Errorf("unsupport auth mode: %#v", t.AuthMode)
 	}
 }
 
@@ -102,7 +65,7 @@ func SASLVersion(kafkaVersion sarama.KafkaVersion, saslVersion *int) (int16, err
 	case 1:
 		return sarama.SASLHandshakeV1, nil
 	default:
-		return 0, errors.New("invalid SASL version")
+		return 0, errors.New("invalid SASL KafkaVersion")
 	}
 }
 
@@ -113,7 +76,7 @@ func (t AuthConfig) setupAuthTLS1Way(sc *sarama.Config) error {
 }
 
 func (t AuthConfig) setupAuthTLS(sc *sarama.Config) error {
-	tlsCfg, err := createTLSConfig(t.CACert, t.ClientCert, t.ClientCertKey)
+	tlsCfg, err := createTLSConfig(t.Cert, t.ClientCert, t.ClientKey)
 	if err != nil {
 		return err
 	}
