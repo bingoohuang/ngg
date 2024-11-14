@@ -51,6 +51,6 @@ const ktHelpLong = `
 type versionCmd struct{}
 
 func (r *versionCmd) Run(*cobra.Command, []string) error {
-	fmt.Printf("%s", ver.Version())
+	fmt.Printf("%s\n", ver.Version())
 	return nil
 }
