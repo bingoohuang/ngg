@@ -120,7 +120,7 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			continue
 		}
 
-		name := ss.ToSnake(field.Name)
+		name := ss.ToKebab(field.Name)
 		if v, _ := tags.Get("flag"); v != nil {
 			name = v.Raw
 		}
