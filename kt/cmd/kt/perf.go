@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"crypto/x509"
 	"flag"
 	"fmt"
-	"github.com/samber/lo"
 	"io"
 	"math/rand"
 	"os"
@@ -13,8 +11,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/samber/lo"
+
 	"github.com/IBM/sarama"
-	"github.com/IBM/sarama/tools/tls"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/kt/pkg/kt"
 	"github.com/bingoohuang/ngg/ss"
@@ -35,7 +34,6 @@ type perfProduceCmd struct {
 	Binary          bool    `help:"Use a random binary message content other than ascii message"`
 	Total           int     `short:"n" default:"50000" help:"The number of messages to produce"`
 	Size            int     `default:"100" help:"The approximate size (in bytes) of each message to produce"`
-	Ssl             bool    `help:"security protocol to talk to Kafka, use SSL other than PLAINTEXT"`
 	Partition       int     `short:"p" default:"-1" help:"The partition of -topic to run the performance test on"`
 	Qps             float32 `help:"The maximum number of messages to send per second (0 for no limit)"`
 	MaxOpenRequests int     `default:"5" help:"The maximum number of unacknowledged requests the client will send on a single connection before blocking"`
@@ -85,12 +83,9 @@ func (p *perfProduceCmd) Run(*cobra.Command, []string) error {
 	c.ClientID = p.ClientID
 	c.ChannelBufferSize = p.ChannelBufferSize
 	c.Version = p.KafkaVersion
-	if p.Ssl {
-		if err := p.setupSSL(c); err != nil {
-			return err
-		}
+	if err := p.SetupAuth(c); err != nil {
+		return err
 	}
-
 	if err := c.Validate(); err != nil {
 		return fmt.Errorf("configuration validate: %w", err)
 	}
@@ -101,31 +96,6 @@ func (p *perfProduceCmd) Run(*cobra.Command, []string) error {
 
 	// Print final metrics.
 	p.printMetrics(os.Stdout, c.MetricRegistry)
-	return nil
-}
-
-func (p *perfProduceCmd) setupSSL(c *sarama.Config) error {
-	tlsConfig, err := tls.NewConfig(p.ClientCert, p.ClientKey)
-	if err != nil {
-		return fmt.Errorf("load client certificate from: %s and private key from: %s: %w",
-			p.ClientCert, p.ClientKey, err)
-	}
-
-	if p.Cert != "" {
-		rootCAsBytes, err := os.ReadFile(p.Cert)
-		if err != nil {
-			return fmt.Errorf("read root CA certificates: %w", err)
-		}
-		certPool := x509.NewCertPool()
-		if !certPool.AppendCertsFromPEM(rootCAsBytes) {
-			return fmt.Errorf("load root CA certificates from file: %s", p.Cert)
-		}
-		// Use specific root CA set vs the host's set
-		tlsConfig.RootCAs = certPool
-	}
-
-	c.Net.TLS.Enable = true
-	c.Net.TLS.Config = tlsConfig
 	return nil
 }
 

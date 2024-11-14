@@ -6,46 +6,44 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/IBM/sarama"
+	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/ss"
 )
 
 type AuthConfig struct {
-	AuthMode    string `json:"mode" enum:",sasl,tls,tls-1way" help:"auth mode" persistent:"1"`
 	Cert        string `json:"ca" help:"root ca cert file" persistent:"1"`
 	ClientCert  string `json:"cert" help:"client cert file" persistent:"1"`
 	ClientKey   string `json:"key" help:"client cert key" persistent:"1"`
-	SASLUsr     string `json:"usr" help:"sasl user" persistent:"1"`
-	SASLPwd     string `json:"pwd" help:"sasl password" persistent:"1"`
-	SASLVersion *int   `json:"ver" help:"sasl KafkaVersion" default:"0" enum:"0,1" persistent:"1"`
+	SASL        string `json:"sasl" help:"sasl user:password" persistent:"1"`
+	SASLVersion *int   `json:"ver" help:"sasl version" default:"0" enum:"0,1" persistent:"1"`
 }
 
 func (t AuthConfig) SetupAuth(sc *sarama.Config) error {
-	switch {
-	case strings.EqualFold(t.AuthMode, "SASL") || t.SASLUsr != "":
-		return t.setupSASL(sc)
-	case strings.EqualFold(t.AuthMode, "TLS") || t.Cert != "":
-		return t.setupAuthTLS(sc)
-	case strings.EqualFold(t.AuthMode, "TLS-1way"):
-		return t.setupAuthTLS1Way(sc)
-
-	case t.AuthMode == "":
-		if env := os.Getenv("KT_AUTH"); env != "" {
-			user, pwd := ss.Split2(env, ":")
-			return AuthConfig{AuthMode: "sasl", SASLUsr: user, SASLPwd: pwd}.setupSASL(sc)
-		}
-		return nil
-	default:
-		return fmt.Errorf("unsupport auth mode: %#v", t.AuthMode)
+	env := os.Getenv("KT_AUTH")
+	if env != "" && t.SASL == "" {
+		t.SASL = env
 	}
+	if t.SASL != "" {
+		return t.setupSASL(sc)
+	}
+	if t.ClientCert != "" {
+		return t.setupAuthTLS(sc)
+	}
+
+	return nil
 }
 
 func (t AuthConfig) setupSASL(sc *sarama.Config) error {
+	data, err := gterm.DecodeByTailTag(t.SASL)
+	if err != nil {
+		return fmt.Errorf("decode %q: %w", t.SASL, err)
+	}
+	user, pwd := ss.Split2(string(data), ":")
 	sc.Net.SASL.Enable = true
-	sc.Net.SASL.User = t.SASLUsr
-	sc.Net.SASL.Password = t.SASLPwd
+	sc.Net.SASL.User = user
+	sc.Net.SASL.Password = pwd
 	sc.Net.SASL.Handshake = true
 	sc.Net.SASL.Mechanism = sarama.SASLTypePlaintext
 	version, err := SASLVersion(sc.Version, t.SASLVersion)

@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/bingoohuang/ngg/kt/pkg/kt"
-	"github.com/bingoohuang/ngg/ss"
-	"github.com/spf13/cobra"
 	"log"
 	"net/http"
 	"path"
 	"regexp"
+
+	"github.com/bingoohuang/ngg/kt/pkg/kt"
+	"github.com/bingoohuang/ngg/ss"
+	"github.com/spf13/cobra"
 )
 
 type consumeCmd struct {
@@ -39,10 +40,9 @@ func (c *consumeCmd) Run(*cobra.Command, []string) (err error) {
 
 	c.parseWeb()
 
-	valEncoder := kt.ParseBytesEncoder(c.ValueEncoder)
-	keyEncoder := kt.ParseBytesEncoder(c.KeyEncoder)
-
-	c.MessageConsumer = kt.NewPrintMessageConsumer(keyEncoder, valEncoder, c.sseSender, c.grepExpr, c.N)
+	ve := kt.ParseBytesEncoder(c.ValueEncoder)
+	ke := kt.ParseBytesEncoder(c.KeyEncoder)
+	c.MessageConsumer = kt.NewPrintMessageConsumer(ke, ve, c.sseSender, c.grepExpr, c.N)
 
 	_, err = kt.StartConsume(c.ConsumerConfig)
 	return err

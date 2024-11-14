@@ -83,18 +83,13 @@ type partition struct {
 }
 
 func (c *topicCmd) connect() error {
-	cfg := sarama.NewConfig()
-	cfg.Version = c.KafkaVersion
-	cfg.ClientID = "kt-topic-" + kt.CurrentUserName()
-	if c.Verbose > 0 {
-		log.Printf("sarama client configuration %#v\n", cfg)
-	}
-
-	var err error
-	if c.client, err = sarama.NewClient(c.KafkaBrokers, cfg); err != nil {
+	client, err := c.SetupClient("kt-topic-" + kt.CurrentUserName())
+	if err != nil {
 		return err
 	}
-	if c.admin, err = sarama.NewClusterAdmin(c.KafkaBrokers, cfg); err != nil {
+	c.client = client.SaramaClient
+
+	if c.admin, err = sarama.NewClusterAdmin(c.KafkaBrokers, client.SaramaConfig); err != nil {
 		return err
 	}
 	return nil

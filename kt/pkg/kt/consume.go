@@ -72,7 +72,7 @@ func StartConsume(conf ConsumerConfig) (c *Consumer, err error) {
 		Group:           conf.Group,
 		Timeout:         conf.Timeout,
 	}
-	c.Client, err = conf.SetupClient()
+	c.Client, err = conf.SetupClient("kt-consume-" + CurrentUserName())
 	if err != nil {
 		return nil, err
 	}

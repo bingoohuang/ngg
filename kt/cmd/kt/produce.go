@@ -102,14 +102,16 @@ func (c *produceCmd) findLeaders() {
 	)
 
 	req := sarama.MetadataRequest{Topics: []string{c.Topic}}
-	cfg := sarama.NewConfig()
-	cfg.Producer.RequiredAcks = sarama.WaitForAll
-	cfg.Version = c.KafkaVersion
-	cfg.ClientID = "kt-produce-" + kt.CurrentUserName()
+	sc := sarama.NewConfig()
+	sc.Producer.RequiredAcks = sarama.WaitForAll
+	sc.Version = c.KafkaVersion
+	sc.ClientID = "kt-produce-" + kt.CurrentUserName()
 	if c.Verbose > 0 {
-		log.Printf("sarama client configuration %#v\n", cfg)
+		log.Printf("sarama client configuration %#v\n", sc)
 	}
-
+	if err := c.SetupAuth(sc); err != nil {
+		failf("SetupAuth: %v", err)
+	}
 	if err := c.Validate(); err != nil {
 		failf("configuration validate: %v", err)
 	}
@@ -117,7 +119,7 @@ func (c *produceCmd) findLeaders() {
 loop:
 	for _, addr := range c.KafkaBrokers {
 		broker := sarama.NewBroker(addr)
-		if err = broker.Open(cfg); err != nil {
+		if err = broker.Open(sc); err != nil {
 			log.Printf("Failed to open broker connection to %v. err=%s\n", addr, err)
 			continue loop
 		}
@@ -150,7 +152,7 @@ loop:
 						failf("failed to find leader in broker response, giving up")
 					}
 
-					if err = b.Open(cfg); err != nil && errors.Is(err, sarama.ErrAlreadyConnected) {
+					if err = b.Open(sc); err != nil && errors.Is(err, sarama.ErrAlreadyConnected) {
 						log.Printf("W! failed to open broker connection err=%s", err)
 					}
 					if connected, err := broker.Connected(); !connected && err != nil {

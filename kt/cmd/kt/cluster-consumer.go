@@ -9,8 +9,10 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
+	"github.com/bingoohuang/ngg/ggt/gterm"
 	"github.com/bingoohuang/ngg/kt/pkg/kt"
 	cluster "github.com/bingoohuang/ngg/kt/pkg/sarama-cluster"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/spf13/cobra"
 )
 
@@ -37,10 +39,19 @@ func (p *clusterConsumer) Run(*cobra.Command, []string) error {
 
 	c.Version = p.KafkaVersion
 
-	if p.SASLUsr != "" {
+	env := os.Getenv("KT_AUTH")
+	if env != "" && p.SASL == "" {
+		p.SASL = env
+	}
+	if p.SASL != "" {
+		data, err := gterm.DecodeByTailTag(p.SASL)
+		if err != nil {
+			return fmt.Errorf("decode %q: %w", p.SASL, err)
+		}
+		user, pwd := ss.Split2(string(data), ":")
 		c.Net.SASL.Enable = true
-		c.Net.SASL.User = p.SASLUsr
-		c.Net.SASL.Password = p.SASLPwd
+		c.Net.SASL.User = user
+		c.Net.SASL.Password = pwd
 		c.Net.SASL.Handshake = true
 		c.Net.SASL.Mechanism = sarama.SASLTypePlaintext
 		c.Net.SASL.Version = sarama.SASLHandshakeV0

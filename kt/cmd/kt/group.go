@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/bingoohuang/ngg/ss"
 	"log"
 	"regexp"
 	"sort"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/bingoohuang/ngg/kt/pkg/kt"
+	"github.com/bingoohuang/ngg/ss"
 	"github.com/elliotchance/pie/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -281,19 +281,18 @@ func (c *groupCmd) connect(broker *sarama.Broker) error {
 }
 
 func (c *groupCmd) saramaConfig() *sarama.Config {
-	cfg := sarama.NewConfig()
-	cfg.Version = c.KafkaVersion
-	cfg.ClientID = "kt-group-" + kt.CurrentUserName()
-
-	if err := c.SetupAuth(cfg); err != nil {
+	c.SetupClient("kt-group-" + kt.CurrentUserName())
+	sc := sarama.NewConfig()
+	sc.Version = c.KafkaVersion
+	sc.ClientID = "kt-group-" + kt.CurrentUserName()
+	if err := c.SetupAuth(sc); err != nil {
 		failf("failed to setup auth: %v", err)
 	}
-
 	if err := c.Validate(); err != nil {
 		failf("configuration validate: %v", err)
 	}
 
-	return cfg
+	return sc
 }
 
 func (c *groupCmd) failStartup(msg string) {
