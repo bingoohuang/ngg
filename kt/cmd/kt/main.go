@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/bingoohuang/ngg/ver"
 	"os"
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	"github.com/bingoohuang/ngg/ggt/root"
+	"github.com/bingoohuang/ngg/ver"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/cobra"
 )
