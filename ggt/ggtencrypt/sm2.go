@@ -134,7 +134,7 @@ func (f *sm2SignCmd) Run(_ *cobra.Command, _ []string) error {
 	}
 
 	if f.Uid != "" {
-		uid, err := gterm.DecodeByTailTag(f.Uid)
+		uid, err := gterm.DecodeBySchema(f.Uid)
 		if err != nil {
 			return err
 		}
@@ -193,7 +193,7 @@ func (f *sm2VerifyCmd) Run(_ *cobra.Command, _ []string) error {
 	}
 
 	if f.Uid != "" {
-		uid, err := gterm.DecodeByTailTag(f.Uid)
+		uid, err := gterm.DecodeBySchema(f.Uid)
 		if err != nil {
 			return err
 		}
@@ -277,7 +277,7 @@ type sm2DecryptCmd struct {
 }
 
 func (f *sm2DecryptCmd) Run(_ *cobra.Command, _ []string) error {
-	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -429,7 +429,7 @@ func WriteDataFile(action, out string, data []byte, base64Console bool) error {
 	}
 
 	if base64Console {
-		log.Printf("%s result(Base64): %s", action, ss.Base64().EncodeBytes(data).V1.Bytes())
+		log.Printf("%s result: base64://%s", action, ss.Base64().EncodeBytes(data).V1.Bytes())
 	} else {
 		log.Printf("%s result: %s", action, data)
 	}
@@ -441,7 +441,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, _ []string) error {
 		obj := sm2.New().
 			FromPublicKeyXYString(f.X, f.Y)
 
-		log.Printf("public key: %s", ss.Base64().EncodeBytes(gmsm2.PublicKeyTo(obj.GetPublicKey())).V1.Bytes())
+		log.Printf("public key: base64://%s", ss.Base64().EncodeBytes(gmsm2.PublicKeyTo(obj.GetPublicKey())).V1.Bytes())
 
 		obj = obj.CreatePublicKey()
 		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pub.pem"); err != nil {
@@ -453,7 +453,7 @@ func (f *sm2RecoverCmd) Run(_ *cobra.Command, _ []string) error {
 		obj := sm2.New().
 			FromPrivateKeyString(f.D)
 
-		log.Printf("private key: %s", ss.Base64().EncodeBytes(gmsm2.PrivateKeyTo(obj.GetPrivateKey())).V1.Bytes())
+		log.Printf("private key: base64://%s", ss.Base64().EncodeBytes(gmsm2.PrivateKeyTo(obj.GetPrivateKey())).V1.Bytes())
 
 		obj = obj.CreatePrivateKey()
 		if err := WriteKeyFile(obj.ToKeyBytes(), f.Dir, "sm2_pri.pem"); err != nil {

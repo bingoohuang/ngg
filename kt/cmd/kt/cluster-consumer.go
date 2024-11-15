@@ -44,7 +44,7 @@ func (p *clusterConsumer) Run(*cobra.Command, []string) error {
 		p.SASL = env
 	}
 	if p.SASL != "" {
-		data, err := gterm.DecodeByTailTag(p.SASL)
+		data, err := gterm.DecodeBySchema(p.SASL)
 		if err != nil {
 			return fmt.Errorf("decode %q: %w", p.SASL, err)
 		}

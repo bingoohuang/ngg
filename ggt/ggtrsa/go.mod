@@ -8,29 +8,29 @@ replace (
 )
 
 require (
-	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000
+	github.com/bingoohuang/ngg/ggt v0.0.0-20241115004501-6e74b530097d
 	github.com/bingoohuang/ngg/ggt/ggtencrypt v0.0.0-00010101000000-000000000000
-	github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d
-	github.com/deatil/go-cryptobin v1.0.4025
+	github.com/bingoohuang/ngg/ss v0.0.0-20241115004501-6e74b530097d
+	github.com/deatil/go-cryptobin v1.0.4026
 	github.com/spf13/cobra v1.8.1
 )
 
 require (
-	github.com/alecthomas/kong v1.3.0 // indirect
+	github.com/alecthomas/kong v1.4.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/bingoohuang/ngg/gum v0.0.0-20241103104547-2d1bf667deef // indirect
-	github.com/bingoohuang/ngg/ver v0.0.0-20241103104547-2d1bf667deef // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241103104547-2d1bf667deef // indirect
+	github.com/bingoohuang/ngg/gum v0.0.0-20241115004501-6e74b530097d // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20241115004501-6e74b530097d // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241115004501-6e74b530097d // indirect
 	github.com/catppuccin/go v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.20.0 // indirect
-	github.com/charmbracelet/bubbletea v1.1.2 // indirect
+	github.com/charmbracelet/bubbletea v1.2.2 // indirect
 	github.com/charmbracelet/gum v0.14.5 // indirect
 	github.com/charmbracelet/huh v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v1.0.0 // indirect
-	github.com/charmbracelet/x/ansi v0.4.2 // indirect
-	github.com/charmbracelet/x/exp/strings v0.0.0-20241101155414-3df16cb7eefd // indirect
-	github.com/charmbracelet/x/term v0.2.0 // indirect
+	github.com/charmbracelet/x/ansi v0.4.5 // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20241113152101-0af7d04e9f32 // indirect
+	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/fatih/color v1.18.0 // indirect
@@ -62,12 +62,12 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
-	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/term v0.26.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

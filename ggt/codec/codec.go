@@ -38,7 +38,7 @@ type codec struct {
 }
 
 func (f *codec) Run(cmd *cobra.Command, args []string) error {
-	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -49,7 +49,7 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	key, err := gterm.DecodeByTailTag(f.Key)
+	key, err := gterm.DecodeBySchema(f.Key)
 	if err != nil {
 		log.Printf("decode key error: %v", err)
 		return nil
@@ -220,7 +220,7 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 				Sum64() uint64
 			}); ok {
 				s := sum64.Sum64()
-				log.Printf("sum64: %d, hex: %s", s, strconv.FormatUint(s, 16))
+				log.Printf("sum64: %d, hex://%s", s, strconv.FormatUint(s, 16))
 			}
 			e := h.Sum(nil)
 			rawString, hexString, base64String = string(e), fmt.Sprintf("%x", e), ss.Base64().EncodeBytes(e).V1.String()
@@ -231,20 +231,12 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 		} else {
 			log.Printf("%s: %s (len: %d)", algo, rawString, len(rawString))
 			if hexString != "" {
-				log.Printf("%s hex: %s (len: %d)", algo, hexString, len(hexString))
+				log.Printf("%s hex://%s (len: %d)", algo, hexString, len(hexString))
 			}
 			if base64String != "" {
-				log.Printf("%s base64: %s (len: %d)", algo, base64String, len(base64String))
+				log.Printf("%s base64://%s (len: %d)", algo, base64String, len(base64String))
 			}
 		}
 	}
 	return err
-}
-
-func ToBase64RawStd(s []byte) []byte {
-	s = bytes.TrimSpace(s)
-	s = bytes.TrimRight(s, "=")
-	// // the standard encoding with - and _ substituted for + and /.
-	s = bytes.ReplaceAll(s, []byte("-"), []byte("+"))
-	return bytes.ReplaceAll(s, []byte("_"), []byte("/"))
 }

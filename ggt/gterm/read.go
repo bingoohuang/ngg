@@ -19,7 +19,6 @@ type Option struct {
 	Random      bool
 	Required    bool
 	StripSpaces bool
-	TryDecode   bool // Try decoding as base64 or hex
 }
 
 type ReaderSource int
@@ -94,9 +93,6 @@ func (o Option) Open(input string) (*Result, error) {
 			if err != nil {
 				return nil, err
 			}
-			if o.TryDecode {
-				dat = tryDecode(dat)
-			}
 
 			r := &Result{
 				Reader:      bytes.NewReader(dat),
@@ -115,7 +111,7 @@ func (o Option) Open(input string) (*Result, error) {
 				return nil, err
 			}
 
-			format := SplitTail(&line, ":hex", ":base64")
+			format := SplitSchema(&line, "hex", "base64")
 
 			return &Result{
 				Reader:      decorateReader(strings.NewReader(line), format),
@@ -136,7 +132,7 @@ func (o Option) Open(input string) (*Result, error) {
 		}
 	}
 
-	format := SplitTail(&input, ":hex", ":base64")
+	format := SplitSchema(&input, "hex", "base64")
 
 	if stat, err := os.Stat(input); err == nil && !stat.IsDir() {
 		f, err := os.Open(input)
@@ -157,10 +153,6 @@ func (o Option) Open(input string) (*Result, error) {
 		input = StripSpaces(input)
 	}
 
-	if o.TryDecode {
-		input = string(tryDecode([]byte(input)))
-	}
-
 	return &Result{
 		Reader:      decorateReader(strings.NewReader(input), format),
 		Len:         len(input),
@@ -169,10 +161,10 @@ func (o Option) Open(input string) (*Result, error) {
 	}, nil
 }
 
-func SplitTail(s *string, allowedTails ...string) (tail string) {
-	for _, c := range allowedTails {
-		if strings.HasSuffix(*s, c) {
-			*s = (*s)[:len(*s)-len(c)]
+func SplitSchema(s *string, allowedSchemas ...string) (tail string) {
+	for _, c := range allowedSchemas {
+		if strings.HasPrefix(*s, c+"://") {
+			*s = (*s)[len(c)+3:]
 			return c
 		}
 	}
@@ -180,12 +172,12 @@ func SplitTail(s *string, allowedTails ...string) (tail string) {
 	return ""
 }
 
-func DecodeByTailTag(s string, allowedLen ...int) ([]byte, error) {
-	format := SplitTail(&s, ":hex", ":base64")
+func DecodeBySchema(s string, allowedLen ...int) ([]byte, error) {
+	format := SplitSchema(&s, "hex", "base64")
 	switch format {
-	case ":hex":
+	case "hex":
 		return hex.DecodeString(s)
-	case ":base64":
+	case "base64":
 		result := ss.Base64().Decode(s)
 		return result.V1.Bytes(), result.V2
 	default:
@@ -193,11 +185,11 @@ func DecodeByTailTag(s string, allowedLen ...int) ([]byte, error) {
 	}
 }
 
-func decorateReader(r io.Reader, format string) io.Reader {
-	switch strings.ToLower(format) {
-	case ":hex":
+func decorateReader(r io.Reader, schema string) io.Reader {
+	switch strings.ToLower(schema) {
+	case "hex":
 		return hex.NewDecoder(r)
-	case ":base64":
+	case "base64":
 		return ss.NewBase64Reader(r)
 	default:
 		return r

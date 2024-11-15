@@ -10,7 +10,15 @@ import (
 type base64Reader struct{ io.Reader }
 
 func NewBase64Reader(src io.Reader) io.Reader {
-	return &base64Reader{Reader: src}
+	return base64.NewDecoder(base64.RawStdEncoding, &base64Reader{Reader: src})
+}
+
+func ToBase64RawStd(s []byte) []byte {
+	s = bytes.TrimSpace(s)
+	s = bytes.TrimRight(s, "=")
+	// // the standard encoding with - and _ substituted for + and /.
+	s = bytes.ReplaceAll(s, []byte("-"), []byte("+"))
+	return bytes.ReplaceAll(s, []byte("_"), []byte("/"))
 }
 
 // StdEncoding：RFC 4648 定义的标准 BASE64 编码字符集，结果填充=，使字节数为4的倍数

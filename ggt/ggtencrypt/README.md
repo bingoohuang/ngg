@@ -13,11 +13,11 @@
 
 ```sh
 $ ggtencrypt -i /Users/bingoo/Downloads/1.jpg -v --out /Users/bingoo/Downloads/1.jpg.aes
-2024-09-24 22:20:03.828 [INFO ] 42816 --- [1     ] [-] : rand --key 4149fd5f0e8ee10d52155c56984b1761:hex
-2024-09-24 22:20:03.829 [INFO ] 42816 --- [1     ] [-] : rand --iv 4781d2c35e619aaba39211ed31af4b63:hex
+2024-09-24 22:20:03.828 [INFO ] 42816 --- [1     ] [-] : rand --key hex://4149fd5f0e8ee10d52155c56984b1761
+2024-09-24 22:20:03.829 [INFO ] 42816 --- [1     ] [-] : rand --iv hex://4781d2c35e619aaba39211ed31af4b63
 2024-09-24 22:20:03.831 [INFO ] 42816 --- [1     ] [-] : AES/GCM/NoPadding Encrypt result written to file /Users/bingoo/Downloads/1.jpg.aes
 
-$ ggtencrypt -d --key 4149fd5f0e8ee10d52155c56984b1761:hex --iv 4781d2c35e619aaba39211ed31af4b63:hex -i /Users/bingoo/Downloads/1.jpg.aes -o /Users/bingoo/Downloads/2.jpg
+$ ggtencrypt -d --key hex://4149fd5f0e8ee10d52155c56984b1761 --iv hex://4781d2c35e619aaba39211ed31af4b63 -i /Users/bingoo/Downloads/1.jpg.aes -o /Users/bingoo/Downloads/2.jpg
 2024-09-24 22:20:52.599 [INFO ] 42912 --- [1     ] [-] : AES/GCM/NoPadding Decrypt result written to file /Users/bingoo/Downloads/2.jpg
 
 $ diff -s /Users/bingoo/Downloads/1.jpg /Users/bingoo/Downloads/2.jpg
@@ -28,23 +28,23 @@ Files /Users/bingoo/Downloads/1.jpg and /Users/bingoo/Downloads/2.jpg are identi
 
 ```sh
 $ ggtencrypt -v -i bingoohuang
-2024-09-24 22:19:04.780 [INFO ] 42690 --- [1     ] [-] : rand --key f4b1b49188227518f96e2e8c9214d9e4:hex
-2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : rand --iv fed6e50a238ebed2821e7abd4df94f51:hex
+2024-09-24 22:19:04.780 [INFO ] 42690 --- [1     ] [-] : rand --key hex://f4b1b49188227518f96e2e8c9214d9e4
+2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : rand --iv hex://fed6e50a238ebed2821e7abd4df94f51
 2024-09-24 22:19:04.783 [INFO ] 42690 --- [1     ] [-] : AES/GCM/NoPadding Encrypt result: KMiSPR7DE5j127FZOm9SctyIi9QhNn/Kx3N3
 
-$ ggtencrypt -d --key f4b1b49188227518f96e2e8c9214d9e4:hex --iv fed6e50a238ebed2821e7abd4df94f51:hex -i KMiSPR7DE5j127FZOm9SctyIi9QhNn/Kx3N3:b64
+$ ggtencrypt -d --key hex://f4b1b49188227518f96e2e8c9214d9e4 --iv hex://fed6e50a238ebed2821e7abd4df94f51 -i base64://KMiSPR7DE5j127FZOm9SctyIi9QhNn/Kx3N3
 2024-09-24 22:19:38.747 [INFO ] 42773 --- [1     ] [-] : AES/GCM/NoPadding Decrypt result: bingoohuang
 ```
 
 ## 文本 sm4 加解密
 
 ```sh
-$ ggtencrypt --sm4 -v -i bingoohuang --base64
-2024-09-24 22:24:23.202 [INFO ] 43995 --- [1     ] [-] : rand --key 2b49c80e2d1a47b18775aeccebb64ee4:hex
-2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : rand --iv e010af29b4aaae3e94a58615e04ab473:hex
-2024-09-24 22:24:23.205 [INFO ] 43995 --- [1     ] [-] : SM4/GCM/NoPadding Encrypt result: x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ
+$ ggtencrypt --sm4 -v -i bingoohuang
+2024/11/15 21:02:59 rand --key hex://2d16d265913df8600a0f2e7320e1dba3
+2024/11/15 21:02:59 rand --iv hex://1a6b55c9379111ddb8978802
+2024/11/15 21:02:59 SM4/GCM/NoPadding Encrypt result: base64://BCcZia8lAnUXEn35q5iuiso0aKzqf1Td
 
-$ ggtencrypt -d --sm4 --key 2b49c80e2d1a47b18775aeccebb64ee4:hex --iv e010af29b4aaae3e94a58615e04ab473:hex -i x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ:b64
+$ ggtencrypt -d --sm4 --key hex://2b49c80e2d1a47b18775aeccebb64ee4 --iv hex://e010af29b4aaae3e94a58615e04ab473 -i base64://x5Gf1/dhXTVdVL5wLsH/EihIyFpxTPI7lGSZ
 2024-09-24 22:24:49.821 [INFO ] 44073 --- [1     ] [-] : SM4/GCM/NoPadding Decrypt result: bingoohuang
 ```
 
@@ -73,7 +73,7 @@ true
 $ ggtencrypt sm2 encrypt -i bingoohuang -K sm2_pub.pem
 2024-09-25 22:58:37.031 [INFO ] 67989 --- [1     ] [-] : encrypted: BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShXtfoEQ+0Yf5hUvu7hzmUIny7nF8gBX2bA8Dv7/iBqqEkPBfW/onrSMPZMVt/dLrT1e6KEmo6j11JPQvUVA8D6fkk110IvbalHbI322eFuG/b
 
-$ ggtencrypt sm2 decrypt -k sm2_pri.pem -i BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShXtfoEQ+0Yf5hUvu7hzmUIny7nF8gBX2bA8Dv7/iBqqEkPBfW/onrSMPZMVt/dLrT1e6KEmo6j11JPQvUVA8D6fkk110IvbalHbI322eFuG/b:base64
+$ ggtencrypt sm2 decrypt -k sm2_pri.pem -i base64://BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShXtfoEQ+0Yf5hUvu7hzmUIny7nF8gBX2bA8Dv7/iBqqEkPBfW/onrSMPZMVt/dLrT1e6KEmo6j11JPQvUVA8D6fkk110IvbalHbI322eFuG/b
 2024-09-25 22:58:56.607 [INFO ] 68048 --- [1     ] [-] : decrypted: bingoohuang
 ```
 
@@ -81,7 +81,7 @@ $ ggtencrypt sm2 decrypt -k sm2_pri.pem -i BGK9tMqqVwPjGMKhQKPMFSJFCKrTbOLphcShX
 $ ggt sm2 encrypt -i bingoohuang -K BGN03rpdKTmGRTDmq9m0kXr+sVJB8k237zsCRmcN2pBFRd/2/7CDXnV19KuSttmgu/33BEjP66mL/TDag/QqltU=
 2024-09-26 08:26:03.658 [INFO ] 34078 --- [1     ] [-] : encrypted: BIVb+XrLg+qHZLlo/2wCm/zVBOuvaUwMd1AE9XJTiiDvIkLJl8eAMX/8IrwcUvTwVO+30oY1hN/mGjB55Cnb5x6hAutwKEvZfzVfkw3V1Jgi5X2pi7/jJnm1y1iRnjfpZmh/OLBeGZNB1gid
 
-$ ggt sm2 decrypt -k 4CPliYoiw4/uo/7mJuV74OnrT90omaHJY6uu44UwrZo= -i BIVb+XrLg+qHZLlo/2wCm/zVBOuvaUwMd1AE9XJTiiDvIkLJl8eAMX/8IrwcUvTwVO+30oY1hN/mGjB55Cnb5x6hAutwKEvZfzVfkw3V1Jgi5X2pi7/jJnm1y1iRnjfpZmh/OLBeGZNB1gid:base64
+$ ggt sm2 decrypt -k 4CPliYoiw4/uo/7mJuV74OnrT90omaHJY6uu44UwrZo= -i base64://BIVb+XrLg+qHZLlo/2wCm/zVBOuvaUwMd1AE9XJTiiDvIkLJl8eAMX/8IrwcUvTwVO+30oY1hN/mGjB55Cnb5x6hAutwKEvZfzVfkw3V1Jgi5X2pi7/jJnm1y1iRnjfpZmh/OLBeGZNB1gid
 2024-09-26 08:26:52.685 [INFO ] 34179 --- [1     ] [-] : decrypted: bingoohuang
 ```
 

@@ -26,9 +26,10 @@
 1. 编译 [kafka-proxy](https://github.com/grepplabs/kafka-proxy)
    - 编译机: `export GOOS=linux GOARCH=arm64`
    - 编译机: `make` 生成 `build/kafka-proxy`, `make plugin.auth-user` 生成 sasl 插件，二者上传到服务器
-   - 服务器: `kafka-proxy server --bootstrap-server-mapping "192.168.126.18:9092,0.0.0.0:19002" --bootstrap-server-mapping "192.168.126.18:9091,0.0.0.0:19001" --bootstrap-server-mapping "192.168.126.18:9093,0.0.0.0:19003" --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password`
+   - 服务器: `kafka-proxy server --bootstrap-server-mapping "192.168.126.18:9092,0.0.0.0:19002" --bootstrap-server-mapping "192.168.126.18:9091,0.0.0.0:19001" --bootstrap-server-mapping "192.168.126.18:9093,0.0.0.0:19003" --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password"`
+   - 或者: `BOOTSTRAP_SERVER_MAPPING="192.168.126.18:9092,0.0.0.0:19002 192.168.126.18:9091,0.0.0.0:19001 192.168.126.18:9093,0.0.0.0:19003" kafka-proxy server --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password"`
    - 客户端: `KT_BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 KT_VERSION=0.10.0.0 KT_TOPIC=fluent-bit-test KT_AUTH=my-test-user:my-test-password kt topic`
-   - 客户端: `KT_BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 KT_VERSION=0.10.0.0 KT_TOPIC=fluent-bit-test KT_AUTH=bXktdGVzdC11c2VyOm15LXRlc3QtcGFzc3dvcmQ:base64 kt topic` 复杂密码，可以先 base64 编码
+   - 客户端（复杂密码 base64）: `kt -b 127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 -v 0.10.0.0 -t fluent-bit-test --sasl base64://bXktdGVzdC11c2VyOm15LXRlc3QtcGFzc3dvcmQ topic`
 
 ## 示例日志
 
@@ -95,13 +96,13 @@ $ kt topic --filter news --partitions
 <details><summary>Produce messages</summary>
 
 ```sh
-$ echo 'Alice wins Oscar' | kt produce -t actor-news 
+$ echo 'Alice wins Oscar' | kt produce -t actor-news
 {
   "count": 1,
   "partition": 0,
   "startOffset": 0
 }
-$ echo 'Bob wins Oscar' | kt produce  -t actor-news 
+$ echo 'Bob wins Oscar' | kt produce  -t actor-news
 {
   "count": 1,
   "partition": 0,

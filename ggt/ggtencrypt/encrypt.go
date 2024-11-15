@@ -43,7 +43,7 @@ type subCmd struct {
 }
 
 func (f *subCmd) Run(*cobra.Command, []string) error {
-	r, err := gterm.Option{Random: true, TryDecode: true}.Open(f.Input)
+	r, err := gterm.Option{Random: true}.Open(f.Input)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
@@ -55,27 +55,27 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	}
 
 	if r.SourceType == gterm.SourceRandom {
-		log.Printf("random input: %s:base64", ss.Base64().EncodeBytes(data).V1.Bytes())
+		log.Printf("random input: base64://%s", ss.Base64().EncodeBytes(data).V1.Bytes())
 	}
 
 	if f.Key == "" {
 		if f.Pass != "" {
 			salt := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 			if f.Salt != "" {
-				if s, err := gterm.DecodeByTailTag(f.Salt); err != nil {
+				if s, err := gterm.DecodeBySchema(f.Salt); err != nil {
 					return err
 				} else {
 					salt = s
 				}
 			}
 			f.Key = string(pbkdf2.Key([]byte(f.Pass), salt, 10000, f.KeyLen, sha256.New))
-			log.Printf("pbkdf2 --key %x:hex, salt: %x:hex", f.Key, salt)
+			log.Printf("pbkdf2 --key hex://%x, salt: hex://%x", f.Key, salt)
 		} else {
 			f.Key = string(ss.Rand().Bytes(16)) // 128位
-			log.Printf("rand --key %x:hex", f.Key)
+			log.Printf("rand --key hex://%x", f.Key)
 		}
 	} else {
-		key, err := gterm.DecodeByTailTag(f.Key, f.KeyLen)
+		key, err := gterm.DecodeBySchema(f.Key, f.KeyLen)
 		if err != nil {
 			log.Printf("decode key error: %v", err)
 			return nil
@@ -85,9 +85,9 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	if f.IV == "" {
 		ivLen := ss.If(strings.EqualFold(f.Mode, "GCM"), 12, aes.BlockSize)
 		f.IV = string(ss.Rand().Bytes(ivLen))
-		log.Printf("rand --iv %x:hex", f.IV)
+		log.Printf("rand --iv hex://%x", f.IV)
 	} else {
-		iv, err := gterm.DecodeByTailTag(f.IV, 12, 16)
+		iv, err := gterm.DecodeBySchema(f.IV, 12, 16)
 		if err != nil {
 			log.Printf("decode iv error: %v", err)
 			return nil

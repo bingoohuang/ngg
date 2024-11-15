@@ -36,7 +36,7 @@ func (t AuthConfig) SetupAuth(sc *sarama.Config) error {
 }
 
 func (t AuthConfig) setupSASL(sc *sarama.Config) error {
-	data, err := gterm.DecodeByTailTag(t.SASL)
+	data, err := gterm.DecodeBySchema(t.SASL)
 	if err != nil {
 		return fmt.Errorf("decode %q: %w", t.SASL, err)
 	}
