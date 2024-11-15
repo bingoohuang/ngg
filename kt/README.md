@@ -1,4 +1,4 @@
-# kt - a Kafka tool that likes JSON [![Build Status](https://travis-ci.org/bingoohuang/kt.svg?branch=master)](https://travis-ci.org/bingoohuang/kt)
+# kt - a Kafka tool that likes JSON
 
 ## kt 使用简介
 
@@ -20,6 +20,15 @@
 5. 其它，看帮助
     1. 子命令列表：`kt -h`
     2. 子命令帮助：`kt consume -h`
+
+## SASL 示例
+
+1. 编译 [kafka-proxy](https://github.com/grepplabs/kafka-proxy)
+   - 编译机: `export GOOS=linux GOARCH=arm64`
+   - 编译机: `make` 生成 `build/kafka-proxy`, `make plugin.auth-user` 生成 sasl 插件，二者上传到服务器
+   - 服务器: `kafka-proxy server --bootstrap-server-mapping "192.168.126.18:9092,0.0.0.0:19002" --bootstrap-server-mapping "192.168.126.18:9091,0.0.0.0:19001" --bootstrap-server-mapping "192.168.126.18:9093,0.0.0.0:19003" --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password`
+   - 客户端: `KT_BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 KT_VERSION=0.10.0.0 KT_TOPIC=fluent-bit-test KT_AUTH=my-test-user:my-test-password kt topic`
+   - 客户端: `KT_BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 KT_VERSION=0.10.0.0 KT_TOPIC=fluent-bit-test KT_AUTH=bXktdGVzdC11c2VyOm15LXRlc3QtcGFzc3dvcmQ:base64 kt topic` 复杂密码，可以先 base64 编码
 
 ## 示例日志
 
@@ -277,35 +286,22 @@ each command individually, or set it via the environment variable `KT_AUTH`.
 
 Required fields:
 
-- `mode`: This needs to be set to `TLS`
 - `client-cert`: Path to your certificate
-- `client-cert-key`: Path to your certificate key
-- `ca-cert`: Path to your CA certificate
+- `client-key`: Path to your certificate key
+- `ca`: Path to your CA certificate
 
 Example for an authorization configuration that is used for the system tests:
 
     {
-        "mode": "TLS",
         "client-cert": "testdata/test-secrets/kt-test.crt",
-        "client-cert-key": "testdata/test-secrets/kt-test.key",
-        "ca-cert": "testdata/test-secrets/snakeoil-ca-1.crt"
+        "client-key": "testdata/test-secrets/kt-test.key",
+        "ca": "testdata/test-secrets/snakeoil-ca-1.crt"
     }
 
-### TLS one-way
-
-Required fields:
-
-- `mode`: This needs to be set to `TLS-1way`
-
-Example:
-
-    {
-        "mode": "TLS-1way",
-    }
 
 ## handy scripts
 
-1. `kt consume  -b 192.168.18.14:9092  -t metrics -version 0.10.0.0`
+1. `kt consume  -b 192.168.18.14:9092 -t metrics -v 0.10.0.0`
 
 ## relative resources
 

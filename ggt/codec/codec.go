@@ -229,7 +229,7 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 		if f.Raw {
 			fmt.Printf("%s", []byte(rawString))
 		} else {
-			log.Printf("%s raw: %s (len: %d)", algo, rawString, len(rawString))
+			log.Printf("%s: %s (len: %d)", algo, rawString, len(rawString))
 			if hexString != "" {
 				log.Printf("%s hex: %s (len: %d)", algo, hexString, len(hexString))
 			}

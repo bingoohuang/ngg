@@ -9,6 +9,10 @@ import (
 
 type base64Reader struct{ io.Reader }
 
+func NewBase64Reader(src io.Reader) io.Reader {
+	return &base64Reader{Reader: src}
+}
+
 // StdEncoding：RFC 4648 定义的标准 BASE64 编码字符集，结果填充=，使字节数为4的倍数
 // URLEncoding：RFC 4648 定义的另一 BASE64 编码字符集，用 - 和 _ 替换了 + 和 /，用于URL和文件名，结果填充=
 // RawStdEncoding：同 StdEncoding，但结果不填充=

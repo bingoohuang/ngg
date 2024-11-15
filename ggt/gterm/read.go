@@ -3,7 +3,6 @@ package gterm
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/hex"
 	"io"
 	"log"
@@ -51,7 +50,7 @@ func (r Result) ToBytes() ([]byte, error) {
 }
 
 func tryDecode(data []byte) []byte {
-	if len(data) ==0 {
+	if len(data) == 0 {
 		return data
 	}
 
@@ -116,7 +115,7 @@ func (o Option) Open(input string) (*Result, error) {
 				return nil, err
 			}
 
-			format := SplitTail(&line, ':')
+			format := SplitTail(&line, ":hex", ":base64")
 
 			return &Result{
 				Reader:      decorateReader(strings.NewReader(line), format),
@@ -137,7 +136,7 @@ func (o Option) Open(input string) (*Result, error) {
 		}
 	}
 
-	format := SplitTail(&input, ':')
+	format := SplitTail(&input, ":hex", ":base64")
 
 	if stat, err := os.Stat(input); err == nil && !stat.IsDir() {
 		f, err := os.Open(input)
@@ -170,63 +169,39 @@ func (o Option) Open(input string) (*Result, error) {
 	}, nil
 }
 
-func SplitTail(s *string, c byte) (tail string) {
-	if p := strings.LastIndexByte(*s, c); p >= 0 {
-		tail = (*s)[p+1:]
-		*s = (*s)[:p]
+func SplitTail(s *string, allowedTails ...string) (tail string) {
+	for _, c := range allowedTails {
+		if strings.HasSuffix(*s, c) {
+			*s = (*s)[:len(*s)-len(c)]
+			return c
+		}
 	}
-	return tail
+
+	return ""
 }
 
 func DecodeByTailTag(s string, allowedLen ...int) ([]byte, error) {
-	format := SplitTail(&s, ':')
+	format := SplitTail(&s, ":hex", ":base64")
 	switch format {
-	case "raw":
-		return []byte(s), nil
-	case "hex":
+	case ":hex":
 		return hex.DecodeString(s)
-	case "base64", "b64":
-		return base64.StdEncoding.DecodeString(s)
+	case ":base64":
+		result := ss.Base64().Decode(s)
+		return result.V1.Bytes(), result.V2
 	default:
-		if ss.AnyOf(len(s), allowedLen...) {
-			return []byte(s), nil
-		}
-		return tryDecode([]byte(s)), nil
+		return []byte(s), nil
 	}
 }
 
 func decorateReader(r io.Reader, format string) io.Reader {
 	switch strings.ToLower(format) {
-	case "raw":
-		return r
-	case "hex":
+	case ":hex":
 		return hex.NewDecoder(r)
-	case "base64", "b64":
-		return base64.NewDecoder(base64.StdEncoding, r)
+	case ":base64":
+		return ss.NewBase64Reader(r)
 	default:
 		return r
 	}
-}
-
-func ParsePrefix(value string) (prefix string, data []byte, err error) {
-	if strings.HasPrefix(value, "raw:") {
-		return "raw:", []byte(value[len("raw:"):]), nil
-	}
-	if ss.HasPrefix(value, "base64:") {
-		d, err := ss.Base64().DecodeBytes([]byte(value[len("base64:"):]))
-		return "base64:", d.Bytes(), err
-	}
-	if ss.HasPrefix(value, "b64:") {
-		d, err := ss.Base64().DecodeBytes([]byte(value[len("b64:"):]))
-		return "base64:", d.Bytes(), err
-	}
-
-	if strings.HasPrefix(value, "hex:") {
-		data, err = hex.DecodeString(value[len("hex:"):])
-		return "hex:", data, err
-	}
-
-	return "", []byte(value), nil
 }
 
 func StripSpaces(str string) string {
