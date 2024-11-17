@@ -30,7 +30,7 @@ func main() {
 
 type codec struct {
 	From string   `short:"f" help:"from" enum:"string,hex,base32,base45,base58,base62,base64,base85,base91,base100,safeURL"`
-	To   []string `short:"t" help:"to" enum:"string,hex,base32,base45,base58,base62,base64,base85,base91,base100,safeURL,md2,md4,md5,sha1,sha3-224,sha3-256,sha3-384,sha3-512,sha224,sha256,sha384,sha512,sha512-224,sha512-256,shake128-256,shake128-512,shake256,ripemd160,blake2b-256,blake2b-384,blake2b-512,blake2s-256,blake3,sm3,xxhash"`
+	To   []string `short:"t" help:"to" enum:"string,hex,base32,base45,base58,base62,base64,base85,base91,base100,safeURL,md2,md4,md5,sha1,sha3-224,sha3-256,sha3-384,sha3-512,sha224,sha256,sha384,sha512,sha512-224,sha512-256,shake128-256,shake128-512,shake256,ripemd160,blake2b-256,blake2b-384,blake2b-512,blake2s-256,blake3,sm3,xxhash,case"`
 
 	Input string `short:"i" help:"Input string, or filename"`
 	Key   string `short:"k" env:"auto" help:"HMAC key"`
@@ -192,7 +192,14 @@ func (f *codec) Run(cmd *cobra.Command, args []string) error {
 		case "blake2s-256":
 			e := dongle.Encrypt.FromBytes(d).ByBlake2s(256)
 			rawString, hexString, base64String = e.String(), e.ToHexString(), e.ToBase64String()
-
+		case "case":
+			log.Printf("Camel: %s", ss.ToCamel(string(d)))
+			log.Printf("CamelLower: %s", ss.ToCamelLower(string(d)))
+			log.Printf("Kebab: %s", ss.ToKebab(string(d)))
+			log.Printf("ToKebabUpper: %s", ss.ToKebabUpper(string(d)))
+			log.Printf("Snake: %s", ss.ToSnake(string(d)))
+			log.Printf("SnakeUpper: %s", ss.ToSnakeUpper(string(d)))
+			return nil
 		case "blake3", "xxhash", "sm3":
 			hf := func() hash.Hash {
 				switch algo {
