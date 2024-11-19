@@ -21,7 +21,8 @@ repoUrl := $(shell git remote -v  | head -1 | awk '{print $$2}')
 repoPath := $(shell if [[ $(repoUrl) =~ ^git@[^:]+:(.*\.git)$$ ]]; then echo "/$${BASH_REMATCH[1]}"; elif [[ $(repoUrl) =~ ^http[s]?://[^/]+(.*\.git)$$ ]]; then echo "$${BASH_REMATCH[1]}"; else echo "Unknown"; fi)
 gitCommit := $(shell [ -f git.commit ] && cat git.commit || git log -1 --format=format:'%h_%aI_%an_%B' )
 gitBranch := $(shell [ -f git.branch ] && cat git.branch || git branch --show-current)
-gitInfo = $(gitBranch)_$(gitCommit)
+gitInfo1 = $(gitBranch)_$(gitCommit)
+gitInfo = $(shell echo $(gitInfo1) | sed 's/"//g')
 #gitCommit := $(shell git rev-list -1 HEAD)
 # https://stackoverflow.com/a/47510909
 pkg := github.com/bingoohuang/ngg/ver
