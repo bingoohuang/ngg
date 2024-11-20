@@ -175,12 +175,17 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			continue
 		}
 
+		var awareValue any
+		if aware, ok := f.(DefaultPlagValuesAware); ok {
+			if val, ok := aware.DefaultPlagValues(field.Name); ok {
+				awareValue = val
+			}
+		}
+
 		switch field.Type.Kind() {
 		case reflect.String:
-			if aware, ok := f.(DefaultPlagValuesAware); ok {
-				if val, ok := aware.DefaultPlagValues(field.Name); ok {
-					defaultVal = val.(string)
-				}
+			if awareValue != nil {
+				defaultVal = awareValue.(string)
 			}
 			if len(enumValues) > 0 {
 				p.VarP(NewEnum(enumValues, pp.(*string), defaultVal), name, short, help)
@@ -189,7 +194,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			}
 		case reflect.Bool:
 			curDefault := false
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(bool)
+			} else if defaultVal != "" {
 				curDefault, err = ss.ParseBool(defaultVal)
 				if err != nil {
 					return fmt.Errorf("parse  bool %s: %w", defaultVal, err)
@@ -198,7 +205,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			p.BoolVarP(pp.(*bool), name, short, curDefault, help)
 		case reflect.Int:
 			curDefault := 0
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(int)
+			} else if defaultVal != "" {
 				switch defaultVal {
 				case "runtime.GOMAXPROCS(0)":
 					curDefault = runtime.GOMAXPROCS(0)
@@ -221,7 +230,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			}
 		case reflect.Int32:
 			curDefault := int32(0)
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(int32)
+			} else if defaultVal != "" {
 				curDefault, err = ss.Parse[int32](defaultVal)
 				if err != nil {
 					log.Panicf("default %s is not int", defaultVal)
@@ -231,7 +242,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			p.Int32VarP(pp.(*int32), name, short, curDefault, help)
 		case reflect.Int64:
 			curDefault := int64(0)
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(int64)
+			} else if defaultVal != "" {
 				curDefault, err = ss.Parse[int64](defaultVal)
 				if err != nil {
 					log.Panicf("default %s is not int", defaultVal)
@@ -241,7 +254,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			p.Int64VarP(pp.(*int64), name, short, curDefault, help)
 		case reflect.Float32:
 			curDefault := float32(0)
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(float32)
+			} else if defaultVal != "" {
 				curDefault, err = ss.Parse[float32](defaultVal)
 				if err != nil {
 					log.Panicf("default %s is not int", defaultVal)
@@ -251,7 +266,9 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			p.Float32VarP(pp.(*float32), name, short, curDefault, help)
 		case reflect.Float64:
 			curDefault := float64(0)
-			if defaultVal != "" {
+			if awareValue != nil {
+				curDefault = awareValue.(float64)
+			} else if defaultVal != "" {
 				curDefault, err = ss.Parse[float64](defaultVal)
 				if err != nil {
 					log.Panicf("default %s is not int", defaultVal)
@@ -264,14 +281,12 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			switch elemType.Kind() {
 			case reflect.String:
 				curDefault := ss.Split(defaultVal, ",")
-				if aware, ok := f.(DefaultPlagValuesAware); ok {
-					if val, ok := aware.DefaultPlagValues(field.Name); ok {
-						curDefault = val.([]string)
-					}
+				if awareValue != nil {
+					curDefault = awareValue.([]string)
 				}
 				p.StringArrayVarP(pp.(*[]string), name, short, curDefault, help)
 			}
-		case reflect.Func:
+		case reflect.Func, reflect.Map, reflect.Chan, reflect.Interface, reflect.UnsafePointer:
 			// ignore
 		default:
 			return fmt.Errorf(`unsupported type: %s %s, use kong:"-" to ignore`, field.Name, field.Type)

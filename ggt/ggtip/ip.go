@@ -92,7 +92,7 @@ var defaultStunServers = []string{
 
 func (f *subCmd) DefaultPlagValues(name string) (any, bool) {
 	switch name {
-	case "Stun":
+	case "StunServer":
 		return defaultStunServers, true
 	}
 	return nil, false
