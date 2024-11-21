@@ -36,6 +36,8 @@ type subCmd struct {
 	ServerPort  int    `short:"P" help:"frp server port"`
 	FrpCnf      string `short:"c" help:"FRP yaml config file" default:"~/.frp.yaml"`
 	ProxyConfig string `short:"p" help:"YAML config file for proxy target" default:"~/.proxytarget.yaml"`
+
+	Version bool `short:"v" help:"show version" version:"1"`
 }
 
 type TargetConfig struct {

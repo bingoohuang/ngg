@@ -193,6 +193,12 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 				p.StringVarP(pp.(*string), name, short, defaultVal, help)
 			}
 		case reflect.Bool:
+			if v, _ := tags.Get("version"); v != nil {
+				flag := p.VarPF(NewVersionValue(), name, short, help)
+				flag.NoOptDefVal = "true"
+				continue
+			}
+
 			curDefault := false
 			if awareValue != nil {
 				curDefault = awareValue.(bool)
@@ -389,3 +395,22 @@ func (e *Enum) Set(v string) error {
 func (e *Enum) Type() string {
 	return "enum"
 }
+
+type versionValue struct{}
+
+func NewVersionValue() *versionValue {
+	return &versionValue{}
+}
+
+func (b *versionValue) Set(s string) error {
+	v, err := strconv.ParseBool(s)
+	if v {
+		fmt.Printf("%s\n", ver.Version())
+		os.Exit(0)
+	}
+	return err
+}
+
+func (b *versionValue) Type() string     { return "bool" }
+func (b *versionValue) String() string   { return strconv.FormatBool(false) }
+func (b *versionValue) IsBoolFlag() bool { return true }
