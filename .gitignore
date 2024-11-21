@@ -22,7 +22,6 @@ go.work
 go.work.sum
 
 # env file
-.env
 .idea
 ggt/pub.key
 ggt/pri.key
