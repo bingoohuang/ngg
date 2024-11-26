@@ -63,7 +63,7 @@ func tryDecode(data []byte) []byte {
 	} else if err1 != nil && err2 != nil {
 		return data
 	} else { // err1 == nil && err2 == nil
-		chosen, err := gum.Choose("format "+string(data), []string{"Hex", "Base64", "Raw"}, 1)
+		chosen, err := gum.Choose([]string{"Hex", "Base64", "Raw"}, gum.ChooseHeader("format "+string(data)))
 		if err != nil {
 			panic(err)
 		}
@@ -106,7 +106,7 @@ func (o Option) Open(input string) (*Result, error) {
 		}
 
 		if o.Required {
-			line, err := gum.Input("Input:", "Input something")
+			line, err := gum.Input("Input:", gum.InputPlaceholder("Input something"))
 			if err != nil {
 				return nil, err
 			}

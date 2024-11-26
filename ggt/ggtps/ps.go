@@ -119,7 +119,7 @@ func chooseProcess(ctx context.Context, args []string) int {
 		for _, p := range selectedProcesses {
 			chooseItems = append(chooseItems, fmt.Sprintf("%d\t%s", p.Pid, ss.Pick1(p.Cmdline())))
 		}
-		result, _ := gum.Choose(chooseItems, 1)
+		result, _ := gum.Choose(chooseItems)
 		if len(result) > 0 {
 			pid, _ := ss.Parse[int](ss.Fields(result[0], 2)[0])
 			return pid

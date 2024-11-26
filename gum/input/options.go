@@ -1,14 +1,9 @@
 package input
 
 import (
-	"os"
 	"time"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/gum/style"
-	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/lipgloss"
 )
 
 // Options are the customization options for the input.
@@ -26,51 +21,5 @@ type Options struct {
 	ShowHelp         bool          `help:"Show help keybinds" default:"true" negatable:"true" env:"GUM_INPUT_SHOW_HELP"`
 	Header           string        `help:"Header value" default:"" env:"GUM_INPUT_HEADER"`
 	HeaderStyle      style.Styles  `embed:"" prefix:"header." set:"defaultForeground=240" envprefix:"GUM_INPUT_HEADER_"`
-	Timeout          time.Duration `help:"Timeout until input aborts" default:"0" env:"GUM_INPUT_TIMEOUT"`
-}
-
-// Run provides a shell script interface for the text input bubble.
-// https://github.com/charmbracelet/bubbles/textinput
-func (o Options) Run() (string, error) {
-	value := o.Value
-
-	theme := huh.ThemeCharm()
-	theme.Focused.Base = lipgloss.NewStyle()
-	theme.Focused.TextInput.Cursor = o.CursorStyle.ToLipgloss()
-	theme.Focused.TextInput.Placeholder = o.PlaceholderStyle.ToLipgloss()
-	theme.Focused.TextInput.Prompt = o.PromptStyle.ToLipgloss()
-	theme.Focused.Title = o.HeaderStyle.ToLipgloss()
-
-	// Keep input keymap backwards compatible
-	keymap := huh.NewDefaultKeyMap()
-	keymap.Quit = key.NewBinding(key.WithKeys("ctrl+c", "esc"))
-
-	echoMode := huh.EchoModeNormal
-	if o.Password {
-		echoMode = huh.EchoModePassword
-	}
-
-	err := huh.NewForm(
-		huh.NewGroup(
-			huh.NewInput().
-				Prompt(o.Prompt).
-				Placeholder(o.Placeholder).
-				CharLimit(o.CharLimit).
-				EchoMode(echoMode).
-				Title(o.Header).
-				Value(&value),
-		),
-	).
-		WithShowHelp(false).
-		WithWidth(o.Width).
-		WithTheme(theme).
-		WithKeyMap(keymap).
-		WithShowHelp(o.ShowHelp).
-		WithProgramOptions(tea.WithOutput(os.Stderr)).
-		Run()
-	if err != nil {
-		return "", err
-	}
-
-	return value, nil
+	Timeout          time.Duration `help:"Timeout until input aborts" default:"0s" env:"GUM_INPUT_TIMEOUT"`
 }

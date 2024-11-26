@@ -1,13 +1,15 @@
 package gum
 
 import (
+	"time"
+
 	"github.com/alecthomas/kong"
 	"github.com/bingoohuang/ngg/gum/choose"
 	"github.com/bingoohuang/ngg/gum/confirm"
 	"github.com/bingoohuang/ngg/gum/input"
 )
 
-var kongVars = kong.Vars{
+var KongVars = kong.Vars{
 	"defaultHeight":           "0",
 	"defaultWidth":            "0",
 	"defaultAlign":            "left",
@@ -25,27 +27,69 @@ var kongVars = kong.Vars{
 	"defaultStrikethrough":    "false",
 }
 
-func Confirm(prompt string) (bool, error) {
+func ConfirmTimeout(timeout time.Duration) func(*confirm.Options) {
+	return func(o *confirm.Options) { o.Timeout = timeout }
+}
+
+func ConfirmDefault(defaultValue bool) func(*confirm.Options) {
+	return func(o *confirm.Options) { o.Default = defaultValue }
+}
+
+func Confirm(prompt string, optionsFn ...func(*confirm.Options) ([]string, error)) (bool, error) {
 	option := &confirm.Options{}
-	KongParse(option, kongVars)
+	KongParse(option, KongVars)
 	option.Prompt = prompt
+
+	for _, fn := range optionsFn {
+		fn(option)
+	}
+
 	return option.Run()
 }
 
-func Choose(header string, options []string, limit int) ([]string, error) {
+func ChooseTimeout(timeout time.Duration) func(*choose.Options) {
+	return func(o *choose.Options) { o.Timeout = timeout }
+}
+
+func ChooseTimeoutValues(timeoutValues []string) func(*choose.Options) {
+	return func(o *choose.Options) { o.TimeoutValues = timeoutValues }
+}
+
+func ChooseLimit(limit int) func(*choose.Options) {
+	return func(o *choose.Options) { o.Limit = limit }
+}
+func ChooseHeader(header string) func(*choose.Options) {
+	return func(o *choose.Options) { o.Header = header }
+}
+
+func Choose(options []string, optionsFn ...func(*choose.Options)) ([]string, error) {
 	option := &choose.Options{}
-	KongParse(option, kongVars)
-	option.Header = header
+	KongParse(option, KongVars)
+
 	option.Options = options
-	option.Limit = limit
+	for _, fn := range optionsFn {
+		fn(option)
+	}
 	return option.Run()
 }
 
-func Input(prompt, placeholder string) (string, error) {
+func InputTimeout(timeout time.Duration) func(*input.Options) {
+	return func(o *input.Options) { o.Timeout = timeout }
+}
+
+func InputPlaceholder(placehold string) func(*input.Options) {
+	return func(o *input.Options) { o.Placeholder = placehold }
+}
+
+func Input(prompt string, optionsFn ...func(*input.Options)) (string, error) {
 	option := &input.Options{}
-	KongParse(option, kongVars)
+	KongParse(option, KongVars)
 	option.Prompt = prompt
-	option.Placeholder = placeholder
+
+	for _, fn := range optionsFn {
+		fn(option)
+	}
+
 	return option.Run()
 }
 

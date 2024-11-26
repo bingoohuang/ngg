@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	_ "github.com/bingoohuang/ngg/daemon/autoload"
 	"github.com/bingoohuang/ngg/ggt/root"
@@ -137,7 +138,8 @@ func chooseServerPort(frpFile string, flagServerPort int) (string, error) {
 			configValues["serverPort"] = flagServerPort
 		} else {
 			ports := ss.Split(multiPorts, ",")
-			chosen, err := gum.Choose("choose serverPort", ports, 1)
+			chosen, err := gum.Choose(ports, gum.ChooseLimit(1), gum.ChooseHeader("choose serverPort"),
+				gum.ChooseTimeout(3*time.Second), gum.ChooseTimeoutValues([]string{ports[ss.Rand().Intn(len(ports))]}))
 			if err != nil {
 				return "", err
 			}
