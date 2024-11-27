@@ -22,7 +22,7 @@ func TestDay(t *testing.T) {
 
 	defer os.RemoveAll(dir)
 
-	option, err := NewFile(filepath.Join(dir, "abc.log"), 3)
+	option, err := NewFile(filepath.Join(dir, "abc.log"), 3, true)
 	assert.Nil(t, err)
 
 	day, _ := util.ParseTime("2020-02-10", yyyyMMdd)

@@ -20,16 +20,16 @@ type File struct {
 	lastDay    string
 	dir        string
 	MaxBackups int
+	Debug      bool
 }
 
-var Debug = false
-
 // NewFile create a rotation option.
-func NewFile(filename string, maxBackups int) (*File, error) {
+func NewFile(filename string, maxBackups int, debug bool) (*File, error) {
 	o := &File{
 		Filename:   filename,
 		MaxBackups: maxBackups,
 		dir:        filepath.Dir(filename),
+		Debug:      debug,
 	}
 
 	if err := os.MkdirAll(o.dir, 0o755); err != nil {
@@ -51,7 +51,7 @@ func (o *File) open() error {
 
 	o.file = f
 
-	if Debug {
+	if o.Debug {
 		log.Printf("log file %s created", o.Filename)
 	}
 
@@ -74,7 +74,7 @@ func (o *File) doRotate(rotated string, outMaxBackups []string) error {
 			return fmt.Errorf("rotate %s to %s error %w", o.Filename, rotated, err)
 		}
 
-		if Debug {
+		if o.Debug {
 			log.Printf("%s rotated to %s", o.Filename, rotated)
 		}
 
@@ -88,7 +88,7 @@ func (o *File) doRotate(rotated string, outMaxBackups []string) error {
 			return fmt.Errorf("remove log file %s before max backup days %d error %v", old, o.MaxBackups, err)
 		}
 
-		if Debug {
+		if o.Debug {
 			log.Printf("%s before max backup days %d removed", old, o.MaxBackups)
 		}
 	}

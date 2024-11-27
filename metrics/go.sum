@@ -1,9 +1,9 @@
-github.com/bingoohuang/ngg/ss v0.0.0-20241126022002-90cf9af7cfd7 h1:f/vtgp1o3JdjzsC6xTQbdb/cNnyCHd4eFguHMsh42/8=
-github.com/bingoohuang/ngg/ss v0.0.0-20241126022002-90cf9af7cfd7/go.mod h1:q713LuNHPm6REV+2M0nB+H/MnmUH3dx0Z/UjvKTos68=
-github.com/bingoohuang/ngg/ver v0.0.0-20241126022002-90cf9af7cfd7 h1:5BdCLR3pIPaQlBZsZwV5xsxeoT5s7sD2ikN82r2HfLk=
-github.com/bingoohuang/ngg/ver v0.0.0-20241126022002-90cf9af7cfd7/go.mod h1:AMbGjgUESq+WgEcYZU4K+SAGU/7OzTRMDCBjovNL56c=
-github.com/bingoohuang/ngg/yaml v0.0.0-20241126022002-90cf9af7cfd7 h1:NtxSqgdfd4bGPNRHgax6+EI026aPEKDIGsFLOQquWcs=
-github.com/bingoohuang/ngg/yaml v0.0.0-20241126022002-90cf9af7cfd7/go.mod h1:WZI5bVsBLHZQFLhEWO5DNyAy8bfR8hP/ANRVTQsdHmI=
+github.com/bingoohuang/ngg/ss v0.0.0-20241126104045-0fd0110ac7ff h1:sl8gdb46O+Zkr6CwNZ42voh7SBRqZL6ZiXdGOt2SKBk=
+github.com/bingoohuang/ngg/ss v0.0.0-20241126104045-0fd0110ac7ff/go.mod h1:q713LuNHPm6REV+2M0nB+H/MnmUH3dx0Z/UjvKTos68=
+github.com/bingoohuang/ngg/ver v0.0.0-20241126104045-0fd0110ac7ff h1:Bbcnnuy5cBQ9+iRMWb5sl7rI6wghVlOiIfkoGw/bOFk=
+github.com/bingoohuang/ngg/ver v0.0.0-20241126104045-0fd0110ac7ff/go.mod h1:AMbGjgUESq+WgEcYZU4K+SAGU/7OzTRMDCBjovNL56c=
+github.com/bingoohuang/ngg/yaml v0.0.0-20241126104045-0fd0110ac7ff h1:lKfckA1BWymvR+ze2Hn1gOD8LAB3nklqg983F7ND5kU=
+github.com/bingoohuang/ngg/yaml v0.0.0-20241126104045-0fd0110ac7ff/go.mod h1:WZI5bVsBLHZQFLhEWO5DNyAy8bfR8hP/ANRVTQsdHmI=
 github.com/caarlos0/env/v11 v11.2.2 h1:95fApNrUyueipoZN/EhA8mMxiNxrBwDa+oAZrMWl3Kg=
 github.com/caarlos0/env/v11 v11.2.2/go.mod h1:JBfcdeQiBoI3Zh1QRAWfe+tpiNTmDtcCj/hHHHMx0vc=
 github.com/creasty/defaults v1.8.0 h1:z27FJxCAa0JKt3utc0sCImAEb+spPucmKoOdLHvHYKk=

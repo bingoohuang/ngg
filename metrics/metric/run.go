@@ -84,7 +84,7 @@ func NewRunner(ofs ...OptionFn) *Runner {
 
 func createRotateFile(o *Option, prefix string) io.Writer {
 	f := filepath.Join(o.LogPath, prefix+o.AppName+".log")
-	lf, err := rotate.NewFile(f, o.MaxBackups)
+	lf, err := rotate.NewFile(f, o.MaxBackups, o.Debug)
 	if err != nil {
 		log.Printf("W! fail to new logMetrics file %s, error %v", f, err)
 		return nil
@@ -101,7 +101,9 @@ func (r *Runner) Start() {
 
 	go r.run()
 
-	log.Printf("runner started")
+	if r.option.Debug {
+		log.Printf("runner started")
+	}
 }
 
 // Stop stops the runner.
@@ -132,7 +134,9 @@ func (r *Runner) run() {
 		case <-hbTicker.C:
 			r.logHB()
 		case <-r.stop:
-			log.Printf("runner stopped")
+			if r.option.Debug {
+				log.Printf("runner stopped")
+			}
 			return
 		}
 	}

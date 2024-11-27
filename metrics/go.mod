@@ -3,7 +3,7 @@ module github.com/bingoohuang/ngg/metrics
 go 1.22.0
 
 require (
-	github.com/bingoohuang/ngg/ss v0.0.0-20241126022002-90cf9af7cfd7
+	github.com/bingoohuang/ngg/ss v0.0.0-20241126104045-0fd0110ac7ff
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/creasty/defaults v1.8.0
 	github.com/joho/godotenv v1.5.1
@@ -11,8 +11,8 @@ require (
 )
 
 require (
-	github.com/bingoohuang/ngg/ver v0.0.0-20241126022002-90cf9af7cfd7 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241126022002-90cf9af7cfd7 // indirect
+	github.com/bingoohuang/ngg/ver v0.0.0-20241126104045-0fd0110ac7ff // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241126104045-0fd0110ac7ff // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
