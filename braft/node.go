@@ -230,11 +230,16 @@ func (n *Node) createNode() error {
 	n.memberConfig = func(nodeID string, dport, rport int) *memberlist.Config {
 		c := memberlist.DefaultLocalConfig()
 
-		// fix "get final advertise address: No private IP address found, and explicit IP not provided"
-		if privateIP, _ := sockaddr.GetPrivateIP(); privateIP == "" {
-			if allIPv4, _ := gnet.ListIPv4(); len(allIPv4) > 0 {
-				c.AdvertiseAddr = allIPv4[0]
-				c.AdvertisePort = dport
+		if conf.HostIP != "" {
+			c.AdvertiseAddr = conf.HostIP
+			c.AdvertisePort = dport
+		} else {
+			// fix "get final advertise address: No private IP address found, and explicit IP not provided"
+			if privateIP, _ := sockaddr.GetPrivateIP(); privateIP == "" {
+				if allIPv4, _ := gnet.ListIPv4(); len(allIPv4) > 0 {
+					c.AdvertiseAddr = allIPv4[0]
+					c.AdvertisePort = dport
+				}
 			}
 		}
 
