@@ -320,7 +320,7 @@ Example for an authorization configuration that is used for the system tests:
     - 解决方案 建议尽早将Sarama Go客户端替换为Confluent Go客户端。 Confluent Go客户端的Demo地址，请访问 [kafka-confluent-go-demo](https://github.com/AliwareMQ/aliware-kafka-demos/tree/master/kafka-confluent-go-demo)。
 5. [一些关于 kafka 客户端库实践经验汇总](https://pandaychen.github.io/2022/02/08/A-KAFKA-USAGE-SUMUP-3/)
 6. Modern CLI for Apache Kafka, written in Go. [birdayz/kaf](https://github.com/birdayz/kaf)
-
+7. Open-Source Web UI for Apache Kafka Management [provectus/kafka-ui](https://github.com/provectus/kafka-ui)
 
 ## kafka-proxy 使用
 
