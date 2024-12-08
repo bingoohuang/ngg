@@ -445,3 +445,21 @@ User-Agent: gurl/1.0.0
 2. [Hurl](https://github.com/Orange-OpenSource/hurl) is a command line tool that runs HTTP requests defined in a simple
    plain text format.
 3. [httpretty](https://github.com/henvic/httpretty) prints the HTTP requests you make with Go pretty on your terminal.
+
+## tlcp support
+
+```sh
+# 生成根证书和服务端证书
+$ tlcp -m localhost
+# 生成客户端证书
+$ tlcp -c -m localhost
+# 启动国密 https 服务
+$ tlcp -l :8443 --ecdhe --verify-client-cert -r root.pem -C localhost.pem -C localhost.key -C localhost.pem -C localhost.key
+listen on :8443
+```
+
+```sh
+# 调用验证
+$ TLS_VERIFY=1 TLCP=1 TLCP_CERTS=localhost-client.pem,localhost-client.key,localhost-client.pem,localhost-client.key CERT=root.pem gurl https://localhost:8443 
+Hello GoTLCP!
+```

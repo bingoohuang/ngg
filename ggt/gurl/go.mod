@@ -5,20 +5,20 @@ go 1.23.2
 replace github.com/bingoohuang/ngg/ggt => ..
 
 require (
-	gitee.com/Trisia/gotlcp v1.3.23
+	gitee.com/Trisia/gotlcp v1.3.24
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000
-	github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241105045816-9aa1e96e9d2f
-	github.com/bingoohuang/ngg/gnet v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/jj v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/tick v0.0.0-20241104133609-bea46d5d635d
-	github.com/bingoohuang/ngg/ver v0.0.0-20241104133609-bea46d5d635d
+	github.com/bingoohuang/ngg/ggt v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/gnet v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/jj v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/ss v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/tick v0.0.0-20241207015344-86a14e6be24d
+	github.com/bingoohuang/ngg/ver v0.0.0-20241207015344-86a14e6be24d
 	github.com/chzyer/readline v1.5.1
-	github.com/deatil/go-cryptobin v1.0.4025
-	github.com/emmansun/gmsm v0.29.1
+	github.com/deatil/go-cryptobin v1.0.4030
+	github.com/emmansun/gmsm v0.29.5
 	github.com/fatih/color v1.18.0
-	github.com/jedib0t/go-pretty/v6 v6.6.1
+	github.com/jedib0t/go-pretty/v6 v6.6.3
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
@@ -28,8 +28,8 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20241103104547-2d1bf667deef // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241103104547-2d1bf667deef // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20241207015344-86a14e6be24d // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241207015344-86a14e6be24d // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
@@ -39,8 +39,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
-	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
+	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
@@ -55,7 +55,7 @@ require (
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/schollz/pake/v3 v3.0.5 // indirect
-	github.com/schollz/progressbar/v3 v3.17.0 // indirect
+	github.com/schollz/progressbar/v3 v3.17.1 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
@@ -65,13 +65,13 @@ require (
 	github.com/tscholl2/siec v0.0.0-20240310163802-c2c6f6198406 // indirect
 	github.com/vthiery/retry v0.1.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
-	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
-	golang.org/x/time v0.7.0 // indirect
+	golang.org/x/crypto v0.30.0 // indirect
+	golang.org/x/exp v0.0.0-20241204233417-43b7b7cde48d // indirect
+	golang.org/x/net v0.32.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/time v0.8.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
