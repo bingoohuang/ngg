@@ -364,11 +364,11 @@ func (r *Invoker) doRequest(req *fasthttp.Request, rsp *fasthttp.Response, rr *b
 		return err
 	}
 
-	return r.processRsp(req, rsp, rr, nil)
+	_, err = r.processRsp(req, rsp, rr, nil)
+	return err
 }
 
-func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result,
-	responseJSONValuer func(jsonBody []byte)) error {
+func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result, responseJSONValuer func(jsonBody []byte) map[string]string) (map[string]string, error) {
 	status := parseStatus(rsp, r.opt.statusName)
 	rr.Status = append(rr.Status, status)
 	if r.opt.verbose >= 1 {
@@ -376,7 +376,7 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	}
 
 	if r.opt.logf == nil && r.opt.printOption == 0 {
-		return rsp.BodyWriteTo(io.Discard)
+		return nil, rsp.BodyWriteTo(io.Discard)
 	}
 
 	bx := io.Discard
@@ -415,28 +415,29 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 
 	var body *bytes.Buffer
 
-	if responseJSONValuer != nil && bytes.HasPrefix(
-		rsp.Header.Peek("Content-Type"), []byte("application/json")) {
+	contentType := rsp.Header.Peek("Content-Type")
+	if responseJSONValuer != nil && bytes.HasPrefix(contentType, []byte("application/json")) {
 		body = &bytes.Buffer{}
 		bb1 = body
 	}
 
 	d, err := rsp.BodyUncompressed()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	bb1.Write(d)
 
+	var resultMap map[string]string
 	if responseJSONValuer != nil && body != nil {
 		i := body.Bytes()
-		responseJSONValuer(i)
+		resultMap = responseJSONValuer(i)
 		b1.Write(i)
 	}
 
 	//_, _ = b1.Write([]byte("\n\n"))
 	r.printResp(b1, bx, rsp, statusCode, status, samplingYes)
 
-	return nil
+	return resultMap, nil
 }
 
 var samplingFunc = func() func() bool {
@@ -454,7 +455,7 @@ func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statu
 	//if status != "status 200" {
 	//	log.Print(status)
 	//}
-	if !logStatus(r.opt.berfConfig.N, statusCode, status) {
+	if !logStatus(r.opt.berfConfig.N, statusCode, status, r.opt.printOption) {
 		bx = nil
 	}
 
@@ -484,14 +485,14 @@ func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statu
 	}
 }
 
-var logStatus = func() func(n, code int, customizedStatus string) bool {
+var logStatus = func() func(n, code int, customizedStatus string, printOption uint8) bool {
 	if env := os.Getenv("BLOW_STATUS"); env != "" {
 		excluded := ss.HasPrefix(env, "-")
 		if excluded {
 			env = env[1:]
 		}
-		return func(n, code int, customizedStatus string) bool {
-			if n == 1 {
+		return func(n, code int, customizedStatus string, printOption uint8) bool {
+			if n == 1 || printOption > 0 {
 				return true
 			}
 			if excluded {
@@ -501,8 +502,8 @@ var logStatus = func() func(n, code int, customizedStatus string) bool {
 		}
 	}
 
-	return func(n, code int, status string) bool {
-		if n == 1 {
+	return func(n, code int, status string, printOption uint8) bool {
+		if n == 1 || printOption > 0 {
 			return true
 		}
 		return code < 200 || code >= 300
@@ -513,7 +514,7 @@ func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Respons
 	//if status != "status 200" {
 	//	log.Print(status)
 	//}
-	if !logStatus(r.opt.berfConfig.N, statusCode, status) {
+	if !logStatus(r.opt.berfConfig.N, statusCode, status, r.opt.printOption) {
 		bx = nil
 	}
 
@@ -534,9 +535,9 @@ func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Respons
 	}
 	if r.opt.printOption&printRespBody == printRespBody {
 		if string(dumpBody) != "\r\n" {
-			if r.opt.statusName != "" {
-				dumpBody = []byte(parseStatus(rsp, r.opt.statusName))
-			}
+			//if r.opt.statusName != "" {
+			//	dumpBody = []byte(parseStatus(rsp, r.opt.statusName))
+			//}
 			printBody(dumpBody, printNum, r.opt.pretty)
 			printNum++
 		}
@@ -641,8 +642,11 @@ func (r *Invoker) runProfiles(req *fasthttp.Request, rsp *fasthttp.Response, ini
 		r.opt.profiles = nonInitial
 	}
 
+	var resultMap map[string]string
+	var err error
 	for _, p := range profiles {
-		if err := r.runOneProfile(p, req, rsp, rr); err != nil {
+		resultMap, err = r.runOneProfile(p, resultMap, req, rsp, rr)
+		if err != nil {
 			return rr, err
 		}
 
@@ -657,37 +661,36 @@ func (r *Invoker) runProfiles(req *fasthttp.Request, rsp *fasthttp.Response, ini
 	return rr, nil
 }
 
-func (r *Invoker) runOneProfile(p *internal.Profile, req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result) error {
-	closers, err := p.CreateReq(r.isTLS, req, r.opt.enableGzip, r.opt.uploadIndex)
+func (r *Invoker) runOneProfile(p *internal.Profile, resultMap map[string]string, req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result) (map[string]string, error) {
+	closers, err := p.CreateReq(r.isTLS, req, r.opt.enableGzip, r.opt.uploadIndex, resultMap)
 	defer ss.Close(closers)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	t1 := time.Now()
 	err = r.httpInvoke(req, rsp)
 	rr.Cost += time.Since(t1)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	f := createJSONValuer(p)
 	return r.processRsp(req, rsp, rr, f)
 }
 
-func createJSONValuer(p *internal.Profile) func(jsonBody []byte) {
-	if p.Init {
-		if expr := p.ResultExpr; len(expr) > 0 {
-			return func(jsonBody []byte) {
-				for ek, ev := range expr {
-					if jr := jj.GetBytes(jsonBody, ev); jr.Type != jj.Null {
-						internal.Valuer.Register(ek, func(string) interface{} {
-							return jr.String()
-						})
-					}
+func createJSONValuer(p *internal.Profile) func(jsonBody []byte) map[string]string {
+	if expr := p.ResultExpr; len(expr) > 0 {
+		return func(jsonBody []byte) map[string]string {
+			kvs := map[string]string{}
+			for ek, ev := range expr {
+				jr := jj.GetBytes(jsonBody, ek)
+				if jr.Type != jj.Null {
+					kvs[ev] = jr.String()
 				}
 			}
+			return kvs
 		}
 	}
 

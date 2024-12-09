@@ -29,6 +29,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	stdlog.Init()
+}
+
 func main() {
 	c := root.CreateCmd(nil, "hertz", "hertz 测试服务器", &subCmd{})
 	if err := c.Execute(); err != nil {

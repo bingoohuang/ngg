@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bufio"
+	"bytes"
 	_ "embed"
 	"encoding/base64"
 	"errors"
@@ -19,9 +20,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploadIndex bool) (Closers, error) {
+func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploadIndex bool, resultMap map[string]string) (Closers, error) {
 	p.requestHeader.CopyTo(&req.Header)
-	if !p.Init && p.Eval {
+	if p.Eval {
 		req.Header.SetRequestURI(Gen(p.URL, IgnoreJSON))
 	}
 
@@ -64,6 +65,10 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 				bodyBytes = v
 				req.Header.Set("Content-Encoding", "gzip")
 			}
+		}
+
+		for k, v := range resultMap {
+			bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
 		}
 
 		req.SetBodyRaw(bodyBytes)
