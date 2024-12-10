@@ -401,6 +401,13 @@ func (r *Invoker) doRequest(req *fasthttp.Request, rsp *fasthttp.Response, rr *b
 	return err
 }
 
+var seqFn = func() func() int64 {
+	var seq atomic.Int64
+	return func() int64 {
+		return seq.Add(1)
+	}
+}()
+
 func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result,
 	p *internal.Profile, tracerID string,
 	resultMap *map[string]string, asserts map[string]string) error {
@@ -420,10 +427,12 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	conn := rsp.LocalAddr().String() + "->" + rsp.RemoteAddr().String()
 	traceInfo := ""
 	if tracerID != "" {
-		traceInfo = "[RunID: " + tracerID + "]"
+		traceInfo = "[RunID: " + tracerID + "]\n"
 	}
-	summary := fmt.Sprintf("### %s 时间: %s 耗时: %s  读/写: %d/%d 字节\n%s\n",
-		conn, time.Now().Format(time.RFC3339Nano), rr.Cost, r.readBytes, r.writeBytes, traceInfo)
+
+	summary := fmt.Sprintf("### #%d %s 时间: %s 耗时: %s  读/写: %d/%d 字节\n%s",
+		seqFn(), conn, time.Now().Format(time.RFC3339Nano), rr.Cost, r.readBytes, r.writeBytes, traceInfo)
+
 	_, _ = b1.WriteString(summary)
 
 	bw := bufio.NewWriter(b1)
@@ -490,9 +499,6 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	}
 
 	if len(assertResult) > 0 {
-		if traceInfo != "" {
-			traceInfo += "\n"
-		}
 		traceInfo += "[" + strings.Join(assertResult, "]\n[") + "]"
 	}
 
