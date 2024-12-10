@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/bingoohuang/ngg/berf/pkg/blow"
+	_ "github.com/bingoohuang/ngg/jj/randpoem/shijing"
 	"github.com/bingoohuang/ngg/ver"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/pflag"
-	"os"
 )
 
 func init() {

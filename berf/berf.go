@@ -77,6 +77,7 @@ type Result struct {
 	ReadBytes  int64
 	WriteBytes int64
 	Cost       time.Duration
+	AssertFail int64
 }
 
 // BenchOption defines the bench option.

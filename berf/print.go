@@ -399,6 +399,9 @@ func (p *Printer) buildSummary(r *SnapshotReport, isFinal bool, sr *SummaryRepor
 
 	sr.RPS = fmt.Sprintf("%.3f", r.RPS)
 
+	if r.AssertFail > 0 {
+		summaryBulk = append(summaryBulk, []string{"校验失败", strconv.FormatInt(r.AssertFail, 10)})
+	}
 	if r.ReadBytes > 0 || r.WriteBytes > 0 {
 		readAvg := float64(r.ReadBytes) * 8 / 1000. / 1000. / r.ElapseInSec
 		writeAvg := float64(r.WriteBytes) * 8 / 1000. / 1000. / r.ElapseInSec

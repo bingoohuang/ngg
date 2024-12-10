@@ -4,35 +4,44 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	_ "embed"
+	"encoding/hex"
 	"io"
 	"log"
 
+	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 )
 
-func RandPoetryTang() string { return SliceRandItem(PoetryTangsLines) }
-func RandSongci() string     { return SliceRandItem(SongciLines) }
-func RandShijing() string    { return SliceRandItem(ShijingLines) }
+func AdaptEncoding(val, options string) string {
+	arg := struct {
+		Base64 bool
+		Url    bool
+		Raw    bool
+		Hex    bool
+	}{}
+
+	jj.ParseConf(options, &arg)
+	switch {
+	case arg.Base64:
+		var flags []ss.Base64Flags
+		if arg.Url {
+			flags = append(flags, ss.Url)
+		}
+		if arg.Raw {
+			flags = append(flags, ss.Raw)
+		}
+
+		return ss.Base64().Encode(val, flags...).V1.String()
+	case arg.Hex:
+		return hex.EncodeToString([]byte(val))
+	}
+
+	return val
+}
 
 func SliceRandItem(data []string) string {
 	return data[ss.Rand().Intn(len(data))]
 }
-
-var (
-	//go:embed poetryTang.txt.gz
-	PoetryTangTxtGz []byte
-
-	//go:embed shijing.txt.gz
-	ShijingTxtGz []byte
-
-	//go:embed songci.txt.gz
-	SongciTxtGz []byte
-
-	PoetryTangsLines = UnGzipLines(PoetryTangTxtGz)
-	ShijingLines     = UnGzipLines(ShijingTxtGz)
-	SongciLines      = UnGzipLines(SongciTxtGz)
-)
 
 func UnGzipLines(input []byte) []string {
 	content := MustUnGzip(input)

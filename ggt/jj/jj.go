@@ -17,7 +17,9 @@ import (
 
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/jj"
-	_ "github.com/bingoohuang/ngg/jj/randpoem"
+	_ "github.com/bingoohuang/ngg/jj/randpoem/poetrytang"
+	_ "github.com/bingoohuang/ngg/jj/randpoem/shijing"
+	_ "github.com/bingoohuang/ngg/jj/randpoem/songci"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
 	"github.com/expr-lang/expr"

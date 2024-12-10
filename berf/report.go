@@ -20,6 +20,7 @@ type ReportRecord struct {
 	cost       time.Duration
 	readBytes  int64
 	writeBytes int64
+	assertFail int64
 }
 
 func (r *ReportRecord) Reset() {
@@ -103,6 +104,7 @@ type StreamReport struct {
 	lock         sync.Mutex
 
 	noDateWithinSec bool
+	assertFail      int64
 }
 
 func NewStreamReport(requester *Requester) *StreamReport {
@@ -179,6 +181,7 @@ func (s *StreamReport) Collect(recordChan <-chan *ReportRecord) {
 		r.counting = nil
 		s.readBytes += r.readBytes
 		s.writeBytes += r.writeBytes
+		s.assertFail += r.assertFail
 		s.lock.Unlock()
 		recordPool.Put(r)
 	}
@@ -212,6 +215,7 @@ type SnapshotReport struct {
 	Count, Counting  int64
 
 	ReadBytes, WriteBytes int64
+	AssertFail            int64
 	Elapsed               time.Duration
 }
 
@@ -238,6 +242,7 @@ func (s *StreamReport) Snapshot() *SnapshotReport {
 	rs.RPS = float64(rs.Count) / elapseInSec
 	rs.ReadBytes = s.readBytes
 	rs.WriteBytes = s.writeBytes
+	rs.AssertFail = s.assertFail
 	rs.Counting = int64(s.counts.Estimate())
 	rs.ElapseInSec = elapseInSec
 

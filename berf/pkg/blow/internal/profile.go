@@ -5,6 +5,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/textproto"
@@ -17,6 +18,7 @@ import (
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
+	"github.com/hjson/hjson-go/v4"
 	"github.com/valyala/fasthttp"
 )
 
@@ -46,10 +48,10 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 	}
 
 	var bodyBytes []byte
-	if len(p.bodyFileData) > 0 {
+	if p.bodyFileName != "" && len(p.bodyFileData) > 0 {
 		bodyBytes = CloneBytes(p.bodyFileData)
 	} else if p.Body != "" {
-		bodyBytes = []byte(p.Body)
+		bodyBytes = CloneBytes([]byte(p.Body))
 	}
 
 	if len(bodyBytes) > 0 {
@@ -160,6 +162,8 @@ type Option struct {
 	// 例如：result.id=chinaID，表示设置 @id = jj.Get(responseJSON, "chinaID")
 	// 一般配合初始化调用使用，例如从登录结果中提取 accessToken 等
 	ResultExpr map[string]string `prefix:"result."`
+	SourceExpr map[string]string `prefix:"source."`
+	Asserts    map[string]string `prefix:"assert."`
 	Tag        string
 	Eval       bool
 	JsonBody   bool
@@ -168,15 +172,22 @@ type Option struct {
 	Init bool
 }
 
-func (o *Option) JSONValuer(jsonBody []byte) map[string]string {
-	kvs := map[string]string{}
+func (o *Option) SourceJSONValuer(jsonBody []byte, kvs *map[string]string) {
+	for ek, ev := range o.SourceExpr {
+		jr := jj.GetBytes(jsonBody, ek)
+		if jr.Type != jj.Null {
+			(*kvs)[ev] = jr.String()
+		}
+	}
+}
+
+func (o *Option) ResultJSONValuer(jsonBody []byte, kvs *map[string]string) {
 	for ek, ev := range o.ResultExpr {
 		jr := jj.GetBytes(jsonBody, ek)
 		if jr.Type != jj.Null {
-			kvs[ev] = jr.String()
+			(*kvs)[ev] = jr.String()
 		}
 	}
-	return kvs
 }
 
 type Profile struct {
@@ -314,11 +325,14 @@ func postProcessProfiles(profiles []*Profile) error {
 		if len(p.Body) > 0 {
 			p.bodyFileName, p.bodyFileData, _ = ParseBodyArg(p.Body, false, false)
 
-			if p.Header[ContentTypeName] == "" && jj.Valid(p.Body) {
-				p.Header[ContentTypeName] = ContentTypeJSON
+			if body, err := Hjson2Json([]byte(p.Body)); err == nil {
+				p.Body = string(body)
 			}
 
-			p.JsonBody = p.Header[ContentTypeName] == ContentTypeJSON
+			if p.Header[ContentTypeName] == "" && jj.Valid(p.Body) {
+				p.Header[ContentTypeName] = ContentTypeJSON
+				p.JsonBody = true
+			}
 		}
 
 		if len(p.Comments) > 0 {
@@ -345,6 +359,15 @@ const (
 var headerReg = regexp.MustCompile(`(^\w+(?:-\w+)*)(==|:=|=|:|@)\s*(.*)$`)
 
 var lastComments []string
+
+func Hjson2Json(s []byte) ([]byte, error) {
+	var value any
+	if err := hjson.Unmarshal(s, &value); err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(value)
+}
 
 func processLine(p *Profile, l string, envVars EnvVars) *Profile {
 	if option, ok := Quoted(l, "[", "]"); ok {
@@ -409,6 +432,10 @@ func processLine(p *Profile, l string, envVars EnvVars) *Profile {
 
 			return p
 		}
+	}
+
+	if len(p.Body) > 0 {
+		p.Body += "\n"
 	}
 
 	p.Body += l

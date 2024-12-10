@@ -22,6 +22,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/components"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/go-echarts/go-echarts/v2/templates"
+	"github.com/go-echarts/go-echarts/v2/types"
 	"github.com/valyala/fasthttp"
 )
 
@@ -157,7 +158,7 @@ func (c *Views) newView(name, unit string, series plugins.Series) components.Cha
 	g := c.newBasicView(name)
 	var axisLabel *opts.AxisLabel
 	if unit != "" {
-		axisLabel = &opts.AxisLabel{Formatter: "{value} " + unit}
+		axisLabel = &opts.AxisLabel{Formatter: types.FuncStr("{value} " + unit)}
 	}
 	g.SetGlobalOptions(charts.WithTitleOpts(opts.Title{Title: title(name)}),
 		charts.WithYAxisOpts(opts.YAxis{Scale: New(true), AxisLabel: axisLabel}),

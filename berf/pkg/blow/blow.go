@@ -92,12 +92,13 @@ const (
 	printRespBody
 	printRespStatusCode
 	printDebug
+	printAll
 )
 
 func parsePrintOption(s string) (printOption uint8) {
 	for r, v := range map[string]uint8{
-		"A": printReqHeader | printReqBody | printRespHeader | printRespBody,
-		"a": printReqHeader | printReqBody | printRespHeader | printRespBody,
+		"A": printAll,
+		"a": printAll,
 		"R": printReqHeader | printReqBody,
 		"r": printRespHeader | printRespBody,
 		"H": printReqHeader,
@@ -229,7 +230,7 @@ type Opt struct {
 }
 
 func (o *Opt) HasPrintOption(feature uint8) bool {
-	return o.printOption&feature == feature
+	return o.printOption&feature == feature || o.printOption&printAll == printAll
 }
 
 func (o *Opt) MaybePost() bool {

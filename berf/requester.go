@@ -85,6 +85,7 @@ func (r *Requester) doRequest(ctx context.Context, rr *ReportRecord) (err error)
 	}
 
 	rr.code = result.Status
+	rr.assertFail = result.AssertFail
 	if r.verbose >= 1 {
 		rr.counting = result.Counting
 	}
