@@ -271,6 +271,22 @@ func (f *Features) GetInt(feature string, defaultValue int) int {
 	return val
 }
 
+// GetFloat gets the feature value as int.
+func (f *Features) GetFloat(feature string, defaultValue float64) float64 {
+	s := (*f)[strings.ToLower(feature)]
+	if s == "" {
+		return defaultValue
+	}
+
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		log.Printf("%s's value %s is not a float", feature, s)
+		return defaultValue
+	}
+
+	return val
+}
+
 // Get gets the feature map contains a features.
 func (f *Features) Get(feature string) string {
 	s := f.get(feature)

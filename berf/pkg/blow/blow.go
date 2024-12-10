@@ -56,6 +56,7 @@ var (
 		"      saveRandDir:        save rand generated request files to dir \n"+
 		"      json:               set Content-Type=application/json; charset=utf-8 \n"+
 		"      eval:               evaluate url and body's variables \n"+
+		"      log:                log sampling rate, e.g. 0.5 \n"+
 		"      notty:              no tty color \n")
 	pAuth = pflag.String("auth", "",
 		"basic auth, eg. scott:tiger or direct base64 encoded like c2NvdHQ6dGlnZXI")
@@ -79,8 +80,7 @@ var (
 		"       env TLS_SESSION_CACHE         客户端会话缓存，默认值 32, e.g. TLS_SESSION_CACHE=32 berf ...\n"+
 		"       env MAX_GREEDY_CONNS_PER_HOST 在从连接池获取连接时，总是优先创建新链接，直到 MAX_GREEDY_CONNS_PER_HOST 为止，默认值0, e.g. MAX_GREEDY_CONNS_PER_HOST=100 berf ...\n"+
 		"       env MAX_CONNS_PER_HOST        单台主机最大连接数，默认%d, e.g. MAX_CONNS_PER_HOST=1000 berf ...\n"+
-		"       env MAX_IDLE_CONN_DURATION    连接最大空闲时间，默认%s, e.g. MAX_IDLE_CONN_DURATION=10s berf ...\n"+
-		"       env SAMPLING_RATE    打印请求响应体时的采样率，默认0, e.g. SAMPLING_RATE=0.01 berf ...\n",
+		"       env MAX_IDLE_CONN_DURATION    连接最大空闲时间，默认%s, e.g. MAX_IDLE_CONN_DURATION=10s berf ...\n",
 		fasthttp.DefaultMaxConnsPerHost, fasthttp.DefaultMaxIdleConnDuration))
 )
 
@@ -140,24 +140,7 @@ func (b *Bench) Name(context.Context, *berf.Config) string {
 }
 
 func (b *Bench) Final(_ context.Context, conf *berf.Config) error {
-	opt := b.invoker.opt
-
-	if opt.logf != nil {
-		defer func() {
-			opt.logf.Close()
-			// 关闭日志文件后，如果日志文件是仅仅由于 -n1 引起，则删除之
-			if conf.Verbose == 0 {
-				opt.logf.Remove()
-			}
-		}()
-	}
-
-	if conf.N == 1 && opt.logf != nil && opt.printOption == 0 {
-		if v := opt.logf.GetLastLog(); v != "" {
-			v = colorJSON(v, opt.pretty)
-			_, _ = os.Stdout.WriteString(v)
-		}
-	}
+	b.invoker.waitLog()
 	return nil
 }
 
@@ -196,7 +179,6 @@ func (b *Bench) Invoke(ctx context.Context, conf *berf.Config) (*berf.Result, er
 
 type Opt struct {
 	berfConfig    *berf.Config
-	logf          *internal.LogFile
 	bodyLinesChan chan string
 	urls          []string
 	parsedUrls    []*url.URL
@@ -243,6 +225,7 @@ type Opt struct {
 	tlsVerify          bool
 	pretty             bool
 	noTLSessionTickets bool
+	logSamplingRate    float64
 }
 
 func (o *Opt) HasPrintOption(feature uint8) bool {
@@ -346,6 +329,7 @@ func Blow(ctx context.Context, conf *berf.Config) *Invoker {
 		pretty:             opts.HasAny("pretty"),
 		eval:               opts.HasAny("eval"),
 		jsonBody:           opts.HasAny("json"),
+		logSamplingRate:    opts.GetFloat("log", -1),
 		ant:                opts.HasAny("ant"),
 		saveRandDir:        opts.Get("saveRandDir"),
 		verbose:            conf.Verbose,
@@ -362,7 +346,6 @@ func Blow(ctx context.Context, conf *berf.Config) *Invoker {
 		hasStdoutDevice = false
 	}
 
-	opt.logf = internal.CreateLogFile(opt.verbose, conf.N)
 	opt.profiles = internal.ParseProfileArg(*pProfiles, *pEnv)
 	invoker, err := NewInvoker(ctx, opt)
 	ss.ExitIfErr(err)

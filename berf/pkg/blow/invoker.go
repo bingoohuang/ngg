@@ -31,6 +31,7 @@ import (
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/tick"
+	"github.com/bingoohuang/ngg/tsid"
 	"github.com/spf13/pflag"
 	"github.com/thoas/go-funk"
 	"github.com/valyala/fasthttp"
@@ -52,10 +53,32 @@ type Invoker struct {
 	readBytes       int64
 	isTLS           bool
 	uploadCache     bool
+
+	logChan         chan LogEntry
+	logDealerDone   chan struct{}
+	logSamplingFunc func() bool
+}
+
+type LogEntry struct {
+	Log string
 }
 
 func NewInvoker(ctx context.Context, opt *Opt) (*Invoker, error) {
-	r := &Invoker{opt: opt}
+	r := &Invoker{
+		opt:           opt,
+		logDealerDone: make(chan struct{}),
+	}
+	if opt.logSamplingRate > 0 {
+		logSamplingRate := opt.logSamplingRate
+		r.logSamplingFunc = func() func() bool {
+			return func() bool {
+				return rand.Float64() <= logSamplingRate
+			}
+		}()
+
+		r.logChan = make(chan LogEntry, 1000)
+		go r.dealLog()
+	}
 	r.printLock = NewConditionalLock(r.opt.printOption > 0)
 
 	header, err := r.buildRequestClient(ctx, opt)
@@ -273,10 +296,6 @@ func (r *Invoker) Run(ctx context.Context, bc *berf.Config, initial bool) (*berf
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 
-	if r.opt.logf != nil {
-		r.opt.logf.MarkPos()
-	}
-
 	if bc.N == 1 {
 		req.ConnAcquiredCallback = func(conn net.Conn) {
 			printConnectState(conn)
@@ -351,6 +370,19 @@ func (r *Invoker) runOne(req *fasthttp.Request, resp *fasthttp.Response) (*berf.
 	return rr, err
 }
 
+func (r *Invoker) logSample(line string, samplingYes bool) {
+	if samplingYes {
+		r.logChan <- LogEntry{Log: line}
+	}
+}
+
+func (r *Invoker) log(line string) bool {
+	if r.logSamplingFunc != nil && r.logSamplingFunc() {
+		r.logChan <- LogEntry{Log: line}
+		return true
+	}
+	return false
+}
 func (r *Invoker) updateThroughput(rr *berf.Result) {
 	rr.ReadBytes = atomic.SwapInt64(&r.readBytes, 0)
 	rr.WriteBytes = atomic.SwapInt64(&r.writeBytes, 0)
@@ -364,33 +396,33 @@ func (r *Invoker) doRequest(req *fasthttp.Request, rsp *fasthttp.Response, rr *b
 		return err
 	}
 
-	_, err = r.processRsp(req, rsp, rr, nil)
+	_, err = r.processRsp(req, rsp, rr, nil, "")
 	return err
 }
 
-func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result, responseJSONValuer func(jsonBody []byte) map[string]string) (map[string]string, error) {
+func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result,
+	respJSONValuer func(jsonBody []byte) map[string]string, tracerID string) (map[string]string, error) {
+
 	status := parseStatus(rsp, r.opt.statusName)
 	rr.Status = append(rr.Status, status)
 	if r.opt.verbose >= 1 {
 		rr.Counting = append(rr.Counting, rsp.LocalAddr().String()+"->"+rsp.RemoteAddr().String())
 	}
 
-	if r.opt.logf == nil && r.opt.printOption == 0 {
+	if r.opt.printOption == 0 && r.logSamplingFunc == nil && respJSONValuer == nil {
 		return nil, rsp.BodyWriteTo(io.Discard)
 	}
 
-	bx := io.Discard
 	b1 := &bytes.Buffer{}
 
-	if r.opt.logf != nil {
-		bb := &bytes.Buffer{}
-		bx = bb
-		defer r.opt.logf.Write(bb)
-	}
-
 	conn := rsp.LocalAddr().String() + "->" + rsp.RemoteAddr().String()
-	_, _ = b1.WriteString(fmt.Sprintf("### %s 时间: %s 耗时: %s  读/写: %d/%d 字节\n",
-		conn, time.Now().Format(time.RFC3339Nano), rr.Cost, r.readBytes, r.writeBytes))
+	traceInfo := ""
+	if tracerID != "" {
+		traceInfo = "RunID: " + tracerID + " "
+	}
+	summary := fmt.Sprintf("### %s %s 时间: %s 耗时: %s  读/写: %d/%d 字节\n", traceInfo,
+		conn, time.Now().Format(time.RFC3339Nano), rr.Cost, r.readBytes, r.writeBytes)
+	_, _ = b1.WriteString(summary)
 
 	bw := bufio.NewWriter(b1)
 	_ = req.Header.Write(bw)
@@ -404,9 +436,8 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	ignoreBody := h.IsGet() || h.IsHead()
 	statusCode := rsp.StatusCode()
 
-	samplingYes := samplingFunc()
-
-	r.printReq(b1, bx, ignoreBody, statusCode, status, samplingYes)
+	samplingYes := r.log(b1.String())
+	r.printReq(b1, io.Discard, ignoreBody, statusCode, status, samplingYes)
 	b1.Reset()
 
 	header := rsp.Header.Header()
@@ -416,7 +447,7 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	var body *bytes.Buffer
 
 	contentType := rsp.Header.Peek("Content-Type")
-	if responseJSONValuer != nil && bytes.HasPrefix(contentType, []byte("application/json")) {
+	if respJSONValuer != nil && bytes.HasPrefix(contentType, []byte("application/json")) {
 		body = &bytes.Buffer{}
 		bb1 = body
 	}
@@ -428,33 +459,24 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 	bb1.Write(d)
 
 	var resultMap map[string]string
-	if responseJSONValuer != nil && body != nil {
+	if respJSONValuer != nil && body != nil {
 		i := body.Bytes()
-		resultMap = responseJSONValuer(i)
+		resultMap = respJSONValuer(i)
 		b1.Write(i)
 	}
 
-	//_, _ = b1.Write([]byte("\n\n"))
-	r.printResp(b1, bx, rsp, statusCode, status, samplingYes)
+	if traceInfo != "" {
+		r.logSample("## "+traceInfo+"\n"+b1.String(), samplingYes)
+	} else {
+		r.logSample(b1.String(), samplingYes)
+	}
+
+	r.printResp(b1, io.Discard, rsp, statusCode, status, samplingYes)
 
 	return resultMap, nil
 }
 
-var samplingFunc = func() func() bool {
-	sampleRate, err := ss.Getenv[float32]("SAMPLING_RATE", 0)
-	if err != nil {
-		return func() bool { return true }
-	}
-
-	return func() bool {
-		return rand.Float32() <= sampleRate
-	}
-}()
-
 func (r *Invoker) printReq(b *bytes.Buffer, bx io.Writer, ignoreBody bool, statusCode int, status string, samplingYes bool) {
-	//if status != "status 200" {
-	//	log.Print(status)
-	//}
 	if !logStatus(r.opt.berfConfig.N, statusCode, status, r.opt.printOption) {
 		bx = nil
 	}
@@ -511,9 +533,6 @@ var logStatus = func() func(n, code int, customizedStatus string, printOption ui
 }()
 
 func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Response, statusCode int, status string, samplingYes bool) {
-	//if status != "status 200" {
-	//	log.Print(status)
-	//}
 	if !logStatus(r.opt.berfConfig.N, statusCode, status, r.opt.printOption) {
 		bx = nil
 	}
@@ -535,9 +554,6 @@ func (r *Invoker) printResp(b *bytes.Buffer, bx io.Writer, rsp *fasthttp.Respons
 	}
 	if r.opt.printOption&printRespBody == printRespBody {
 		if string(dumpBody) != "\r\n" {
-			//if r.opt.statusName != "" {
-			//	dumpBody = []byte(parseStatus(rsp, r.opt.statusName))
-			//}
 			printBody(dumpBody, printNum, r.opt.pretty)
 			printNum++
 		}
@@ -644,8 +660,9 @@ func (r *Invoker) runProfiles(req *fasthttp.Request, rsp *fasthttp.Response, ini
 
 	var resultMap map[string]string
 	var err error
+	traceId := tsid.Fast().ToString()
 	for _, p := range profiles {
-		resultMap, err = r.runOneProfile(p, resultMap, req, rsp, rr)
+		resultMap, err = r.runOneProfile(p, resultMap, req, rsp, rr, traceId)
 		if err != nil {
 			return rr, err
 		}
@@ -661,7 +678,8 @@ func (r *Invoker) runProfiles(req *fasthttp.Request, rsp *fasthttp.Response, ini
 	return rr, nil
 }
 
-func (r *Invoker) runOneProfile(p *internal.Profile, resultMap map[string]string, req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result) (map[string]string, error) {
+func (r *Invoker) runOneProfile(p *internal.Profile, resultMap map[string]string,
+	req *fasthttp.Request, rsp *fasthttp.Response, rr *berf.Result, tracerID string) (map[string]string, error) {
 	closers, err := p.CreateReq(r.isTLS, req, r.opt.enableGzip, r.opt.uploadIndex, resultMap)
 	defer ss.Close(closers)
 
@@ -676,25 +694,7 @@ func (r *Invoker) runOneProfile(p *internal.Profile, resultMap map[string]string
 		return nil, err
 	}
 
-	f := createJSONValuer(p)
-	return r.processRsp(req, rsp, rr, f)
-}
-
-func createJSONValuer(p *internal.Profile) func(jsonBody []byte) map[string]string {
-	if expr := p.ResultExpr; len(expr) > 0 {
-		return func(jsonBody []byte) map[string]string {
-			kvs := map[string]string{}
-			for ek, ev := range expr {
-				jr := jj.GetBytes(jsonBody, ek)
-				if jr.Type != jj.Null {
-					kvs[ev] = jr.String()
-				}
-			}
-			return kvs
-		}
-	}
-
-	return nil
+	return r.processRsp(req, rsp, rr, p.JSONValuer, tracerID)
 }
 
 func parseStatus(rsp *fasthttp.Response, statusName string) string {
@@ -767,6 +767,31 @@ func (r *Invoker) setBody(req *fasthttp.Request) (internal.Closers, error) {
 
 	req.SetBodyRaw(bodyBytes)
 	return nil, nil
+}
+
+func (r *Invoker) waitLog() {
+	if r.logSamplingFunc != nil {
+		close(r.logChan)
+		<-r.logDealerDone
+	}
+}
+func (r *Invoker) dealLog() {
+	f, err := os.CreateTemp("", "blow_"+time.Now().Format(`20060102150405`)+"_"+"*.log")
+	ss.ExitIfErr(err)
+
+	fmt.Printf("Log details to: %s\n", f.Name())
+
+	if err != nil {
+		log.Fatalf("create debug file error: %v", err)
+	}
+	defer f.Close()
+
+	for logEntry := range r.logChan {
+		line := logEntry.Log + "\n\n"
+		f.Write([]byte(line))
+	}
+
+	r.logDealerDone <- struct{}{}
 }
 
 func adjustContentType(opt *Opt, contentType string) string {

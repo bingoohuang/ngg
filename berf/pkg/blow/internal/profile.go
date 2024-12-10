@@ -47,9 +47,8 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 
 	var bodyBytes []byte
 	if len(p.bodyFileData) > 0 {
-		bodyBytes = p.bodyFileData
-	}
-	if p.Body != "" {
+		bodyBytes = CloneBytes(p.bodyFileData)
+	} else if p.Body != "" {
 		bodyBytes = []byte(p.Body)
 	}
 
@@ -60,15 +59,15 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 
 		bodyBytes = []byte(p.EnvVars.Eval(string(bodyBytes)))
 
+		for k, v := range resultMap {
+			bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
+		}
+
 		if enableGzip {
 			if v, err := ss.Gzip(bodyBytes); err == nil && len(v) < len(p.bodyFileData) {
 				bodyBytes = v
 				req.Header.Set("Content-Encoding", "gzip")
 			}
-		}
-
-		for k, v := range resultMap {
-			bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
 		}
 
 		req.SetBodyRaw(bodyBytes)
@@ -92,6 +91,15 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 	}
 
 	return nil, nil
+}
+
+func CloneBytes(b []byte) []byte {
+	if b == nil {
+		return nil
+	}
+	nb := make([]byte, len(b))
+	copy(nb, b)
+	return nb
 }
 
 func (p *Profile) createHeader() error {
@@ -158,6 +166,17 @@ type Option struct {
 
 	// 作为初始化调用，例如登录
 	Init bool
+}
+
+func (o *Option) JSONValuer(jsonBody []byte) map[string]string {
+	kvs := map[string]string{}
+	for ek, ev := range o.ResultExpr {
+		jr := jj.GetBytes(jsonBody, ek)
+		if jr.Type != jj.Null {
+			kvs[ev] = jr.String()
+		}
+	}
+	return kvs
 }
 
 type Profile struct {
