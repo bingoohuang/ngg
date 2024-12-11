@@ -4,7 +4,7 @@ export baseURL=http://127.0.0.1:12123
 
 ### 加密
 POST ${baseURL}/enc
-[tag=1 result.0.data.cipherTextBlob=encData source.plainText=plainTextSrc eval]
+[tag=1 result.data.cipherTextBlob=encData source.plainText=plainTextSrc eval]
 
 {
   plainText: "@base64(size=1000 std)"
@@ -13,9 +13,9 @@ POST ${baseURL}/enc
 
 ### 解密
 POST ${baseURL}/dec
-[tag=2 result.0.data.plainText=plainTextDest assert.eq.plainTextSrc=plainTextDest]
+[tag=2 result.data.plainText=plainTextDest assert.eq.plainTextSrc=plainTextDest GoTemplate]
 
 {
-  encData: "$encData"
+  encData: "{{.encData}}"
 }
 

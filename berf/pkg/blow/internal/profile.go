@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"text/template"
 	"unicode"
 
 	"github.com/bingoohuang/ngg/gnet"
@@ -61,8 +62,16 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 
 		bodyBytes = []byte(p.EnvVars.Eval(string(bodyBytes)))
 
-		for k, v := range resultMap {
-			bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
+		if p.Template != nil {
+			var buf bytes.Buffer
+			if err := p.Template.Execute(&buf, resultMap); err != nil {
+				return nil, err
+			}
+			bodyBytes = buf.Bytes()
+		} else {
+			for k, v := range resultMap {
+				bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
+			}
 		}
 
 		if enableGzip {
@@ -166,10 +175,11 @@ type Option struct {
 	Asserts    map[string]string `prefix:"assert."`
 	Tag        string
 	Eval       bool
-	JsonBody   bool
+	GoTemplate bool
+	Init       bool // 作为初始化调用，例如登录
 
-	// 作为初始化调用，例如登录
-	Init bool
+	JsonBody bool
+	Template *template.Template
 }
 
 func (o *Option) SourceJSONValuer(jsonBody []byte, kvs *map[string]string) {
@@ -327,6 +337,14 @@ func postProcessProfiles(profiles []*Profile) error {
 
 			if body, err := Hjson2Json([]byte(p.Body)); err == nil {
 				p.Body = string(body)
+			}
+
+			if p.GoTemplate {
+				goTemplate, err := template.New("").Parse(p.Body)
+				if err != nil {
+					return err
+				}
+				p.Template = goTemplate
 			}
 
 			if p.Header[ContentTypeName] == "" && jj.Valid(p.Body) {
