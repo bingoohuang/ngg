@@ -1,0 +1,38 @@
+### 测试环境 env: test
+export baseURL=http://1.2.3.4:5000
+export keyId=427cf910f62cc017fe6985f01cb8a302
+export deviceId=DEV_07882cf4645c235bdd25f1b838410308
+export appId=APP_b3ec67c1b570b16dabfc587c
+
+### 加密
+POST ${baseURL}/enc
+[tag=1 result.data.cipherTextBlob=encData source.plainText=plainTextSrc eval]
+
+{
+  padding: PKCS7Padding
+  signAlgo: HmacSM3
+  signature: 2hrKwnNt3U205ZRJjspkk6rAxVTUNBIslCsDO0aiooI=
+  transId: 716875a0336a31b4f5a69bc001fdf7cb
+  appId: ${appId}
+  keyId: ${keyId}
+  # 这里随机一首诗经，并且 base64 编码
+  plainText: @诗经(base64)
+  deviceId: ${deviceId}
+  version: "1"
+}
+
+### 解密
+POST ${baseURL}/dec
+[tag=2 result.data.plainText=plainText assert.eq.plainText=plainTextSrc]
+
+ {
+  signAlgo: HmacSM3
+  signature: zZa/bw8gA2C9BBMGH4ywmiv6dM8AtIZxdMHW9Um5BDo=
+  transId: 716875a0336a31b4f5a69bc001fdf7cb
+  appId: ${appId}
+  keyId: ${keyId}
+  encData: ${encData}
+  deviceId: ${deviceId}
+  version: "1"
+}
+

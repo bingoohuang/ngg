@@ -70,7 +70,7 @@ func (p *Profile) CreateReq(isTLS bool, req *fasthttp.Request, enableGzip, uploa
 			bodyBytes = buf.Bytes()
 		} else {
 			for k, v := range resultMap {
-				bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("$"+k), []byte(v))
+				bodyBytes = bytes.ReplaceAll(bodyBytes, []byte("${"+k+"}"), []byte(v))
 			}
 		}
 
@@ -456,7 +456,7 @@ func processLine(p *Profile, l string, envVars EnvVars) *Profile {
 		p.Body += "\n"
 	}
 
-	p.Body += l
+	p.Body += envVars.Eval(l)
 	return p
 }
 

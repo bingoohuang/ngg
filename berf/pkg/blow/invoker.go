@@ -485,7 +485,8 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 
 	var assertResult []string
 	for k1, k2 := range asserts {
-		if strings.HasPrefix(k1, "eq.") {
+		switch {
+		case strings.HasPrefix(k1, "eq."):
 			k1 = k1[3:]
 			v1 := (*resultMap)[k1]
 			v2 := (*resultMap)[k2]
@@ -493,6 +494,16 @@ func (r *Invoker) processRsp(req *fasthttp.Request, rsp *fasthttp.Response, rr *
 				assertResult = append(assertResult, "ASSERT OK: $"+k1+" == $"+k2)
 			} else {
 				assertResult = append(assertResult, "ASSERT FAIL: $"+k1+" != $"+k2)
+				rr.AssertFail++
+			}
+		case strings.HasPrefix(k1, "ne."):
+			k1 = k1[3:]
+			v1 := (*resultMap)[k1]
+			v2 := (*resultMap)[k2]
+			if v1 != v2 {
+				assertResult = append(assertResult, "ASSERT OK: $"+k1+" != $"+k2)
+			} else {
+				assertResult = append(assertResult, "ASSERT FAIL: $"+k1+" == $"+k2)
 				rr.AssertFail++
 			}
 		}
