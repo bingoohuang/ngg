@@ -12,20 +12,25 @@ import (
 	"github.com/emmansun/gmsm/smx509"
 )
 
-var tlcpSessionCache tlcp.SessionCache
-
-func init() {
-	if cacheSize, _ := ss.Getenv[int](`TLCP_SESSION_CACHE`, 32); cacheSize > 0 {
-		tlcpSessionCache = tlcp.NewLRUSessionCache(cacheSize)
+func Getenv(keys ...string) string {
+	for _, key := range keys {
+		if v := os.Getenv(key); v != "" {
+			return v
+		}
 	}
-}
 
-var tlcpCerts = os.Getenv("TLCP_CERTS")
+	return ""
+}
 
 func createTlcpDialer(dialer *net.Dialer, caFile string) DialContextFn {
 	c := &tlcp.Config{
 		InsecureSkipVerify: !ss.Pick1(ss.GetenvBool(`TLS_VERIFY`, false)),
-		SessionCache:       tlcpSessionCache,
+		SessionCache: func() tlcp.SessionCache {
+			if cacheSize, _ := ss.Getenv[int](`TLCP_SESSION_CACHE`, 32); cacheSize > 0 {
+				return tlcp.NewLRUSessionCache(cacheSize)
+			}
+			return nil
+		}(),
 	}
 
 	c.EnableDebug = HasPrintOption(printDebug)
@@ -40,9 +45,9 @@ func createTlcpDialer(dialer *net.Dialer, caFile string) DialContextFn {
 		c.RootCAs = pool
 	}
 
-	if tlcpCerts != "" {
+	if certs := Getenv("TLCP_CERTS", "CERTS"); certs != "" {
 		// TLCP 1.1，套件ECDHE-SM2-SM4-CBC-SM3，设置客户端双证书
-		certsFiles := strings.Split(tlcpCerts, ",")
+		certsFiles := strings.Split(certs, ",")
 		var certs []tlcp.Certificate
 		switch len(certsFiles) {
 		case 0, 2, 4:

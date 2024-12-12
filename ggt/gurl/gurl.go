@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"hash"
@@ -124,7 +125,7 @@ func run(totalUrls int, urlAddr string, nonFlagArgs []string, reader io.Reader) 
 
 	urlAddr2, _ := Eval(urlAddr)
 	u := ss.Must(gnet.FixURI{
-		DefaultScheme: ss.If(caFile != "", "https", "http"),
+		DefaultScheme: ss.If(rootCa != "", "https", "http"),
 		DefaultPort:   8080,
 	}.Fix(urlAddr2))
 
@@ -142,7 +143,7 @@ func run(totalUrls int, urlAddr string, nonFlagArgs []string, reader io.Reader) 
 				log.Fatalf("eval %v", err)
 			}
 
-			return ss.Must(gnet.FixURI{DefaultScheme: ss.If(caFile != "", "https", "http")}.Fix(eval))
+			return ss.Must(gnet.FixURI{DefaultScheme: ss.If(rootCa != "", "https", "http")}.Fix(eval))
 		}
 	}
 	realURL := u.String()
@@ -352,31 +353,99 @@ func parseProxyURL(req *http.Request) *url.URL {
 	return p
 }
 
-var clientSessionCache tls.ClientSessionCache
-
-func init() {
-	if cacheSize, _ := ss.Getenv[int](`TLS_SESSION_CACHE`, 32); cacheSize > 0 {
-		clientSessionCache = tls.NewLRUClientSessionCache(cacheSize)
-	}
-}
-
-func createTLSConfig(isHTTPS bool) (tlsConfig *tls.Config) {
+func createTLSConfig(isHTTPS bool) (tc *tls.Config) {
 	if !isHTTPS {
 		return nil
 	}
 
-	tlsConfig = &tls.Config{
+	tc = &tls.Config{
 		InsecureSkipVerify: !ss.Pick1(ss.GetenvBool(`TLS_VERIFY`, false)),
-		ClientSessionCache: clientSessionCache,
+		ClientSessionCache: func() tls.ClientSessionCache {
+			if cacheSize, _ := ss.Getenv[int](`TLS_SESSION_CACHE`, 32); cacheSize > 0 {
+				return tls.NewLRUClientSessionCache(cacheSize)
+			}
+			return nil
+		}(),
 	}
 
-	if caFile != "" {
-		pool := x509.NewCertPool()
-		pool.AppendCertsFromPEM(ss.Must(ss.ReadFile(caFile)))
-		tlsConfig.RootCAs = pool
+	if rootCa != "" {
+		p := x509.NewCertPool()
+		for _, cert := range DecodePemChain(string(Try(os.ReadFile(rootCa)))) {
+			p.AppendCertsFromPEM(cert)
+		}
+		tc.RootCAs = p
 	}
 
-	return tlsConfig
+	tc.Certificates, _ = LoadCerts(ss.Split(Getenv("CERTS"), ","))
+	return tc
+}
+
+func LoadCerts(certFiles []string) (certs []tls.Certificate, err error) {
+	var certsBlock []*pem.Block
+	var privateKey []*pem.Block
+
+	for _, certFile := range certFiles {
+		pemData, err := os.ReadFile(certFile)
+		if err != nil {
+			return nil, fmt.Errorf("read file %s: %w", certFile, err)
+		}
+		for _, cert := range DecodePemBlocks(string(pemData)) {
+			switch cert.Type {
+			case "CERTIFICATE":
+				certsBlock = append(certsBlock, cert)
+			case "PRIVATE KEY":
+				privateKey = append(privateKey, cert)
+			}
+		}
+	}
+
+	for i := 0; i < len(certsBlock) && i < len(privateKey); i++ {
+		cert, err := tls.X509KeyPair(pem.EncodeToMemory(certsBlock[i]), pem.EncodeToMemory(privateKey[i]))
+		if err != nil {
+			return nil, fmt.Errorf("load cert %w", err)
+		}
+		certs = append(certs, cert)
+	}
+
+	return
+}
+
+func Try[T any](a T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
+// DecodePemChain 解析 PEM 字符串中的证书链
+// thanks https://gist.github.com/laher/5795578
+func DecodePemChain(certInput string) (chain [][]byte) {
+	rest := []byte(certInput)
+	var certDERBlock *pem.Block
+	for len(rest) > 0 {
+		certDERBlock, rest = pem.Decode(rest)
+		if certDERBlock == nil {
+			break
+		}
+		if certDERBlock.Type == "CERTIFICATE" {
+			chain = append(chain, certDERBlock.Bytes)
+		}
+	}
+	return
+}
+
+// DecodePemBlocks 解析 PEM 字符串中的块
+func DecodePemBlocks(certInput string) (blocks []*pem.Block) {
+	rest := []byte(certInput)
+	var certDERBlock *pem.Block
+	for len(rest) > 0 {
+		certDERBlock, rest = pem.Decode(rest)
+		if certDERBlock == nil {
+			break
+		}
+		blocks = append(blocks, certDERBlock)
+	}
+	return
 }
 
 func doRequest(req *Request, addrGen func() *url.URL) error {

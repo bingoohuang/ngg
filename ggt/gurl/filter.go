@@ -2,7 +2,6 @@ package gurl
 
 import (
 	"net"
-	"os"
 	"strings"
 
 	"github.com/bingoohuang/ngg/gnet"
@@ -14,11 +13,11 @@ var (
 	methodSpecifiedInArgs bool
 )
 
-var caFile = os.Getenv("CERT")
+var rootCa = Getenv("ROOT_CERT")
 
 func filter(args []string) []string {
 	var filteredArgs []string
-	defaultSchema := ss.If(caFile != "", "https", "http")
+	defaultSchema := ss.If(rootCa != "", "https", "http")
 	fixURI := gnet.FixURI{DefaultScheme: defaultSchema}
 
 	for _, arg := range args {

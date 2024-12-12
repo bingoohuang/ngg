@@ -752,7 +752,7 @@ func TimeoutDialer(cTimeout time.Duration, tlsConfig *tls.Config, debug bool, r,
 		}
 
 		if enableTLCP {
-			fn = createTlcpDialer(dialer, caFile)
+			fn = createTlcpDialer(dialer, rootCa)
 		} else if tlsConfig != nil {
 			tlsDialer := &tls.Dialer{
 				NetDialer: dialer,
