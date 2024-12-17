@@ -13,10 +13,6 @@ import (
 	"github.com/samber/lo"
 )
 
-type Queryer interface {
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-}
-
 func Select(ctx context.Context, db Queryer, query string, args ...any) ([]map[string]any, error) {
 	mapRowsScanner := NewMapRowsScanner()
 	if err := NewScanConfig(WithRowsScanner(mapRowsScanner)).Select(ctx, db, query, args...); err != nil {
