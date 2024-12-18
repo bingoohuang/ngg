@@ -175,6 +175,7 @@ ITEM:
 Example:
   gurl beego.me
   gurl :8080
+  gurl -s $TMPDIR/a.sock http://unix/status -pa (服务端 httplive -p unix:$TMPDIR/a.sock, 代理端: tproxy -P unix://$TMPDIR/a.sock -p :3300)
 Envs:
   1. URL:         URL
   2. PROXY:       Proxy host and port， like: http://proxy.cn, https://user:pass@proxy.cn

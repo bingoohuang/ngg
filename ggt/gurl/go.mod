@@ -7,18 +7,18 @@ replace github.com/bingoohuang/ngg/ggt => ..
 require (
 	gitee.com/Trisia/gotlcp v1.3.24
 	github.com/AlecAivazis/survey/v2 v2.3.7
-	github.com/bingoohuang/ngg/ggt v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/gnet v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/jj v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/ss v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/tick v0.0.0-20241211064227-b9b50479def7
-	github.com/bingoohuang/ngg/ver v0.0.0-20241211064227-b9b50479def7
+	github.com/bingoohuang/ngg/ggt v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/ggt/goup v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/gnet v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/jj v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/ss v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/tick v0.0.0-20241217062119-b5cd331f3e5b
+	github.com/bingoohuang/ngg/ver v0.0.0-20241217062119-b5cd331f3e5b
 	github.com/chzyer/readline v1.5.1
-	github.com/deatil/go-cryptobin v1.0.5002
-	github.com/emmansun/gmsm v0.29.5
+	github.com/deatil/go-cryptobin v1.0.5003
+	github.com/emmansun/gmsm v0.29.6
 	github.com/fatih/color v1.18.0
-	github.com/jedib0t/go-pretty/v6 v6.6.4
+	github.com/jedib0t/go-pretty/v6 v6.6.5
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
@@ -28,8 +28,8 @@ require (
 
 require (
 	github.com/Pallinder/go-randomdata v1.2.0 // indirect
-	github.com/bingoohuang/ngg/tsid v0.0.0-20241211064227-b9b50479def7 // indirect
-	github.com/bingoohuang/ngg/yaml v0.0.0-20241211064227-b9b50479def7 // indirect
+	github.com/bingoohuang/ngg/tsid v0.0.0-20241217062119-b5cd331f3e5b // indirect
+	github.com/bingoohuang/ngg/yaml v0.0.0-20241217062119-b5cd331f3e5b // indirect
 	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
@@ -59,14 +59,14 @@ require (
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
-	github.com/spf13/cast v1.7.0 // indirect
+	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tscholl2/siec v0.0.0-20240310163802-c2c6f6198406 // indirect
 	github.com/vthiery/retry v0.1.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/exp v0.0.0-20241210194714-1829a127f884 // indirect
+	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
 	golang.org/x/net v0.32.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/term v0.27.0 // indirect
