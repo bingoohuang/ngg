@@ -3,7 +3,7 @@
 ## kt 使用简介
 
 1. 通用设置 brokers 和 topic
-    1. 环境变量 `export KT_B 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092; export KT_TOPIC=elastic.backup`
+    1. 环境变量 `export BROKERS=192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 AUTH=user:123456 TOPIC=elastic.backup`
     2. 命令参数 `kt consume -b 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 -t elastic.backup`
        ，不方便的是，导致命令过长，每次执行，都得带上这两个参数
 2. 消费最新消息 `kt consume`
@@ -28,7 +28,7 @@
    - 编译机: `make` 生成 `build/kafka-proxy`, `make plugin.auth-user` 生成 sasl 插件，二者上传到服务器
    - 服务器: `kafka-proxy server --bootstrap-server-mapping "192.168.126.18:9092,0.0.0.0:19002" --bootstrap-server-mapping "192.168.126.18:9091,0.0.0.0:19001" --bootstrap-server-mapping "192.168.126.18:9093,0.0.0.0:19003" --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password"`
    - 或者: `BOOTSTRAP_SERVER_MAPPING="192.168.126.18:9092,0.0.0.0:19002 192.168.126.18:9091,0.0.0.0:19001 192.168.126.18:9093,0.0.0.0:19003" kafka-proxy server --auth-local-enable --auth-local-command ./auth-user --auth-local-param "--username=my-test-user" --auth-local-param "--password=my-test-password"`
-   - 客户端: `KT_BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 KT_VERSION=0.10.0.0 KT_TOPIC=fluent-bit-test KT_AUTH=my-test-user:my-test-password kt topic`
+   - 客户端: `BROKERS=127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 VERSION=0.10.0.0 TOPIC=fluent-bit-test KT_AUTH=my-test-user:my-test-password kt topic`
    - 客户端（复杂密码 base64）: `kt -b 127.0.0.1:19001,127.0.0.1:19002,127.0.0.1:19003 -v 0.10.0.0 -t fluent-bit-test --sasl base64://bXktdGVzdC11c2VyOm15LXRlc3QtcGFzc3dvcmQ topic`
 
 ## 示例日志
@@ -39,8 +39,7 @@ topic: elastic.backup offset: 42840172 partition: 1 key:  timestamp: 2022-07-06 
 topic: elastic.backup offset: 43249889 partition: 0 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":0,"offset":43249889,"value":"ufLYBbGHJ6okJoziJOcTtKwNQECXdAwczyoSGSYl3prCHpKQJdGlW6p3l3d7S6pYe9clGkt0zoJ2fBnYdNPhjPPgC7JBwA1rCt2V","timestamp":"2022-07-06T09:16:29.011+08:00"}
 topic: elastic.backup offset: 42835575 partition: 2 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":2,"offset":42835575,"value":"oubuyjAFVdCoN0aB4lJHgYnagkOg3Ivf8zT0Ui5SEotX9SsAqv4VTbQtcSvC2AKIms50VioUa7DpJJBDQOIOjCHjjmcCB4SvOMBU","timestamp":"2022-07-06T09:16:29.011+08:00"}
 ^C
-# export KT_BROKERS 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092
-# export KT_TOPIC=elastic.backup
+# export BROKERS 192.168.1.1:9092,192.168.1.2:9092,192.168.1.3:9092 TOPIC=elastic.backup
 # kt tail
 topic: elastic.backup offset: 43249889 partition: 0 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":0,"offset":43249889,"value":"ufLYBbGHJ6okJoziJOcTtKwNQECXdAwczyoSGSYl3prCHpKQJdGlW6p3l3d7S6pYe9clGkt0zoJ2fBnYdNPhjPPgC7JBwA1rCt2V","timestamp":"2022-07-06T09:16:29.011+08:00"}
 topic: elastic.backup offset: 42840172 partition: 1 key:  timestamp: 2022-07-06 09:16:29.011 valueSize: 100B msg: {"partition":1,"offset":42840172,"value":"AHn3XiZADEPb1UG36b3Eh3yEM84csGvMgJ77A8cJyRiue5FeQQwBH9PeZILJT2MIWZlgTUllCiYFT2Xdi1n4mJsbKtdz5hoqkenj","timestamp":"2022-07-06T09:16:29.011+08:00"}
