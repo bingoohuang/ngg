@@ -39,7 +39,7 @@ func (p *clusterConsumer) Run(*cobra.Command, []string) error {
 
 	c.Version = p.KafkaVersion
 
-	env := os.Getenv("KT_AUTH")
+	env := kt.Getenv("KT_AUTH", "AUTH")
 	if env != "" && p.SASL == "" {
 		p.SASL = env
 	}

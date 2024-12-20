@@ -14,7 +14,7 @@ import (
 
 type topicCmd struct {
 	kt.ConsumerConfig `squash:"1"`
-	Grep              string `help:"grep string"`
+	Grep              string `help:"topic grep string"`
 	Partitions        bool   `help:"Include information per partition"`
 	Leaders           bool   `help:"Include leader information per partition"`
 	Replicas          bool   `help:"Include replica ids per partition"`
@@ -58,8 +58,8 @@ func (c *topicCmd) Run(*cobra.Command, []string) (err error) {
 	var wg sync.WaitGroup
 	for _, tn := range topics {
 		wg.Add(1)
-		go func(top string) {
-			c.print(top)
+		go func(topic string) {
+			c.print(topic)
 			wg.Done()
 		}(tn)
 	}
@@ -120,6 +120,10 @@ func (c *topicCmd) readTopic(name string) (topicInfo, error) {
 		for _, entry := range configEntries {
 			top.Config[entry.Name] = entry.Value
 		}
+	}
+
+	if c.Replicas && !c.Partitions {
+		c.Partitions = true
 	}
 
 	if !c.Partitions {

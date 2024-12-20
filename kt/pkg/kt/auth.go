@@ -21,7 +21,7 @@ type AuthConfig struct {
 }
 
 func (t AuthConfig) SetupAuth(sc *sarama.Config) error {
-	env := os.Getenv("KT_AUTH")
+	env := Getenv("KT_AUTH", "AUTH")
 	if env != "" && t.SASL == "" {
 		t.SASL = env
 	}

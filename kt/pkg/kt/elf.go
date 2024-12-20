@@ -63,3 +63,13 @@ func CreateThrottle(ctx context.Context, qps float32) (ThrottleFn, *time.Ticker)
 		}
 	}, t
 }
+
+func Getenv(keys ...string) string {
+	for _, key := range keys {
+		if env := os.Getenv(key); env != "" {
+			return env
+		}
+	}
+
+	return ""
+}

@@ -176,7 +176,7 @@ windows-upx: init
 arm-zig: init
 	CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC="zig cc -target arm-linux-musleabihf" CXX="zig c++ -target arm-linux-musleabihf" ${goinstall}
 	ls -lh  ${gobin}/linux_arm64/${app}*
-arm-zig-upx: arm
+arm-zig-upx: arm-zig
 	upx --best --lzma ${gobin}/linux_arm64/${app}*
 	ls -lh  ${gobin}/linux_arm64/${app}*
 arm: init

@@ -140,8 +140,13 @@ func InitFlags(f any, pf, persistent *pflag.FlagSet) error {
 			if t.Raw == "auto" {
 				env = ss.ToSnakeUpper(name)
 			}
-			defaultVal = os.Getenv(env)
-			help = appendHelp(name, help, fmt.Sprintf("env: $%s.", env))
+			for _, envName := range ss.Split(env, ",") {
+				if envVal := os.Getenv(envName); envVal != "" {
+					defaultVal = envVal
+					help = appendHelp(name, help, fmt.Sprintf("env: %s.", env))
+					break
+				}
+			}
 		}
 		if defaultVal == "" {
 			defaultVal = tags.GetTag("default")

@@ -38,9 +38,9 @@ type Consumer struct {
 type CommonArgs struct {
 	AuthConfig `squash:"1"`
 
-	Brokers string `short:"b" env:"KT_BROKERS" help:"Kafka brokers" default:"localhost:9092" persistent:"1"`
-	Topic   string `short:"t" env:"KT_TOPIC" help:"On which topic to consume/produce" persistent:"1"`
-	Version string `short:"v" env:"KT_VERSION" help:"Kafka protocol version" default:"0.10.0.0" persistent:"1"`
+	Brokers string `short:"b" env:"KT_BROKERS,BROKERS" help:"Kafka brokers" default:"localhost:9092" persistent:"1"`
+	Topic   string `short:"t" env:"KT_TOPIC,TOPIC" help:"On which topic to consume/produce" persistent:"1"`
+	Version string `short:"v" env:"KT_VERSION,VERSION" help:"Kafka protocol version" default:"0.10.0.0" persistent:"1"`
 	Verbose int    `count:"1" persistent:"1"`
 
 	KafkaVersion sarama.KafkaVersion `kong:"-"`
