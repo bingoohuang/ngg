@@ -62,8 +62,8 @@ func (c *CommonArgs) Validate() (err error) {
 type ConsumerConfig struct {
 	MessageConsumer
 	CommonArgs `squash:"1"`
-	Group      string `help:"Consumer group to use for marking offsets. kt will mark offsets if group is supplied"`
-	Offsets    string `default:"newest" help:"Specifies what messages to read by partition and offset range (defaults to newest)"`
+	Group      string `short:"g" help:"Consumer group to use for marking offsets. kt will mark offsets if group is supplied"`
+	Offsets    string `short:"o" default:"newest" help:"Specifies what messages to read by partition and offset range (defaults to newest)"`
 	Timeout    time.Duration
 }
 

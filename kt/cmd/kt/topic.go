@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/IBM/sarama"
@@ -13,13 +14,13 @@ import (
 )
 
 type topicCmd struct {
-	kt.ConsumerConfig `squash:"1"`
-	Grep              string `help:"topic grep string"`
-	Partitions        bool   `help:"Include information per partition"`
-	Leaders           bool   `help:"Include leader information per partition"`
-	Replicas          bool   `help:"Include replica ids per partition"`
-	Config            bool   `help:"Include topic configuration"`
-	admin             sarama.ClusterAdmin
+	kt.CommonArgs `squash:"1"`
+
+	Grep   string `short:"g" help:"topic grep string"`
+	Detail bool   `short:"d" help:"Include details like partitions/replica/leader"`
+	Config bool   `short:"c" help:"Include topic configuration"`
+	All    bool   `short:"a" help:"Show all topics like __consumer_offsets, etc."`
+	admin  sarama.ClusterAdmin
 
 	client   sarama.Client
 	grepExpr *regexp.Regexp
@@ -41,11 +42,14 @@ func (c *topicCmd) Run(*cobra.Command, []string) (err error) {
 		return err
 	}
 	defer c.client.Close()
-	defer c.admin.Close()
 
 	var topics []string
-	if topics, err = c.client.Topics(); err != nil {
-		return err
+	if c.Topic != "" {
+		topics = []string{c.Topic}
+	} else {
+		if topics, err = c.client.Topics(); err != nil {
+			return err
+		}
 	}
 
 	if c.grepExpr != nil {
@@ -57,6 +61,10 @@ func (c *topicCmd) Run(*cobra.Command, []string) (err error) {
 
 	var wg sync.WaitGroup
 	for _, tn := range topics {
+		if !c.All && strings.HasPrefix(tn, "__") {
+			continue
+		}
+
 		wg.Add(1)
 		go func(topic string) {
 			c.print(topic)
@@ -77,8 +85,8 @@ type partition struct {
 	Leader       string  `json:"leader,omitempty"`
 	Replicas     []int32 `json:"replicas,omitempty"`
 	ISRs         []int32 `json:"isrs,omitempty"`
-	OldestOffset int64   `json:"oldest"`
-	NewestOffset int64   `json:"newest"`
+	OldestOffset int64   `json:"oldestOffset"`
+	NewestOffset int64   `json:"newestOffset"`
 	ID           int32   `json:"id"`
 }
 
@@ -89,7 +97,7 @@ func (c *topicCmd) connect() error {
 	}
 	c.client = client.SaramaClient
 
-	if c.admin, err = sarama.NewClusterAdmin(c.KafkaBrokers, client.SaramaConfig); err != nil {
+	if c.admin, err = sarama.NewClusterAdminFromClient(c.client); err != nil {
 		return err
 	}
 	return nil
@@ -109,6 +117,7 @@ func (c *topicCmd) print(name string) {
 
 func (c *topicCmd) readTopic(name string) (topicInfo, error) {
 	top := topicInfo{Name: name}
+
 	if c.Config {
 		resource := sarama.ConfigResource{Name: name, Type: sarama.TopicResource}
 		configEntries, err := c.admin.DescribeConfig(resource)
@@ -122,11 +131,7 @@ func (c *topicCmd) readTopic(name string) (topicInfo, error) {
 		}
 	}
 
-	if c.Replicas && !c.Partitions {
-		c.Partitions = true
-	}
-
-	if !c.Partitions {
+	if !c.Detail {
 		return top, nil
 	}
 
@@ -147,23 +152,19 @@ func (c *topicCmd) readTopic(name string) (topicInfo, error) {
 			return top, err
 		}
 
-		if c.Leaders {
-			led, err := c.client.Leader(name, p)
-			if err != nil {
-				return top, err
-			}
-
-			np.Leader = led.Addr()
+		led, err := c.client.Leader(name, p)
+		if err != nil {
+			return top, err
 		}
 
-		if c.Replicas {
-			if np.Replicas, err = c.client.Replicas(name, p); err != nil {
-				return top, err
-			}
+		np.Leader = led.Addr()
 
-			if np.ISRs, err = c.client.InSyncReplicas(name, p); err != nil {
-				return top, err
-			}
+		if np.Replicas, err = c.client.Replicas(name, p); err != nil {
+			return top, err
+		}
+
+		if np.ISRs, err = c.client.InSyncReplicas(name, p); err != nil {
+			return top, err
 		}
 
 		top.Partitions = append(top.Partitions, np)

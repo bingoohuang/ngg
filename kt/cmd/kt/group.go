@@ -12,26 +12,25 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/bingoohuang/ngg/kt/pkg/kt"
-	"github.com/bingoohuang/ngg/ss"
 	"github.com/elliotchance/pie/v2"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
 type groupCmd struct {
-	kt.ConsumerConfig `squash:"1"`
+	kt.CommonArgs `squash:"1"`
+
+	Group string `short:"g" help:"Consumer group to use for marking offsets. kt will mark offsets if group is supplied"`
 
 	FilterGroups string `help:"filter groups by regexp"`
 	FilterTopics string `help:"filter topics by regexp"`
 	Reset        string `help:"Target Offset to reset for consumer group (newest, oldest, or specific Offset)"`
 	Partitions   string `default:"all" help:"comma separated list of partitions to limit offsets to, or all"`
-	FetchOffsets bool   `default:"true" help:"Controls if offsets should be fetched"`
-	Tags         string `help:"available tags: allOffSets"`
+	All          bool   `short:"a" help:"Show all topics like __consumer_offsets, etc."`
 
 	client       sarama.Client
 	filterGroups *regexp.Regexp
 	filterTopics *regexp.Regexp
-	out          chan kt.PrintContext
 	partitions   []int32
 	reset        int64
 }
@@ -68,23 +67,14 @@ func (c *groupCmd) Run(*cobra.Command, []string) (err error) {
 	if c.filterTopics != nil {
 		topics = pie.Of(c.fetchTopics()).Filter(c.filterTopics.MatchString).Result
 		topics = lo.Uniq(topics)
-		log.Printf("found %d topics: %s", len(topics), kt.ColorJSON(topics))
-	}
 
-	c.out = make(chan kt.PrintContext)
-	go kt.PrintOut(c.out)
-
-	if !c.FetchOffsets {
-		for i, group := range groups {
-			ctx := kt.PrintContext{Output: kt.GroupInfo{Group: group}, Done: make(chan struct{})}
-			c.out <- ctx
-			<-ctx.Done
-
-			if c.Verbose > 0 {
-				log.Printf("%v/%v\n", i+1, len(groups))
-			}
+		if !c.All {
+			topics = pie.Of(topics).Filter(func(t string) bool {
+				return !strings.HasPrefix(t, "__")
+			}).Result
 		}
-		return
+
+		log.Printf("found %d topics: %s", len(topics), kt.ColorJSON(topics))
 	}
 
 	topicPartitions := map[string][]int32{}
@@ -112,7 +102,7 @@ func (c *groupCmd) Run(*cobra.Command, []string) (err error) {
 }
 
 func (c *groupCmd) printGroupTopicOffset(group, topic string, partitions []int32) {
-	target := kt.GroupInfo{Group: group, Topic: topic, Offsets: make([]kt.GroupOffset, 0, len(partitions))}
+	target := kt.GroupInfo{Group: group, Topic: topic}
 	results := make(chan kt.GroupOffset)
 
 	wg := &sync.WaitGroup{}
@@ -129,14 +119,11 @@ func (c *groupCmd) printGroupTopicOffset(group, topic string, partitions []int32
 		target.Offsets = append(target.Offsets, res)
 	}
 
-	if len(target.Offsets) > 0 {
-		sort.Slice(target.Offsets, func(i, j int) bool {
-			return target.Offsets[j].Partition > target.Offsets[i].Partition
-		})
-		ctx := kt.PrintContext{Output: target, Done: make(chan struct{})}
-		c.out <- ctx
-		<-ctx.Done
-	}
+	sort.Slice(target.Offsets, func(i, j int) bool {
+		return target.Offsets[j].Partition > target.Offsets[i].Partition
+	})
+
+	log.Printf("GroupTopicOffset: %s", string(kt.ColorJSON(target)))
 }
 
 func (c *groupCmd) resolveOffset(top string, part int32, off int64) int64 {
@@ -171,19 +158,19 @@ func (c *groupCmd) fetchGroupOffset(group, topic string, part int32, results cha
 
 	specialOffset := c.reset == sarama.OffsetNewest || c.reset == sarama.OffsetOldest
 
-	groupOff, metadata := pom.NextOffset()
+	groupOffset, metadata := pom.NextOffset()
 	if c.reset >= 0 || specialOffset {
-		resolvedOff := c.reset
+		resolvedOffset := c.reset
 		if specialOffset {
-			resolvedOff = c.resolveOffset(topic, part, c.reset)
+			resolvedOffset = c.resolveOffset(topic, part, c.reset)
 		}
-		if resolvedOff > groupOff {
-			pom.MarkOffset(resolvedOff, "")
+		if resolvedOffset > groupOffset {
+			pom.MarkOffset(resolvedOffset, "")
 		} else {
-			pom.ResetOffset(resolvedOff, "")
+			pom.ResetOffset(resolvedOffset, "")
 		}
 
-		groupOff = resolvedOff
+		groupOffset = resolvedOffset
 	}
 
 	// we haven't reset it, and it wasn't set before - lag depends on client's config
@@ -193,11 +180,9 @@ func (c *groupCmd) fetchGroupOffset(group, topic string, part int32, results cha
 	}
 
 	partOff := c.resolveOffset(topic, part, sarama.OffsetNewest)
-	lag := partOff - groupOff
+	lag := partOff - groupOffset
 
-	if groupOff > 0 || ss.ContainsFold(c.Tags, "allOffSets") {
-		results <- kt.GroupOffset{Partition: part, PartitionOffset: partOff, GroupOffset: groupOff, Lag: lag, Metadata: metadata}
-	}
+	results <- kt.GroupOffset{Partition: part, PartitionOffset: partOff, GroupOffset: groupOffset, Lag: lag, Metadata: metadata}
 }
 
 func (c *groupCmd) fetchTopics() []string {
