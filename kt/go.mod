@@ -25,6 +25,8 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cobra v1.8.1
+	github.com/twmb/franz-go v1.18.0
+	github.com/twmb/franz-go/pkg/kmsg v1.9.0
 	github.com/vmihailenco/tagparser/v2 v2.0.0
 )
 

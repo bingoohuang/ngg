@@ -20,8 +20,8 @@ type consumeCmd struct {
 	Web          bool   `help:"Start web server for HTTP requests and responses event"`
 	Context      string `help:"Web server context path if web is enable"`
 	Port         int    `help:"Web server port if web is enable"`
-	KeyEncoder   string `enum:"hex,base64,string"`
-	ValueEncoder string `enum:"hex,base64,string"`
+	KeyEncoder   string `default:"string" enum:"hex,base64,string"`
+	ValueEncoder string `default:"string" enum:"hex,base64,string"`
 
 	sseSender *kt.SSESender
 	grepExpr  *regexp.Regexp

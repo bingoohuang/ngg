@@ -320,8 +320,21 @@ Example for an authorization configuration that is used for the system tests:
 5. [一些关于 kafka 客户端库实践经验汇总](https://pandaychen.github.io/2022/02/08/A-KAFKA-USAGE-SUMUP-3/)
 6. Modern CLI for Apache Kafka, written in Go. [birdayz/kaf](https://github.com/birdayz/kaf)
 7. Open-Source Web UI for Apache Kafka Management [provectus/kafka-ui](https://github.com/provectus/kafka-ui)
+8. [franz-go](https://github.com/twmb/franz-go/) 包含一个功能完整的纯 Go 库，用于与 Kafka 0.8.0 到 3.8+ 进行交互。生产、消费、交易、管理等
+9. [Burrow](https://github.com/linkedin/Burrow) 是 Apache Kafka 的监控伴侣，它以服务形式提供使用者滞后检查，而无需指定阈值。它监控所有使用者提交的偏移量，并按需计算这些使用者的状态。提供 HTTP 终端节点以按需请求状态，以及提供其他 Kafka 集群信息。还有一些可配置的通知程序，可以通过电子邮件或 HTTP 调用将状态发送到其他服务。
 
 ## kafka-proxy 使用
 
 1. 编译: [kafka-proxy](https://github.com/grepplabs/kafka-proxy), `make -f /Volumes/e2t/Github/ngg/ver/Makefile`, [我的fork版本](https://github.com/goldstd/kafka-proxy)
 2. 启动: `BOOTSTRAP_SERVER_MAPPING="192.168.126.18:9092,0.0.0.0:19002 192.168.126.18:9091,0.0.0.0:19001 192.168.126.18:9093,0.0.0.0:19003" kafka-proxy server`
+
+## examples
+
+### 消费 __consumer_offsets 的 9 号分区
+```sh
+[5.046s][130][~]$ kt -b 127.0.0.1:39092 --sasl 'admin:12346!' --topic __consumer_offsets consume --offsets 9=-1
+2024/12/20 16:51:05 start to consume partition 9 in [59827, 9223372036854775807] / [Newest-1,1<<63-1]
+#001 {"Group":"err","Topic":"errorlog","Partition":2,"Offset":1248943,"LeaderEpoch":0,"Metadata":"","CommitTimestamp":1734684662346,"ExpireTimestamp":1734771062346}
+#002 {"Group":"err","Topic":"errorlog","Partition":1,"Offset":1248943,"LeaderEpoch":0,"Metadata":"","CommitTimestamp":1734684663344,"ExpireTimestamp":1734771063344}
+#003 {"Group":"err","Topic":"errorlog","Partition":0,"Offset":1248947,"LeaderEpoch":0,"Metadata":"","CommitTimestamp":1734684665347,"ExpireTimestamp":1734771065347}
+```

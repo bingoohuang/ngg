@@ -14,6 +14,8 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/ss"
+	"github.com/twmb/franz-go/pkg/kbin"
+	"github.com/twmb/franz-go/pkg/kmsg"
 )
 
 type Consumer struct {
@@ -151,24 +153,24 @@ func (c *Consumer) consumePartition(partition int32) error {
 		offset = c.Offsets[-1]
 	}
 
-	var err error
-	var start, end int64
-	if start, err = c.resolveOffset(offset.Start, partition); err != nil {
-		log.Printf("Failed to read Start Offset for partition %v err=%v\n", partition, err)
+	start, err := c.resolveOffset(offset.Start, partition)
+	if err != nil {
+		log.Printf("failed to read Start Offset for partition %v error: %v", partition, err)
 		return nil
 	}
 
-	if end, err = c.resolveOffset(offset.End, partition); err != nil {
-		log.Printf("Failed to read End Offset for partition %v err=%v\n", partition, err)
+	end, err := c.resolveOffset(offset.End, partition)
+	if err != nil {
+		log.Printf("failed to read End Offset for partition %v error: %v", partition, err)
 		return nil
 	}
 
-	log.Printf("start to consume partition %d in [%d, %d] / [%s,%s]",
-		partition, start, end, offset.Start, offset.End)
+	log.Printf("start to consume topic: %s partition: %d in [%d, %d] / [%s, %s]",
+		c.Topic, partition, start, end, offset.Start, offset.End)
 
-	var pc sarama.PartitionConsumer
-	if pc, err = c.Consumer.ConsumePartition(c.Topic, partition, start); err != nil {
-		log.Printf("Failed to consume partition %v err=%v\n", partition, err)
+	pc, err := c.Consumer.ConsumePartition(c.Topic, partition, start)
+	if err != nil {
+		log.Printf("failed to consume partition %v from start: %d error: %v", partition, start, err)
 		return nil
 	}
 
@@ -331,7 +333,6 @@ type PrintMessageConsumer struct {
 }
 
 func NewPrintMessageConsumer(keyEncoder, valEncoder BytesEncoder, sseSender *SSESender, grep *regexp.Regexp, n int64) *PrintMessageConsumer {
-
 	return &PrintMessageConsumer{
 		KeyEncoder: keyEncoder,
 		ValEncoder: valEncoder,
@@ -351,24 +352,45 @@ func (p *PrintMessageConsumer) Consume(m *sarama.ConsumerMessage) {
 		defer os.Exit(1)
 	}
 
-	val := m.Value
-	if !RawMessageFlag && jj.ValidBytes(val) {
-		val = jj.FreeInnerJSON(val)
-	}
+	var key string
+	var val []byte
+	switch m.Topic {
+	case "__consumer_offsets":
+		// Kafka 根据 groupId.hashCode() % offsets.topic.num.partitions 取绝对值来得出该 Group 的 Offset 信息
+		// 写入 __consumer_offsets 的分区号，并将Group分配给该分区Leader所在的Broker上的那个Group Coordinator
+		// https://cloud.tencent.com/developer/article/2065173
+		valObj, err := decodeOffsetRecord(m)
+		if err != nil {
+			log.Printf("failed to decode offset record %v", err)
+			return
+		}
 
-	fmt.Printf("#%03d topic: %s offset: %d partition: %d timestamp: %s valueSize: %s key: [[%s]] value: [[%s]]\n",
-		n, m.Topic, m.Offset, m.Partition,
-		m.Timestamp.Format("2006-01-02 15:04:05.000"),
-		ss.Bytes(uint64(len(m.Value))),
-		m.Key, val,
-	)
+		val = ss.Json(valObj)
+		fmt.Printf("#%03d %s\n", n, val)
+
+	default:
+
+		val = []byte(p.ValEncoder.Encode(m.Value))
+		if !RawMessageFlag && jj.ValidBytes(val) {
+			val = jj.FreeInnerJSON(val)
+		}
+
+		key = p.KeyEncoder.Encode(m.Key)
+
+		fmt.Printf("#%03d topic: %s offset: %d partition: %d timestamp: %s valueSize: %s key: [=[%s]=] value: [=[%s]=]\n",
+			n, m.Topic, m.Offset, m.Partition,
+			m.Timestamp.Format("2006-01-02 15:04:05.000"),
+			ss.Bytes(uint64(len(m.Value))),
+			key, val,
+		)
+	}
 
 	if p.sseSender != nil {
 		b := sseBean{
 			Topic:     m.Topic,
 			Offset:    strconv.FormatInt(m.Offset, 10),
 			Partition: strconv.FormatInt(int64(m.Partition), 10),
-			Key:       string(m.Key),
+			Key:       key,
 			Timestamp: m.Timestamp.Format("2006-01-02 15:04:05.000"),
 			Message:   string(val),
 		}
@@ -388,4 +410,81 @@ type sseBean struct {
 	Timestamp   string
 	Message     string
 	MessageSize string
+}
+
+// decodeOffsetRecord decodes all messages in the consumer offsets topic by routing records to the correct decoding
+// method.
+// https://github.com/redpanda-data/kminion/blob/34a5aa61c515af303f6594c9f526ec84f2229891/minion/offset_consumer.go#L164
+func decodeOffsetRecord(record *sarama.ConsumerMessage) (any, error) {
+	if len(record.Key) < 2 {
+		return nil, fmt.Errorf("offset commit key is supposed to be at least 2 bytes long")
+	}
+
+	messageVer := (&kbin.Reader{Src: record.Key}).Int16()
+	switch messageVer {
+	case 0, 1:
+		return decodeOffsetCommit(record)
+	case 2:
+		return decodeOffsetMetadata(record)
+	}
+
+	return nil, fmt.Errorf("unknown messageVer: %d", messageVer)
+}
+
+// decodeOffsetMetadata decodes to metadata which includes the following information:
+// - group
+// - protocolType (connect/consumer/...)
+// - generation
+// - protocol
+// - currentStateTimestamp
+// - groupMembers (member metadata such aus: memberId, groupInstanceId, clientId, clientHost, rebalanceTimeout, ...)
+func decodeOffsetMetadata(record *sarama.ConsumerMessage) (*kmsg.GroupMetadataValue, error) {
+	metadataKey := kmsg.NewGroupMetadataKey()
+	if err := metadataKey.ReadFrom(record.Key); err != nil {
+		return nil, fmt.Errorf("failed to decode offset metadata key: %w", err)
+	}
+
+	if record.Value == nil {
+		return nil, nil
+	}
+	metadataValue := kmsg.NewGroupMetadataValue()
+	if err := metadataValue.ReadFrom(record.Value); err != nil {
+		return nil, fmt.Errorf("failed to decode offset metadata value: %w", err)
+	}
+
+	return &metadataValue, nil
+}
+
+type offsetCommit struct {
+	kmsg.OffsetCommitKey
+	kmsg.OffsetCommitValue
+}
+
+// decodeOffsetCommit decodes to group offsets which include the following information:
+// - group, topic, partition
+// - offset
+// - leaderEpoch
+// - metadata (user specified string for each offset commit)
+// - commitTimestamp
+// - expireTimestamp (only version 1 offset commits / deprecated)
+func decodeOffsetCommit(record *sarama.ConsumerMessage) (*offsetCommit, error) {
+	offsetCommitKey := kmsg.NewOffsetCommitKey()
+	if err := offsetCommitKey.ReadFrom(record.Key); err != nil {
+		return nil, err
+	}
+
+	if record.Value == nil {
+		// Tombstone - The group offset is expired or no longer valid (e.g. because the topic has been deleted)
+		return nil, nil
+	}
+
+	offsetCommitValue := kmsg.NewOffsetCommitValue()
+	if err := offsetCommitValue.ReadFrom(record.Value); err != nil {
+		return nil, err
+	}
+
+	return &offsetCommit{
+		OffsetCommitKey:   offsetCommitKey,
+		OffsetCommitValue: offsetCommitValue,
+	}, nil
 }

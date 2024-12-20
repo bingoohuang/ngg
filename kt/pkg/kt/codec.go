@@ -37,19 +37,15 @@ func ParseBytesEncoder(encoder string) BytesEncoder {
 	encoder = strings.ToLower(encoder)
 	if strings.Contains(encoder, "hex") {
 		fns = append(fns, func(src []byte) string {
-			return "hex: " + hex.EncodeToString(src)
+			return hex.EncodeToString(src)
 		})
-	}
-
-	if strings.Contains(encoder, "base64") {
+	} else if strings.Contains(encoder, "base64") {
 		fns = append(fns, func(src []byte) string {
-			return "base64: " + base64.StdEncoding.EncodeToString(src)
+			return base64.StdEncoding.EncodeToString(src)
 		})
-	}
-
-	if strings.Contains(encoder, "string") {
+	} else if strings.Contains(encoder, "string") {
 		fns = append(fns, func(data []byte) string {
-			return "string: " + string(data)
+			return string(data)
 		})
 	}
 
