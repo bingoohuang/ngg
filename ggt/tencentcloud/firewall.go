@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/bingoohuang/ngg/cmd"
 	"github.com/bingoohuang/ngg/ggt/root"
@@ -30,9 +33,16 @@ type subCmd struct {
 	InstanceId string `short:"i" help:"InstanceId."`
 	File       string `short:"f" help:"防火墙规则JSON文件, e.g. firewall-xxx.json"`
 	Config     string `short:"c" help:"腾讯云Credential, e.g. tencent.json"`
+
+	Desc string `short:"d" help:"防火墙规则描述关键字, 必须与 IP 一起使用时, 直接添加防火墙规则, 允许指定IP访问"`
+	IP   string `help:"防火墙规则描述关键字允许的IP"`
 }
 
 func (r *subCmd) Run(cmd *cobra.Command, args []string) error {
+	if r.Desc != "" && r.IP == "" || r.IP != "" && r.Desc == "" {
+		return fmt.Errorf("desc and ip must be set together")
+	}
+
 	conf, err := ParseLightHouseConf(r.Config)
 	if err != nil {
 		return err
@@ -46,6 +56,7 @@ func (r *subCmd) Run(cmd *cobra.Command, args []string) error {
 	if r.File != "" {
 		return r.modifyRules(client, r.File)
 	}
+
 	return r.listRules(conf, client)
 }
 
@@ -65,6 +76,10 @@ func (r *subCmd) modifyRules(client *lighthouse.Client, file string) error {
 		return err
 	}
 
+	return r.submitRules(client, rules)
+}
+
+func (r *subCmd) submitRules(client *lighthouse.Client, rules InstanceFirewallRules) error {
 	rq := lighthouse.NewModifyFirewallRulesRequest()
 	rq.InstanceId = rules.InstanceId
 	for _, rule := range rules.Rules {
@@ -107,7 +122,7 @@ func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) erro
 		InstanceId: rq.InstanceId,
 	}
 	for _, rule := range response.Response.FirewallRuleSet {
-		rules.Rules = append(rules.Rules, FirewallRule{
+		rules.Rules = append(rules.Rules, &FirewallRule{
 			Protocol:                []*string{rule.Protocol},
 			Port:                    rule.Port,
 			CidrBlock:               rule.CidrBlock,
@@ -120,6 +135,31 @@ func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) erro
 	jsonRules, err := json.MarshalIndent(rules, "", "    ")
 	if err != nil {
 		return err
+	}
+
+	if r.IP != "" && r.Desc != "" {
+		// 直接根据描述和 IP，添加防火墙规则
+		found := false
+		for _, rule := range rules.Rules {
+			if strings.Contains(*rule.FirewallRuleDescription, r.Desc) {
+				rule.Protocol = common.StringPtrs([]string{"UDP", "TCP"})
+				rule.Port = common.StringPtr("ALL")
+				rule.CidrBlock = common.StringPtr(r.IP)
+				rule.Action = common.StringPtr("ACCEPT")
+				found = true
+			}
+		}
+		if !found {
+			rules.Rules = append(rules.Rules, &FirewallRule{
+				Protocol:                common.StringPtrs([]string{"UDP", "TCP"}),
+				Port:                    common.StringPtr("ALL"),
+				CidrBlock:               common.StringPtr(r.IP),
+				Action:                  common.StringPtr("ACCEPT"),
+				FirewallRuleDescription: common.StringPtr(r.Desc),
+			})
+		}
+
+		return r.submitRules(client, rules)
 	}
 
 	// Create a temporary file
@@ -176,7 +216,7 @@ type FirewallRule struct {
 
 type InstanceFirewallRules struct {
 	InstanceId *string
-	Rules      []FirewallRule
+	Rules      []*FirewallRule
 }
 
 func (r *InstanceFirewallRules) mergeRules() {
@@ -194,7 +234,7 @@ func (r *InstanceFirewallRules) mergeRules() {
 		}
 	}
 
-	rules := make([]FirewallRule, 0, len(r.Rules))
+	rules := make([]*FirewallRule, 0, len(r.Rules))
 	for _, ji := range r.Rules {
 		if !ji.merged {
 			rules = append(rules, ji)
@@ -219,9 +259,7 @@ func (l *LightHouseConf) NewClient() (*lighthouse.Client, error) {
 
 func ParseLightHouseConf(tencentCredenialJsonFile string) (*LightHouseConf, error) {
 	overwrite := false
-	if tencentCredenialJsonFile == "" {
-		tencentCredenialJsonFile = "~/.lighthouse.json"
-	}
+	tencentCredenialJsonFile = ss.Or(tencentCredenialJsonFile, "~/.lighthouse.json")
 
 	var lh LightHouseConf
 	if _, err := ReadJSONFile(tencentCredenialJsonFile, &lh); err != nil {
@@ -299,4 +337,36 @@ func ReadJSONFile[T any](file string, v *T) (*T, error) {
 	}
 
 	return v, nil
+}
+
+// 解决 Android 上的 DNS 名称解析失败, https://github.com/golang/go/issues/8877
+// 代码参考: https://czyt.tech/post/golang-http-use-custom-dns/
+func init() {
+	const (
+		dnsResolverIP        = "8.8.8.8:53" // Google DNS resolver.
+		dnsResolverProto     = "udp"        // Protocol to use for the DNS resolver
+		dnsResolverTimeoutMs = 5000         // Timeout (ms) for the DNS resolver (optional)
+	)
+
+	FixHTTPDefaultDNSResolver(dnsResolverIP, dnsResolverProto, dnsResolverTimeoutMs)
+}
+
+func FixHTTPDefaultDNSResolver(dnsResolverIP, dnsResolverProto string, dnsResolverTimeoutMs int) {
+	dialer := &net.Dialer{
+		Resolver: &net.Resolver{
+			PreferGo: true,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				d := net.Dialer{
+					Timeout: time.Duration(dnsResolverTimeoutMs) * time.Millisecond,
+				}
+				return d.DialContext(ctx, dnsResolverProto, dnsResolverIP)
+			},
+		},
+	}
+
+	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+		return dialer.DialContext(ctx, network, addr)
+	}
+
+	http.DefaultTransport.(*http.Transport).DialContext = dialContext
 }
