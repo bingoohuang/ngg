@@ -2,7 +2,11 @@ module ggtssh
 
 go 1.23.2
 
-replace github.com/bingoohuang/ngg/ggt => ..
+replace (
+	github.com/bingoohuang/ngg/ggt => ../../ggt
+	github.com/bingoohuang/ngg/gossh => ../../gossh
+	github.com/bingoohuang/ngg/ss => ../../ss
+)
 
 require (
 	github.com/BurntSushi/toml v1.4.0
@@ -52,10 +56,10 @@ require (
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

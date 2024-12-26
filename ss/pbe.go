@@ -303,7 +303,7 @@ func PbePrintEncrypt(passStr string, plains ...string) {
 // PbePrintDecrypt prints the PBE decryption.
 func PbePrintDecrypt(passStr string, cipherText ...string) {
 	if filename, yes := isFilenameArg(cipherText); yes {
-		PbeEncryptFile(filename, passStr)
+		PbeDecryptFile(filename, passStr)
 
 		return
 	}
