@@ -6,7 +6,6 @@ import (
 	"net"
 	"os"
 
-	"github.com/atotto/clipboard"
 	"github.com/bingoohuang/ngg/ggt/root"
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/spf13/cobra"
@@ -26,6 +25,7 @@ type subCmd struct {
 	Verbose    bool     `short:"v" help:"Verbose output for more details"`
 	V4         bool     `short:"4" help:"only show ipv4"`
 	V6         bool     `short:"6" help:"only show ipv6"`
+	ListIfaces bool     `short:"l" help:"list all interfaces"`
 }
 
 func (f *subCmd) Run(*cobra.Command, []string) error {
@@ -57,23 +57,14 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	log.Printf("Mac addresses: %v", gnet.GetMac())
 
 	if f.Stun {
-		if publicIP, err := StunPublicIP(f.StunServer); err != nil {
-			log.Printf("stun error: %v", err)
-		} else if len(publicIP) > 0 {
-			log.Printf("Stun IP: %v ✅", publicIP)
+		stunOthers()
+	}
 
-			for _, public := range publicIP {
-				if gnet.IsIPv4(public) {
-					clipboard.WriteAll(public)
-					log.Printf("%s copied to clipboard", public)
-					break
-				}
-			}
-		}
+	if f.ListIfaces {
+		ListIfaces(f.V4, f.V6, f.Iface)
 	}
 
 	if f.Verbose {
-		ListIfaces(f.V4, f.V6, f.Iface)
 		CheckPublicIP()
 	}
 

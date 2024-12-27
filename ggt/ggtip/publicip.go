@@ -2,11 +2,12 @@ package ggtip
 
 import (
 	"log"
+	"net"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/atotto/clipboard"
+	"github.com/bingoohuang/ngg/gnet/android"
 	"github.com/imroc/req/v3"
 )
 
@@ -54,6 +55,7 @@ func init() {
 func CheckPublicIP() {
 	ipv4ch := make(chan []string)
 	for _, ipUrl := range Endpoints {
+		log.Printf("Checking %s", ipUrl)
 		go invoke(ipUrl, ipv4ch)
 	}
 
@@ -71,7 +73,7 @@ func CheckPublicIP() {
 	for k, v := range ipv4Map {
 		if most == v {
 			log.Printf("%d/%d Public IP: %s ✅", v, len(Endpoints), k)
-			clipboard.WriteAll(k)
+			//  clipboard.WriteAll(k)
 		} else {
 			log.Printf("%d/%d Public IP: %s", v, len(Endpoints), k)
 		}
@@ -102,11 +104,14 @@ func invoke(ipUrl string, ipv4ch chan<- []string) {
 				log.Printf("%v\t%s\t%s\t%s", ipv4s, FormatDuration(time.Since(start)), ipUrl, data)
 			}
 		}
+	} else {
+		log.Printf("check %s error: %v", ipUrl, err)
 	}
 }
 
 var client = req.C().
-	SetTimeout(15 * time.Second).
+	SetTimeout(5 * time.Second).
+	SetDial((&net.Dialer{Resolver: android.Resolver}).DialContext).
 	SetProxy(nil) // Disable proxy
 
 // FormatDuration formats a duration with a precision of 3 digits

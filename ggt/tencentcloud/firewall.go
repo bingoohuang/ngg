@@ -3,17 +3,15 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"net"
-	"net/http"
 	"os"
+	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/bingoohuang/ngg/cmd"
 	"github.com/bingoohuang/ngg/ggt/root"
+	_ "github.com/bingoohuang/ngg/gnet/android"
 	"github.com/bingoohuang/ngg/gum"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/spf13/cobra"
@@ -167,17 +165,17 @@ func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) erro
 	if err != nil {
 		return err
 	}
-	defer os.Remove(file)
+	// defer os.Remove(file)
 
 	log.Printf("cmd: %s", cmd.ShellQuoteMust(os.Args[0], "firewall", "-f", file))
 
-	editorCmd, err := FindAvailableCmd("/usr/local/bin/zed", "/usr/local/bin/code")
+	editorCmd, err := FindAvailableCmd("/usr/local/bin/zed", "/usr/local/bin/code", "vim")
 	if err != nil {
-		return nil
+		return err
 	}
 	c := cmd.New(cmd.ShellQuoteMust(editorCmd, file))
 	if err = c.Run(context.Background()); err != nil {
-		return nil
+		return err
 	}
 
 	yes, err := gum.Confirm("确认修改防火墙规则么?")
@@ -294,14 +292,12 @@ type LightHouseConf struct {
 
 func FindAvailableCmd(cmds ...string) (string, error) {
 	for _, cmd := range cmds {
-		if _, err := os.Stat(cmd); err == nil {
-			return cmd, nil
-		} else if !os.IsNotExist(err) {
-			return "", fmt.Errorf("stat %s: %w", cmd, err)
+		if path, err := exec.LookPath(cmd); err == nil {
+			return path, nil
 		}
 	}
 
-	return "", errors.New("cmc not found")
+	return "", fmt.Errorf("cmds %v not found", cmds)
 }
 
 func WriteJSONFile[T any](file string, v T) error {
@@ -337,36 +333,4 @@ func ReadJSONFile[T any](file string, v *T) (*T, error) {
 	}
 
 	return v, nil
-}
-
-// 解决 Android 上的 DNS 名称解析失败, https://github.com/golang/go/issues/8877
-// 代码参考: https://czyt.tech/post/golang-http-use-custom-dns/
-func init() {
-	const (
-		dnsResolverIP        = "8.8.8.8:53" // Google DNS resolver.
-		dnsResolverProto     = "udp"        // Protocol to use for the DNS resolver
-		dnsResolverTimeoutMs = 5000         // Timeout (ms) for the DNS resolver (optional)
-	)
-
-	FixHTTPDefaultDNSResolver(dnsResolverIP, dnsResolverProto, dnsResolverTimeoutMs)
-}
-
-func FixHTTPDefaultDNSResolver(dnsResolverIP, dnsResolverProto string, dnsResolverTimeoutMs int) {
-	dialer := &net.Dialer{
-		Resolver: &net.Resolver{
-			PreferGo: true,
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				d := net.Dialer{
-					Timeout: time.Duration(dnsResolverTimeoutMs) * time.Millisecond,
-				}
-				return d.DialContext(ctx, dnsResolverProto, dnsResolverIP)
-			},
-		},
-	}
-
-	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
-		return dialer.DialContext(ctx, network, addr)
-	}
-
-	http.DefaultTransport.(*http.Transport).DialContext = dialContext
 }

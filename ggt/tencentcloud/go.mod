@@ -3,13 +3,16 @@ module tencentcloud
 go 1.23.2
 
 replace (
+	github.com/bingoohuang/ngg/cmd => ../../cmd
 	github.com/bingoohuang/ngg/ggt => ..
+	github.com/bingoohuang/ngg/gnet => ../../gnet
 	github.com/bingoohuang/ngg/gum => ../../gum
 )
 
 require (
 	github.com/bingoohuang/ngg/cmd v0.0.0-20241104133609-bea46d5d635d
 	github.com/bingoohuang/ngg/ggt v0.0.0-00010101000000-000000000000
+	github.com/bingoohuang/ngg/gnet v0.0.0-00010101000000-000000000000
 	github.com/bingoohuang/ngg/gum v0.0.0-20241104133609-bea46d5d635d
 	github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d
 	github.com/spf13/cobra v1.8.1

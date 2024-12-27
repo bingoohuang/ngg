@@ -10,8 +10,6 @@ github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
-github.com/bingoohuang/ngg/cmd v0.0.0-20241104133609-bea46d5d635d h1:rp4rn6egc2ZaFIXqrRIo2IB1NNjHx/+Pu7Ve93DHV5Y=
-github.com/bingoohuang/ngg/cmd v0.0.0-20241104133609-bea46d5d635d/go.mod h1:qg+E/XWr02YhYxE8/ULY70pjcYxg6OUyzterGd0sgP4=
 github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d h1:cbDoWKDYxQrTQuHxDI5oxCarhBA/WmQwmHFOXtMLpqo=
 github.com/bingoohuang/ngg/ss v0.0.0-20241104133609-bea46d5d635d/go.mod h1:q713LuNHPm6REV+2M0nB+H/MnmUH3dx0Z/UjvKTos68=
 github.com/bingoohuang/ngg/ver v0.0.0-20241103104547-2d1bf667deef h1:knsABZSVWQON17zjHVyWhrBKGR68fv85COH8w+rITV8=
