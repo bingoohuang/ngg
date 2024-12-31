@@ -57,7 +57,7 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 	log.Printf("Mac addresses: %v", gnet.GetMac())
 
 	if f.Stun {
-		stunOthers()
+		stunOthers(f.StunServer)
 	}
 
 	if f.ListIfaces {

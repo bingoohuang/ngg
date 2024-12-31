@@ -8,8 +8,8 @@ import (
 	"github.com/bingoohuang/ngg/gnet"
 )
 
-func stunOthers() {
-	if publicIP, err := StunPublicIP(f.StunServer); err != nil {
+func stunOthers(stunServer []string) {
+	if publicIP, err := StunPublicIP(stunServer); err != nil {
 		log.Printf("stun error: %v", err)
 	} else if len(publicIP) > 0 {
 		log.Printf("Stun IP: %v ✅", publicIP)

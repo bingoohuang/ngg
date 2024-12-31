@@ -2,6 +2,6 @@
 
 package ggtip
 
-func stunOthers() {
+func stunOthers(stunServer []string) {
 	panic("not implemented")
 }
