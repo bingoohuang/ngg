@@ -180,7 +180,9 @@ func run(totalUrls int, urlAddr string, nonFlagArgs []string, reader io.Reader) 
 	thinkerFn := func() {}
 	if thinker, _ := tick.ParseThinkTime(think); thinker != nil {
 		thinkerFn = func() {
+			spinner := StartSpinner("Thinking " + think + "...")
 			thinker.Think(true)
+			spinner.Stop()
 		}
 	}
 
@@ -203,7 +205,7 @@ func run(totalUrls int, urlAddr string, nonFlagArgs []string, reader io.Reader) 
 				surveyConfirm()
 			}
 
-			if benchN == 0 || i < benchN-1 {
+			if benchN == 0 || i < benchN {
 				thinkerFn()
 			}
 		}
