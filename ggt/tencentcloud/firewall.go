@@ -1,12 +1,20 @@
 package main
 
 import (
+	"cmp"
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"strings"
 
 	"github.com/bingoohuang/ngg/cmd"
@@ -18,6 +26,7 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	lighthouse "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/lighthouse/v20200324"
+	"golang.org/x/crypto/hkdf"
 )
 
 func main() {
@@ -130,11 +139,6 @@ func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) erro
 	}
 	rules.mergeRules()
 
-	jsonRules, err := json.MarshalIndent(rules, "", "    ")
-	if err != nil {
-		return err
-	}
-
 	if r.IP != "" && r.Desc != "" {
 		// 直接根据描述和 IP，添加防火墙规则
 		found := false
@@ -160,6 +164,10 @@ func (r *subCmd) listRules(conf *LightHouseConf, client *lighthouse.Client) erro
 		return r.submitRules(client, rules)
 	}
 
+	jsonRules, err := json.MarshalIndent(rules, "", "    ")
+	if err != nil {
+		return err
+	}
 	// Create a temporary file
 	file, err := ss.WriteTempFile("", "*.json", jsonRules, false)
 	if err != nil {
@@ -256,35 +264,27 @@ func (l *LightHouseConf) NewClient() (*lighthouse.Client, error) {
 }
 
 func ParseLightHouseConf(tencentCredenialJsonFile string) (*LightHouseConf, error) {
-	overwrite := false
 	tencentCredenialJsonFile = ss.Or(tencentCredenialJsonFile, "~/.lighthouse.json")
 
 	var lh LightHouseConf
-	if _, err := ReadJSONFile(tencentCredenialJsonFile, &lh); err != nil {
+	optionFunc := WithSesame("Tx~F*qy1s1")
+	if _, err := ReadJSONFile(tencentCredenialJsonFile, &lh, optionFunc); err != nil {
 		return nil, err
 	}
 
-	if lh.Region == "" {
-		lh.Region = "ap-beijing"
-		overwrite = true
-	}
-	if lh.Endpoint == "" {
-		lh.Endpoint = "lighthouse.tencentcloudapi.com"
-		overwrite = true
-	}
+	lh.Region = cmp.Or(lh.Region, "ap-beijing")
+	lh.Endpoint = cmp.Or(lh.Endpoint, "lighthouse.tencentcloudapi.com")
 
-	if overwrite {
-		if err := WriteJSONFile(tencentCredenialJsonFile, lh); err != nil {
-			return nil, err
-		}
+	if err := WriteJSONFile(tencentCredenialJsonFile, lh, optionFunc); err != nil {
+		return nil, err
 	}
 
 	return &lh, nil
 }
 
 type LightHouseConf struct {
-	SecretID   string `json:"secretID"`
-	SecretKey  string `json:"secretKey"`
+	SecretID   string `json:"secretID" sesame:"yes"`
+	SecretKey  string `json:"secretKey" sesame:"yes"`
 	InstanceId string `json:"instanceId"`
 	Region     string `json:"region"`
 	Endpoint   string `json:"endpoint"`
@@ -300,7 +300,16 @@ func FindAvailableCmd(cmds ...string) (string, error) {
 	return "", fmt.Errorf("cmds %v not found", cmds)
 }
 
-func WriteJSONFile[T any](file string, v T) error {
+func WriteJSONFile[T any](file string, v T, opts ...JSONFileOptionFunc) error {
+	opt := &JSONFileOption{}
+	for _, o := range opts {
+		o(opt)
+	}
+
+	if err := opt.ToggleSesame(&v, false); err != nil {
+		return fmt.Errorf("toggle sesame: %w", err)
+	}
+
 	data, err := json.Marshal(v)
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
@@ -310,6 +319,7 @@ func WriteJSONFile[T any](file string, v T) error {
 	if err != nil {
 		return err
 	}
+
 	if err := os.WriteFile(f, data, os.ModePerm); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
@@ -317,7 +327,12 @@ func WriteJSONFile[T any](file string, v T) error {
 	return nil
 }
 
-func ReadJSONFile[T any](file string, v *T) (*T, error) {
+func ReadJSONFile[T any](file string, v *T, opts ...JSONFileOptionFunc) (*T, error) {
+	opt := &JSONFileOption{}
+	for _, o := range opts {
+		o(opt)
+	}
+
 	f, err := ss.ExpandFilename(file)
 	if err != nil {
 		return nil, err
@@ -332,5 +347,149 @@ func ReadJSONFile[T any](file string, v *T) (*T, error) {
 		return nil, fmt.Errorf("unmarshal %s: %w", file, err)
 	}
 
+	if err := opt.ToggleSesame(v, true); err != nil {
+		return nil, fmt.Errorf("toggle sesame: %w", err)
+	}
+
 	return v, nil
+}
+
+type JSONFileOption struct {
+	Sesame string
+}
+
+type JSONFileOptionFunc func(opts *JSONFileOption)
+
+func WithSesame(sesame string) JSONFileOptionFunc {
+	return func(opts *JSONFileOption) {
+		opts.Sesame = sesame
+	}
+}
+
+func (o *JSONFileOption) ToggleSesame(obj any, open bool) error {
+	if o.Sesame == "" {
+		return nil
+	}
+
+	v := reflect.ValueOf(obj)
+	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("obj must be a pointer to struct")
+	}
+
+	v = v.Elem()
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		if !field.CanSet() {
+			continue
+		}
+
+		if field.Kind() != reflect.String {
+			continue
+		}
+
+		tag, ok := t.Field(i).Tag.Lookup("sesame")
+		if !ok || tag == "-" {
+			continue
+		}
+
+		str := field.String()
+		if str == "" {
+			continue
+		}
+
+		f := Encrypt
+		if open {
+			f = Decrypt
+		}
+
+		val, err := f([]byte(o.Sesame), []byte(t.Field(i).Name), []byte("Sesame"), str)
+		if err != nil {
+			return fmt.Errorf("encrypt field %s: %w", t.Field(i).Name, err)
+		}
+
+		if str != val {
+			field.SetString(val)
+		}
+	}
+
+	return nil
+}
+
+func Encrypt(secret, salt, info []byte, data string) (string, error) {
+	// Let's start up our key factory
+	keyFactory := hkdf.New(sha256.New, secret, salt, info)
+
+	// Now, let's produce two 32-byte keys
+	key1 := make([]byte, 32)
+
+	if _, err := io.ReadFull(keyFactory, key1); err != nil {
+		return "", fmt.Errorf("create key: %w", err)
+	}
+
+	block, err := aes.NewCipher(key1)
+	if err != nil {
+		return "", fmt.Errorf("AES: %w", err)
+	}
+
+	nonce := make([]byte, 12)
+	if _, err := rand.Read(nonce); err != nil {
+		return "", fmt.Errorf("rand.Read: %w", err)
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("cipher.NewGCM: %w", err)
+	}
+
+	encrypted := aesgcm.Seal(nil, nonce, []byte(data), nil)
+	encrypted = append(nonce, encrypted...)
+
+	return "{Sesame}" + base64.RawURLEncoding.EncodeToString(encrypted), nil
+}
+
+func Decrypt(secret, salt, info []byte, data string) (string, error) {
+	if !strings.HasPrefix(data, "{Sesame}") {
+		return data, nil
+	}
+
+	data = data[len("{Sesame}"):]
+	if len(data) <= 12 {
+		return "", fmt.Errorf("data too short")
+	}
+
+	// Let's start up our key factory
+	keyFactory := hkdf.New(sha256.New, secret, salt, info)
+
+	// Now, let's produce two 32-byte keys
+	key1 := make([]byte, 32)
+
+	if _, err := io.ReadFull(keyFactory, key1); err != nil {
+		return "", fmt.Errorf("create key: %w", err)
+	}
+
+	block, err := aes.NewCipher(key1)
+	if err != nil {
+		return "", fmt.Errorf("AES: %w", err)
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("cipher.NewGCM: %w", err)
+	}
+
+	encrypted, err := base64.RawURLEncoding.DecodeString(data)
+	if err != nil {
+		return "", fmt.Errorf("base64.StdEncoding.DecodeString: %w", err)
+	}
+
+	nonce := encrypted[:12]
+	encrypted = encrypted[12:]
+	decrypted, err := aesgcm.Open(nil, nonce, encrypted, nil)
+	if err != nil {
+		return "", fmt.Errorf("aesgcm.Open: %w", err)
+	}
+
+	return string(decrypted), nil
 }
