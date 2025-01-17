@@ -15,7 +15,6 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -81,43 +80,37 @@ func (f *subCmd) Run(*cobra.Command, []string) error {
 		return frp.Run(tempFile)
 	}
 
-	go func() {
-		if err := frp.Run(tempFile); err != nil {
-			log.Printf("E! frp error: %v", err)
-		}
-	}()
+	if f.ProxyConfig != "" {
+		func() {
+			yamlFileData, err := os.ReadFile(proxyConfigFile)
+			if err != nil {
+				log.Printf("E! read yaml config file: %v", err)
+				return
+			}
 
-	if f.ProxyConfig == "" {
-		return fmt.Errorf("config file is required")
-	}
+			var config Config
+			if err := yaml.Unmarshal(yamlFileData, &config); err != nil {
+				log.Printf("E! unmarshal yaml config file: %v", err)
+				return
+			}
 
-	yamlFileData, err := os.ReadFile(proxyConfigFile)
-	if err != nil {
-		return fmt.Errorf("read yaml config file: %w", err)
-	}
+			for _, p := range config.Proxies {
+				if p.ProxyAddr == "" {
+					p.ProxyAddr = config.ProxyAddr
+				}
 
-	var config Config
-	if err = yaml.Unmarshal(yamlFileData, &config); err != nil {
-		return fmt.Errorf("unmarshal yaml config file: %w", err)
-	}
-
-	var wg sync.WaitGroup
-
-	for _, p := range config.Proxies {
-		if p.ProxyAddr == "" {
-			p.ProxyAddr = config.ProxyAddr
-		}
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			if err := p.Serve(); err != nil {
-				log.Printf("Error serving proxy: %v", err)
+				go func() {
+					if err := p.Serve(); err != nil {
+						log.Printf("Error serving proxy: %v", err)
+					}
+				}()
 			}
 		}()
 	}
 
-	wg.Wait()
+	if err := frp.Run(tempFile); err != nil {
+		log.Printf("E! frp error: %v", err)
+	}
 
 	return nil
 }
