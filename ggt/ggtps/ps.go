@@ -398,7 +398,7 @@ func (r *subCmd) printProcessInfo(ctx context.Context) error {
 	createTime := time.UnixMilli(Pick1(p2.CreateTime())).In(time.Local)
 	printf("CreateTime:\t%s, elapsed %s",
 		createTime.In(time.Local).Format("2006-01-02 15:04:05"),
-		time.Since(createTime))
+		ss.FormatDur(time.Since(createTime)))
 	printf("Background:\t%t", Pick1(p2.Background()))
 	printf("Name:\t%s", Pick1(p2.Name()))
 	printf("Status:\t%v", Pick1(p2.Status()))

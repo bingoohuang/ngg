@@ -5,6 +5,7 @@ go 1.23.2
 replace (
 	github.com/bingoohuang/ngg/ggt => ..
 	github.com/bingoohuang/ngg/gum => ../../gum
+	github.com/bingoohuang/ngg/ss => ../../ss
 )
 
 require (
