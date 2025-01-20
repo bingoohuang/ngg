@@ -79,7 +79,6 @@ type AimgState struct {
 	PageID string `json:"pageID"`
 }
 
-
 func parseFlags() (c *Config) {
 	c = &Config{
 		StatChan: make(chan StatPage),
@@ -302,19 +301,19 @@ func (c *Config) handleArgs(pool *pond.WorkerPool) string {
 			continue
 		}
 
+		removeFile := strings.HasSuffix(arg, ":X")
 		argx := strings.TrimSuffix(arg, ":X")
 		argx, _ = ss.ExpandAtFile(argx)
-		if _, err := os.Stat(argx); err == nil {
+		if stat, err := os.Stat(argx); err == nil {
 			pool.Submit(func() {
-				if strings.HasSuffix(argx, ".db") {
-					if err != nil {
-						log.Printf("ExpandFile %s error: %v", argx, err)
-					} else if err := CopyDB(argx, c.db); err != nil {
+				if !stat.IsDir() {
+					if err := CopyDB(argx, c.db); err != nil {
 						log.Printf("copyDB error: %v", err)
+					} else if removeFile {
+						os.RemoveAll(argx)
 					}
 				} else {
-					del := strings.HasSuffix(arg, ":X")
-					if err := importDirImages(c.db, argx, c.pageID, "", "", c.dryRun, del, 0); err != nil {
+					if err := importDirImages(c.db, argx, c.pageID, "", "", c.dryRun, removeFile, 0); err != nil {
 						log.Printf("import dir error: %v", err)
 					}
 				}
