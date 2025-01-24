@@ -577,6 +577,9 @@ func createUploadReader(file, uploadFileField, saveRandDir string, uploadExit, a
 		if ss.Must(ss.GetenvBool("UPLOAD_SHUFFLE", false)) {
 			matches = lo.Shuffle(matches)
 		}
+		if len(matches) == 0 {
+			log.Fatalf("no matched files found for: %s", file)
+		}
 		return &globReader{UploadExit: uploadExit, matches: matches, uploadFileField: uploadFileField}
 	}
 
