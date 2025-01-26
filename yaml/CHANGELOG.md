@@ -160,7 +160,7 @@ Also, you can select `Head` comment or `Line` comment as the comment type.
 ### Fixed bugs
 
 - Fix searching anchor by alias name ( #212 )
-- Fixing Issue 186, scanner should account for newline characters when processing multi-line text. Without this source annotations line/column number (for this and all subsequent tokens) is inconsistent with plain text editors. e.g. https://github.com/bingoohuang/ngg/yaml/issues/186. This addresses the issue specifically for single and double quote text only. ( #210 )
+- Fixing Issue 186, scanner should account for newline characters when processing multi-line text. Without this source annotations line/column number (for this and all subsequent tokens) is inconsistent with plain text editors. e.g. https://github.com/goccy/go-yaml/issues/186. This addresses the issue specifically for single and double quote text only. ( #210 )
 - Add error for unterminated flow mapping node ( #213 )
 - Handle missing required field validation ( #221 )
 - Nicely format unexpected node type errors ( #229 )

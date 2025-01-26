@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
+	"github.com/mattn/go-colorable"
+
 	"github.com/bingoohuang/ngg/yaml"
 	"github.com/bingoohuang/ngg/yaml/lexer"
 	"github.com/bingoohuang/ngg/yaml/printer"
-	"github.com/fatih/color"
-	"github.com/mattn/go-colorable"
 )
 
 const escape = "\x1b"
@@ -70,8 +71,14 @@ func _main(args []string) error {
 			Suffix: format(color.Reset),
 		}
 	}
+	p.Comment = func() *printer.Property {
+		return &printer.Property{
+			Prefix: format(color.FgHiBlack),
+			Suffix: format(color.Reset),
+		}
+	}
 	writer := colorable.NewColorableStdout()
-	writer.Write([]byte(p.PrintTokens(tokens) + "\n"))
+	_, _ = writer.Write([]byte(p.PrintTokens(tokens) + "\n"))
 	return nil
 }
 
