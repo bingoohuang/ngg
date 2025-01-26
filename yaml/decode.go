@@ -44,7 +44,18 @@ type Decoder struct {
 	parsedFile           *ast.File
 	streamIndex          int
 	decodeDepth          int
+
+	keyMatchMode KeyMatchMode
 }
+
+type KeyMatchMode int
+
+const (
+	// KeyMatchLower key should match lower(FieldName) or FieldTag
+	KeyMatchLower KeyMatchMode = iota
+	// KeyMatchStrict key should match FieldName or FieldTag
+	KeyMatchStrict
+)
 
 // NewDecoder returns a new decoder that reads from r.
 func NewDecoder(r io.Reader, opts ...DecodeOption) *Decoder {
@@ -729,7 +740,7 @@ func (d *Decoder) deleteStructKeys(structType reflect.Type, unknownFields map[st
 	if structType.Kind() == reflect.Ptr {
 		structType = structType.Elem()
 	}
-	structFieldMap, err := structFieldMap(structType)
+	structFieldMap, err := structFieldMap(structType, d.keyMatchMode)
 	if err != nil {
 		return err
 	}
@@ -1271,7 +1282,7 @@ func (d *Decoder) setDefaultValueIfConflicted(v reflect.Value, fieldMap StructFi
 	if typ.Kind() != reflect.Struct {
 		return nil
 	}
-	embeddedStructFieldMap, err := structFieldMap(typ)
+	embeddedStructFieldMap, err := structFieldMap(typ, d.keyMatchMode)
 	if err != nil {
 		return err
 	}
@@ -1407,7 +1418,7 @@ func (d *Decoder) decodeStruct(ctx context.Context, dst reflect.Value, src ast.N
 		dst.Set(srcValue)
 		return nil
 	}
-	structFieldMap, err := structFieldMap(structType)
+	structFieldMap, err := structFieldMap(structType, d.keyMatchMode)
 	if err != nil {
 		return err
 	}

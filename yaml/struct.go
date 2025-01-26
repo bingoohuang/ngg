@@ -35,9 +35,15 @@ func getTag(field reflect.StructField) string {
 	return tag
 }
 
-func structField(field reflect.StructField) *StructField {
+func structField(field reflect.StructField, keyMatchMode KeyMatchMode) *StructField {
 	tag := getTag(field)
-	fieldName := strings.ToLower(field.Name)
+	var fieldName string
+	switch keyMatchMode {
+	case KeyMatchLower:
+		fieldName = strings.ToLower(field.Name)
+	case KeyMatchStrict:
+		fieldName = field.Name
+	}
 	options := strings.Split(tag, ",")
 	if len(options) > 0 {
 		if options[0] != "" {
@@ -106,7 +112,7 @@ func (m StructFieldMap) hasMergeProperty() bool {
 	return false
 }
 
-func structFieldMap(structType reflect.Type) (StructFieldMap, error) {
+func structFieldMap(structType reflect.Type, keyMatchMode KeyMatchMode) (StructFieldMap, error) {
 	structFieldMap := StructFieldMap{}
 	renderNameMap := map[string]struct{}{}
 	for i := 0; i < structType.NumField(); i++ {
@@ -114,7 +120,7 @@ func structFieldMap(structType reflect.Type) (StructFieldMap, error) {
 		if isIgnoredStructField(field) {
 			continue
 		}
-		structField := structField(field)
+		structField := structField(field, keyMatchMode)
 		if _, exists := renderNameMap[structField.RenderName]; exists {
 			return nil, fmt.Errorf("duplicated struct field name %s", structField.RenderName)
 		}
