@@ -61,3 +61,7 @@ $
 相反，它只会导致 SQLite 从头开始​​覆盖 WAL 文件。这样做是因为覆盖现有文件通常比追加速度更快。当与数据库的最后一个连接关闭时，该连接会执行最后一个检查点，然后删除 WAL 及其关联的共享内存文件，以清理磁盘。
 
 因此在绝大多数情况下，应用程序根本不需要担心 WAL 文件。 SQLite 会自动处理它。但有可能让 SQLite 进入WAL文件无限制增长的状态，导致磁盘空间使用过多和查询速度缓慢。以下要点列举了发生这种情况的一些方式以及如何避免它们。
+
+———— SQLite 还新支持 [WAL2](https://sqlite.org/cgi/src/doc/wal2/doc/wal2.md) 模式。WAL2 在功能上与 WAL 没有区别。在 WAL 模式中，如果系统一直不断地写入数据库，WAL 日常文件就有可能无限增长。WAL2 解决了这个问题。所以建议大家一步到位，直接使用 WAL2 模式。 [博客 SQLite 服务端优化备忘](https://taoshu.in/go/sqlite.html)
+
+In wal2 mode, the system uses two wal files instead of one. The files are named "<database>-wal" and "<database>-wal2", where "<database>" is of course the name of the database file. When data is written to the database, the writer begins by appending the new data to the first wal file. Once the first wal file has grown large enough, writers switch to appending data to the second wal file. At this point the first wal file can be checkpointed (after which it can be overwritten). Then, once the second wal file has grown large enough and the first wal file has been checkpointed, writers switch back to the first wal file. And so on.
