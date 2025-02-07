@@ -452,6 +452,8 @@ const (
 	NotifyLeave
 	// NotifyUpdate 通知更新 Raft 集群
 	NotifyUpdate
+	// NotifyHeartbeat 心跳通知
+	NotifyHeartbeat
 )
 
 func (t NotifyType) String() string {
@@ -462,6 +464,8 @@ func (t NotifyType) String() string {
 		return "NotifyLeave"
 	case NotifyUpdate:
 		return "NotifyUpdate"
+	case NotifyHeartbeat:
+		return "NotifyHeartbeat"
 	default:
 		return "Unknown"
 	}
@@ -482,6 +486,8 @@ func (n *Node) goDealNotifyEvent() {
 		go n.processNotify(e, waitLeader)
 		return nil
 	})
+
+	go n.notifyHeartbeat(n.ctx)
 
 	util.GoChan(n.ctx, n.wg, waitLeader, func(e NotifyEvent) error {
 		leaderAddr, leaderID, err := n.waitLeader(waitLeaderTime)
@@ -521,7 +527,12 @@ func (n *Node) processNotify(e NotifyEvent, waitLeader chan NotifyEvent) {
 	log.Printf("received type: %s, leader: %s, isLeader: %t, node: %s",
 		e.NotifyType, leader, isLeader, ss.Json(e.Node))
 	if leader != "" {
-		n.processNotifyAtLeader(isLeader, e)
+		switch e.NotifyType {
+		case NotifyJoin, NotifyLeave, NotifyUpdate:
+			n.processNotifyAtLeader(isLeader, e)
+		default:
+			// ignore
+		}
 		return
 	}
 
@@ -584,6 +595,21 @@ func (n *Node) NotifyLeave(node *memberlist.Node) {
 // NotifyUpdate responses the update of raft cluster member.
 func (n *Node) NotifyUpdate(node *memberlist.Node) {
 	n.notifyCh <- NotifyEvent{NotifyType: NotifyUpdate, Node: node}
+}
+
+// notifyHeartbeat 心跳.
+func (n *Node) notifyHeartbeat(ctx context.Context) {
+	t := time.NewTicker(15 * time.Second)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			n.notifyCh <- NotifyEvent{NotifyType: NotifyHeartbeat}
+		}
+	}
 }
 
 // IsLeader tells whether the current node is the leader.
