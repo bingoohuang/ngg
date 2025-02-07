@@ -13,6 +13,7 @@ import (
 	"github.com/bingoohuang/ngg/braft/fsm"
 	"github.com/bingoohuang/ngg/braft/marshal"
 	"github.com/bingoohuang/ngg/braft/ticker"
+	_ "github.com/bingoohuang/ngg/rotatefile/stdlog/autoload"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/bingoohuang/ngg/ver"
 	"github.com/gin-gonic/gin"
