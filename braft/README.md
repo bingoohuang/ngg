@@ -1,3 +1,5 @@
+# braft
+
 An easy to use a customizable library to make your Go application Distributed, Highly available, Fault Tolerant etc...
 using Hashicorp's [Raft](https://github.com/hashicorp/raft) library which implements the
 [Raft Consensus Algorithm](https://raft.github.io/). Original fork
@@ -58,7 +60,7 @@ func main() {
 ## env VARIABLES
 
 | NAME                    | ACRONYM | USAGE                                        | DEFAULT              | EXAMPLE                                                                                                                                              |
-|-------------------------|---------|----------------------------------------------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------- | ------- | -------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | GOLOG_STDOUT            | N/A     | print log on stdout                          | false                | `export GOLOG_STDOUT=true`                                                                                                                           |
 | BRAFT_DISCOVERY         | BDI     | discovery configuration                      | mdns                 | `export BRAFT_DISCOVERY="mdns:_braft._tcp"`<p>`export BRAFT_DISCOVERY="static:192.168.1.1,192.168.1.2,192.168.1.3"`<p>`export BRAFT_DISCOVERY="k8s"` |
 | BRAFT_IP                | BIP     | specify the IP                               | first host IP        | `export BRAFT_IP=192.168.1.1`                                                                                                                        |
@@ -431,11 +433,10 @@ Content-Encoding: gzip
 
 ![image](https://user-images.githubusercontent.com/1940588/154780806-bf7b88e3-27b8-416e-bbab-34be474e2db0.png)
 
-
 ## 本机 static 双节点测试
 
-1. `BRAFT_DISCOVERY=192.168.6.240:15001,192.168.6.240:16001 BRAFT_RPORT=15000 braft`
-2. `BRAFT_DISCOVERY=192.168.6.240:15001,192.168.6.240:16001 BRAFT_RPORT=16000 braft`
+1. `BRAFT_DISCOVERY=192.168.6.240:15001,192.168.6.240:16001 BRAFT_RPORT=15000 braft` or `BRAFT_DISCOVERY=:15001,:16001 BRAFT_RPORT=15000 braft`
+2. `BRAFT_DISCOVERY=192.168.6.240:15001,192.168.6.240:16001 BRAFT_RPORT=16000 braft` or `BRAFT_DISCOVERY=:15001,:16001 BRAFT_RPORT=16000 braft`
 3. `gurl :15002/raft`
 
 ```json

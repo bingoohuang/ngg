@@ -15,7 +15,6 @@ import (
 	"github.com/bingoohuang/ngg/braft/util"
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/bingoohuang/ngg/ss"
-	"github.com/samber/lo"
 	"go.uber.org/multierr"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,9 +43,6 @@ func (n *Node) ApplyOnLeader(payload []byte, timeout time.Duration) (any, error)
 
 // GetPeerDetails returns the remote peer details.
 func GetPeerDetails(addr string, timeout time.Duration) (*proto.GetDetailsResponse, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
 	ctx, deferFn, c, err := GetRaftClient(addr, timeout)
 	defer deferFn()
 	if err != nil {
@@ -116,16 +112,12 @@ func CreateDiscovery(discoveryMethod string, dport int) discovery.Discovery {
 			peers = DefaultStaticPeers
 		}
 
-		if _, found := lo.Find(peers, func(p string) bool {
-			return strings.HasPrefix(p, ":")
-		}); found {
-			hostIP, _ := gnet.MainIPv4()
-			for i, p := range peers {
-				if strings.HasPrefix(p, ":") {
-					peers[i] = hostIP + p
-				}
+		for i, p := range peers {
+			if strings.HasPrefix(p, ":") {
+				peers[i] = EnvIP + p
 			}
 		}
+
 		// 在后面填充端口号 ip:{dport}
 		for i, p := range peers {
 			if !checkPortEnd(p) {

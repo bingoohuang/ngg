@@ -415,7 +415,8 @@ func (n *Node) Stop() {
 	}
 }
 
-func (n *Node) findServer(serverID string) bool {
+// ExistsServer 根据 serverID 查看 Raft 集群，看是否存在.
+func (n *Node) ExistsServer(serverID string) bool {
 	for _, s := range n.GetRaftServers() {
 		if string(s.ID) == serverID {
 			return true
