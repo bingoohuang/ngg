@@ -571,6 +571,13 @@ func (b *Request) SendOut() (*http.Response, error) {
 		Jar:       jar,
 	}
 
+	if disableRedirect {
+		// 设置 CheckRedirect 函数，返回 http.ErrUseLastResponse 错误以禁止重定向
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+	}
+
 	if b.Setting.UserAgent != "" && b.Req.Header.Get("User-Agent") == "" {
 		b.Header("User-Agent", b.Setting.UserAgent)
 	}

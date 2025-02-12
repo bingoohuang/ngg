@@ -75,6 +75,7 @@ func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 	raw = HasPrintOption(printRaw)
 	countingItems = HasPrintOption(printCountingItems)
 	disableProxy = HasPrintOption(optionDisableProxy)
+	disableRedirect = HasPrintOption(optionDisableRedirect)
 
 	pretty = !raw
 

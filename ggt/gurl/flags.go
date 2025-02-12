@@ -18,7 +18,7 @@ import (
 var (
 	keepAlive, form, pretty                       bool
 	ugly, raw, freeInnerJSON, gzipOn              bool
-	countingItems, disableProxy                   bool
+	countingItems, disableProxy, disableRedirect  bool
 	auth, proxy, printV, body, think, method, dns string
 	uploadFiles, urls                             []string
 	printOption                                   uint32
@@ -77,6 +77,7 @@ const (
 	quietFileUploadDownloadProgressing
 	freeInnerJSONTag
 	optionDisableProxy
+	optionDisableRedirect
 )
 
 func parsePrintOption(s string) {
@@ -99,6 +100,7 @@ func parsePrintOption(s string) {
 	AdjustPrintOption(&s, 'r', printRaw)
 	AdjustPrintOption(&s, 'C', printCountingItems)
 	AdjustPrintOption(&s, 'N', optionDisableProxy)
+	AdjustPrintOption(&s, 'n', optionDisableRedirect)
 
 	if s != "" {
 		log.Fatalf("unknown print option: %s", s)
@@ -157,6 +159,7 @@ flags:
                        r: print JSON Raw format other than pretty
                        C: print items counting in colored output
                        N: disable proxy
+					   n: disable redirects
                        o: print response option(like TLS)
                        a/A: HBhbsv
   --dns             Specified custom DNS resolver address, format: [DNS_SERVER]:[PORT]
