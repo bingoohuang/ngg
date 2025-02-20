@@ -65,7 +65,7 @@ func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("create demo env file: %w", err)
 	}
 
-	if RemoveChars(printV, "svtqfdUrCN") == "" {
+	if RemoveChars(printV, "svtqfdUrCNE") == "" {
 		printV += "b"
 	}
 
