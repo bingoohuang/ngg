@@ -78,6 +78,7 @@ const (
 	freeInnerJSONTag
 	optionDisableProxy
 	optionDisableRedirect
+	optionDisableEval
 )
 
 func parsePrintOption(s string) {
@@ -100,6 +101,7 @@ func parsePrintOption(s string) {
 	AdjustPrintOption(&s, 'r', printRaw)
 	AdjustPrintOption(&s, 'C', printCountingItems)
 	AdjustPrintOption(&s, 'N', optionDisableProxy)
+	AdjustPrintOption(&s, 'E', optionDisableEval)
 	AdjustPrintOption(&s, 'n', optionDisableRedirect)
 
 	if s != "" {
@@ -159,7 +161,8 @@ flags:
                        r: print JSON Raw format other than pretty
                        C: print items counting in colored output
                        N: disable proxy
-					   n: disable redirects
+                       E: disable eval
+                       n: disable redirects
                        o: print response option(like TLS)
                        a/A: HBhbsv
   --dns             Specified custom DNS resolver address, format: [DNS_SERVER]:[PORT]

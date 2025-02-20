@@ -18,6 +18,10 @@ var (
 )
 
 func Eval(s string) (string, error) {
+	if HasPrintOption(optionDisableEval) {
+		return s, nil
+	}
+
 	var lines string
 	for {
 		blanks, left := eatBlanks(s)
