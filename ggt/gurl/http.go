@@ -120,7 +120,7 @@ func readFile(s string) (data []byte, fn string, e error) {
 		return []byte(s), "", nil
 	}
 
-	filename := s[1:]
+	filename := ss.ExpandHome(s[1:])
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		eval, err := Eval(s)
 		if err != nil {
