@@ -15,6 +15,7 @@ import (
 	"github.com/bingoohuang/ngg/gnet"
 	"github.com/bingoohuang/ngg/jj"
 	"github.com/bingoohuang/ngg/rotatefile/stdlog"
+	_ "github.com/bingoohuang/ngg/rotatefile/stdlog/autoload"
 	"github.com/bingoohuang/ngg/ss"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/basic_auth"
@@ -29,10 +30,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	stdlog.Init()
-}
-
 func main() {
 	c := root.CreateCmd(nil, "hertz", "hertz 测试服务器", &subCmd{})
 	if err := c.Execute(); err != nil {
@@ -42,14 +39,15 @@ func main() {
 
 type subCmd struct {
 	Addr       string      `help:"listening address" default:":12123"`
-	MaxBody    ss.FlagSize `help:"Max request body Size" default:"4M"`
+	MaxBody    ss.FlagSize `help:"max request body Size" default:"4M"`
 	Gzip       bool        `help:"gzip"`
 	Methods    []string    `help:"methods" default:"ANY"`
-	UploadPath string      `short:"u" help:"Upload path"`
+	UploadPath string      `short:"u" help:"upload path"`
 	Auth       string      `help:"basic auth like user:pass"`
 	Path       []string    `short:"p" help:"path" default:"/"`
-	Body       []string    `short:"b" help:"body"`
+	Body       []string    `short:"b" help:"body string, or @/some/path/file"`
 	Procs      int         `short:"t" help:"maximum number of CPUs" default:"runtime.GOMAXPROCS(0)"`
+	Version    bool        `version:"1" short:"v" help:"show version and exit"`
 }
 
 func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
@@ -156,7 +154,10 @@ func serveUpload(h *server.Hertz, path string, methods []string, uploadPath stri
 }
 
 func serve(h *server.Hertz, path string, methods []string, body string) error {
-	rspBody, _ := ss.ExpandAtFile(body)
+	rspBody, err := ss.ExpandAtFile(body)
+	if err != nil {
+		return fmt.Errorf("read file %s: %w", body, err)
+	}
 
 	contentType := lo.If(jj.Valid(rspBody), "application/json; charset=utf-8").Else("text/plain; charset=utf-8")
 	f := func(ctx context.Context, c *app.RequestContext) {
