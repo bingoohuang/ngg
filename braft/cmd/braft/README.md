@@ -17,7 +17,7 @@ Usage
    1. `curl 'http://localhost:15002/kv?map=test&k=somekey'`
    2. `curl 'http://localhost:16002/kv?map=test&k=somekey'`
    3. `curl 'http://localhost:17002/kv?map=test&k=somekey'`
-5. Distribute some items `gurl POST :15002/distribute`
+5. Distribute some items `gurl POST :15002/distribute n==10` 分配 10 个随机数据项
 
 本机启动两个节点:
 

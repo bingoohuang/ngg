@@ -77,7 +77,7 @@ func (d *DemoPicker) PickForNode(nodeID string, request any) {
 		return item.NodeID == nodeID
 	}).([]DemoItem)
 	d.DD = dd
-	log.Printf("got %d items: %s", len(dd.Items), ss.Json(dd))
+	log.Printf("got items(#%d): %s", len(dd.Items), ss.Json(dd))
 }
 
 func (d *DemoPicker) RegisterMarshalTypes(reg *marshal.TypeRegister) {
@@ -103,7 +103,9 @@ func (d *DemoPicker) distributeGet(ctx *gin.Context, _ *braft.Node) {
 
 func (d *DemoPicker) distributePost(ctx *gin.Context, n *braft.Node) {
 	dd := &DemoDist{Items: makeRandItems(ctx.Query("n")), Common: tsid.Fast().ToString()}
-	if result, err := n.Distribute(dd, braft.WithKey("demo")); err != nil {
+	// 如果携带了查询参数 key，则是在 Leader 上进行 KeyValue 的存储操作 dd
+	// 否则，在集群节点间分配数据 dd
+	if result, err := n.Distribute(dd, braft.WithKey(ctx.Query("key"))); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 	} else {
 		ctx.JSON(http.StatusOK, result)
@@ -113,7 +115,7 @@ func (d *DemoPicker) distributePost(ctx *gin.Context, n *braft.Node) {
 func makeRandItems(q string) (ret []DemoItem) {
 	n, _ := strconv.Atoi(q)
 	if n <= 0 {
-		n = ss.Rand().Intn(20) + 1
+		return nil
 	}
 
 	for i := 0; i < n; i++ {
@@ -130,7 +132,7 @@ func init() {
 var arg Arg
 
 type Arg struct {
-	Version bool `flag:",v"`
+	Version bool `short:"v"`
 	Init    bool
 }
 

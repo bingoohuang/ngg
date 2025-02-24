@@ -21,14 +21,14 @@ import (
 
 // HTTPConfig is configuration for HTTP service.
 type HTTPConfig struct {
-	Handlers []pathHalder
+	Handlers []pathHandler
 	EnableKv bool
 }
 
 // HandlerFunc defines the handler used by gin middleware as return value.
 type HandlerFunc func(ctx *gin.Context, n *Node)
 
-type pathHalder struct {
+type pathHandler struct {
 	handler HandlerFunc
 	method  string
 	path    string
@@ -43,7 +43,7 @@ func WithEnableKV(b bool) HTTPConfigFn { return func(c *HTTPConfig) { c.EnableKv
 // WithHandler defines the http handler.
 func WithHandler(method, path string, handler HandlerFunc) HTTPConfigFn {
 	return func(c *HTTPConfig) {
-		c.Handlers = append(c.Handlers, pathHalder{method: method, path: path, handler: handler})
+		c.Handlers = append(c.Handlers, pathHandler{method: method, path: path, handler: handler})
 	}
 }
 

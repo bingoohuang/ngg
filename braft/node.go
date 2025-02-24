@@ -674,6 +674,12 @@ func WithKey(key string) DistributeOptionFunc {
 	}
 }
 
+type DistributeResult struct {
+	Items     any    `json:"items"`
+	RaftApply any    `json:"raftApply"`
+	Error     string `json:"error"`
+}
+
 // Distribute distributes the given bean to all the nodes in the cluster.
 func (n *Node) Distribute(bean fsm.Distributable, fns ...DistributeOptionFunc) (any, error) {
 	var opt DistributeOption
@@ -681,9 +687,12 @@ func (n *Node) Distribute(bean fsm.Distributable, fns ...DistributeOptionFunc) (
 		fn(&opt)
 	}
 
-	if opt.Key != "" {
+	var result DistributeResult
+
+	if opt.Key != "" { // 如果 Key 不为空，则在 Leader 节点上，设置 KeyValue 缓存值
 		if !n.IsLeader() {
-			return nil, ErrNoLeader
+			result.Error = "node is not leader"
+			return result, nil
 		}
 
 		// 等待 HTTP GET /distribute/:key 取值
@@ -693,9 +702,16 @@ func (n *Node) Distribute(bean fsm.Distributable, fns ...DistributeOptionFunc) (
 
 	items := bean.GetDistributableItems()
 	dataLen := n.distributor.Distribute(n.ShortNodeIds(), items)
+	result.Items = items
 
-	log.Printf("distribute %d items: %s", dataLen, ss.Json(bean))
-	return n.RaftApply(fsm.DistributeRequest{Data: bean}, time.Second)
+	log.Printf("distribute items(#%d): %s", dataLen, ss.Json(bean))
+	applyResult, err := n.RaftApply(fsm.DistributeRequest{Data: bean}, time.Second)
+	if err != nil {
+		result.Error = err.Error()
+	}
+
+	result.RaftApply = applyResult
+	return result, nil
 }
 
 func (n *Node) wait() {
