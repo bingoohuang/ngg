@@ -106,10 +106,16 @@ func (f *getCmd) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	ttl, err := rdb.TTL(cmd.Context(), f.Key).Result()
+	if err != nil {
+		return err
+	}
+
 	var val any
 	switch typ {
 	case "string":
 		val, err = rdb.Get(cmd.Context(), f.Key).Result()
+
 	case "hash":
 		if len(f.Field) > 0 {
 			val, err = rdb.HMGet(cmd.Context(), f.Key, f.Field...).Result()
@@ -136,9 +142,9 @@ func (f *getCmd) Run(cmd *cobra.Command, args []string) error {
 	switch typ {
 	case "string":
 		if !f.Raw && jj.Valid(val.(string)) {
-			log.Printf("%s key: %s value: %s", typ, f.Key, jj.Pretty([]byte(val.(string))))
+			log.Printf("%s key: %s value: %s ttl: %v", typ, f.Key, jj.Pretty([]byte(val.(string))), ttl)
 		} else {
-			log.Printf("%s key: %s value: %v", typ, f.Key, val)
+			log.Printf("%s key: %s value: %v ttl: %v", typ, f.Key, val, ttl)
 		}
 	case "hash":
 		value := ss.Json(val)
@@ -146,7 +152,7 @@ func (f *getCmd) Run(cmd *cobra.Command, args []string) error {
 			value = jj.Pretty(jj.FreeInnerJSON(value))
 		}
 
-		log.Printf("%s key: %s field: %v value: %s", typ, f.Key, f.Field, value)
+		log.Printf("%s key: %s field: %v value: %s ttl: %v", typ, f.Key, f.Field, value, ttl)
 	}
 
 	return nil
@@ -251,6 +257,7 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 				itemIndex++
 				log.Printf("%d: string key %s imported", itemIndex, item.Key)
 			}
+
 		case "hash":
 			var val map[string]string
 			if err := json.Unmarshal(item.Value, &val); err != nil {
@@ -264,6 +271,17 @@ func (f *importCmd) Run(cmd *cobra.Command, args []string) error {
 			}
 			itemIndex++
 			log.Printf("%d: hash key %s imported", itemIndex, item.Key)
+		}
+
+		if item.Ttl != "" {
+			exp, err := time.ParseDuration(item.Ttl)
+			if err != nil {
+				return err
+			}
+
+			if err := rdb.Expire(cmd.Context(), item.Key, exp).Err(); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -288,6 +306,7 @@ type ImportKeyItem struct {
 	Key   string          `json:"key"`
 	Type  string          `json:"type"`
 	Value json.RawMessage `json:"value"`
+	Ttl   string          `json:"ttl,omitempty"`
 }
 
 type exportCmd struct {
@@ -494,6 +513,7 @@ type KeyItem struct {
 	Key   string `json:"key"`
 	Type  string `json:"type"`
 	Value any    `json:"value"`
+	Ttl   string `json:"ttl,omitempty"`
 	Error error  `json:"error,omitempty"`
 }
 
@@ -501,6 +521,14 @@ func (f *exportCmd) exportKeys(ctx context.Context, rdb *redis.Client, encoder *
 	var item KeyItem
 	item.Key = key
 	item.Type = typ
+
+	ttl, err := rdb.TTL(ctx, key).Result()
+	if err != nil {
+		item.Error = err
+	} else if ttl > 0 {
+		item.Ttl = ttl.String()
+	}
+
 	switch typ {
 	case "string":
 		val, err := rdb.Get(ctx, key).Result()
