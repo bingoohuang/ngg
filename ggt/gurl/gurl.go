@@ -74,8 +74,8 @@ func (f *subCmd) Run(cmd *cobra.Command, args []string) error {
 	ugly = HasPrintOption(printUgly)
 	raw = HasPrintOption(printRaw)
 	countingItems = HasPrintOption(printCountingItems)
-	disableProxy = HasPrintOption(optionDisableProxy)
-	disableRedirect = HasPrintOption(optionDisableRedirect)
+	noProxy = HasPrintOption(optionDisableProxy)
+	noRedirect = HasPrintOption(optionDisableRedirect)
 
 	pretty = !raw
 
@@ -345,7 +345,7 @@ func parseProxyURL(req *http.Request) *url.URL {
 		return ss.Must(gnet.FixURI{}.Fix(proxy))
 	}
 
-	if disableProxy {
+	if noProxy {
 		return nil
 	}
 

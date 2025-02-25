@@ -18,7 +18,7 @@ import (
 var (
 	keepAlive, form, pretty                       bool
 	ugly, raw, freeInnerJSON, gzipOn              bool
-	countingItems, disableProxy, disableRedirect  bool
+	countingItems, noProxy, noRedirect            bool
 	auth, proxy, printV, body, think, method, dns string
 	uploadFiles, urls                             []string
 	printOption                                   uint32

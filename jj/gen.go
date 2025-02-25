@@ -452,7 +452,7 @@ func (r *Substituter) Value(name, params, expr string) (any, error) {
 		}
 		if gt, ok := g.(func(args string) (any, error)); ok {
 			r.gen[fullname] = gt
-			return f(params)
+			return gt(params)
 		}
 	}
 
