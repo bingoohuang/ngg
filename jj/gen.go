@@ -10,6 +10,7 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"net/http"
 	"os"
 	"reflect"
 	"regexp"
@@ -84,6 +85,12 @@ func Gofakeit(args string) (any, error) {
 	return value, err
 }
 
+// atFile
+// @file(/path/file) read /path/file content as string
+// @file(/path/file, :bytes) read /path/file content as []byte
+// @file(/path/file, :hex) read /path/file content as hex string
+// @file(/path/file, :base64) read /path/file content as base64 string
+// @file(/path/file, :datauri) read /path/file content as datauri base64 string
 func atFile(args string) (any, error) {
 	fileArgs := strings.Split(args, ",")
 	name := fileArgs[0]
@@ -95,6 +102,7 @@ func atFile(args string) (any, error) {
 	useBytes := false
 	useBase64 := false
 	useHex := false
+	datauri := false
 	for i := 1; i < len(fileArgs); i++ {
 		switch option := strings.ToLower(fileArgs[i]); option {
 		case ":bytes":
@@ -103,6 +111,8 @@ func atFile(args string) (any, error) {
 			useHex = true
 		case ":base64":
 			useBase64 = true
+		case ":datauri":
+			datauri = true
 		}
 	}
 
@@ -113,6 +123,10 @@ func atFile(args string) (any, error) {
 		return hex.EncodeToString(d), nil
 	case useBytes:
 		return d, nil
+	case datauri:
+		mime := http.DetectContentType(d)
+		data := base64.StdEncoding.EncodeToString(d)
+		return fmt.Sprintf("data:%s;base64,%s", mime, data), nil
 	default:
 		return string(d), nil
 	}
