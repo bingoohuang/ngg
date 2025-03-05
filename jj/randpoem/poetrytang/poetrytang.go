@@ -8,9 +8,12 @@ import (
 )
 
 func init() {
-	jj.RegisterSubstituteFn("唐诗", func(options string) any {
-		val := RandPoetryTang()
-		return randpoem.AdaptEncoding(val, options)
+	jj.RegisterSubstituteFn("唐诗", jj.SubstituteFn{
+		Fn: func(options string) any {
+			val := RandPoetryTang()
+			return randpoem.AdaptEncoding(val, options)
+		},
+		Demo: "唐诗: e.g. @唐诗 @唐诗(base64) @唐诗(base64 url raw) @唐诗(hex)",
 	})
 }
 

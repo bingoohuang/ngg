@@ -30,24 +30,37 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
-var DefaultSubstituteFns = map[string]any{
-	"ip":           RandomIP,
-	"random":       Random,
-	"random_int":   RandomInt,
-	"rand_int":     RandomInt,
-	"rand_bool":    func(_ string) any { return ss.Rand().Bool() },
-	"random_bool":  func(_ string) any { return ss.Rand().Bool() },
-	"random_time":  RandomTime,
-	"rand_time":    RandomTime,
-	"random_image": RandomImage, // @random_image(format=jpg size=640x320)
-	"rand_image":   RandomImage, // @random_image(format=jpg size=640x320)
-	"objectId":     func(string) any { return NewObjectID().Hex() },
-	"regex":        Regex,
-	"uuid":         func(version string) any { return NewUUID(version).String() },
-	"base64":       RandomBase64, // @base64(size=1000 std raw file=dir/f.png)
-	"name":         func(_ string) any { return randomdata.SillyName() },
-	"ksuid":        func(_ string) any { v, _ := ksuid.NewRandom(); return v.String() },
-	"tsid": func(format string) any {
+type SubstituteFn struct {
+	Fn   any
+	Demo string
+}
+
+var DefaultSubstituteFns = map[string]SubstituteFn{
+	"ip": {Fn: RandomIP,
+		Demo: "随机IP: e.g. @ip @ip(192.0.2.0/24) @ip(v6)"},
+	"random": {Fn: Random,
+		Demo: "随机值: e.g. @random(男,女) @random(10) @random(5-10) @random(1,2,3)"},
+	"random_int": {Fn: RandomInt,
+		Demo: "随机整数: e.g. @random_int @random_int(100-999) @random_int(1,2,3)"},
+	"random_bool": {Fn: func(_ string) any { return ss.Rand().Bool() },
+		Demo: "随机布尔值: e.g. @random_bool"},
+	"random_time": {Fn: RandomTime,
+		Demo: "随机时间: e.g. @random_time @random_time(yyyy-MM-dd) @random_time(now, yyyy-MM-dd) @random_time(yyyy-MM-dd,1990-01-01,2021-06-06) @random_time(sep=# yyyy-MM-dd#1990-01-01#2021-06-06)"},
+	"random_image": {Fn: RandomImage,
+		Demo: "随机图片: e.g. @random_image(format=jpg size=640x320)"},
+	"objectId": {Fn: func(string) any { return NewObjectID().Hex() },
+		Demo: "随机对象ID: e.g. @objectId"},
+	"regex": {Fn: Regex,
+		Demo: "正则表达式: e.g. @regex([a-z]{10})"},
+	"uuid": {Fn: func(version string) any { return NewUUID(version).String() },
+		Demo: "随机UUID: e.g. @uuid @uuid(v4) @uuid(v5)"},
+	"base64": {Fn: RandomBase64,
+		Demo: "随机Base64: e.g. @base64(size=1000 std raw file=dir/f.png)"},
+	"name": {Fn: func(_ string) any { return randomdata.SillyName() },
+		Demo: "随机姓名: e.g. @name"},
+	"ksuid": {Fn: func(_ string) any { v, _ := ksuid.NewRandom(); return v.String() },
+		Demo: "随机Ksuid: e.g. @ksuid"},
+	"tsid": {Fn: func(format string) any {
 		id := tsid.Fast()
 		switch format {
 		case "number":
@@ -60,23 +73,38 @@ var DefaultSubstituteFns = map[string]any{
 			return id.ToString()
 		}
 	},
-	"汉字":       randomChinese,
-	"emoji":    randomEmoji,
-	"姓名":       func(_ string) any { return ss.Rand().ChineseName() },
-	"性别":       func(_ string) any { return ss.Rand().Sex() },
-	"地址":       func(_ string) any { return ss.Rand().Address() },
-	"手机":       func(_ string) any { return ss.Rand().Mobile() },
-	"身份证":      func(_ string) any { return ss.Rand().ChinaID() },
-	"发证机关":     func(_ string) any { return ss.Rand().IssueOrg() },
-	"邮箱":       func(_ string) any { return ss.Rand().Email() },
-	"银行卡":      func(_ string) any { return ss.Rand().BankNo() },
-	"env":      func(name string) any { return os.Getenv(name) },
-	"file":     atFile,
-	"seq":      SubstitutionFnGen(SeqGenerator),
-	"gofakeit": Gofakeit,
+		Demo: "随机TSID: e.g. @tsid @tsid(number) @tsid(lower) @tsid(bytes)"},
+	"汉字": {Fn: randomChinese,
+		Demo: "随机汉字: e.g. @汉字 @汉字(1-10) @@汉字(3)"},
+	"emoji": {Fn: randomEmoji,
+		Demo: "随机emoji: e.g. @emoji @emoji(1-10) @@emoji(3)"},
+	"姓名": {Fn: func(_ string) any { return ss.Rand().ChineseName() },
+		Demo: "随机姓名: e.g. @姓名"},
+	"性别": {Fn: func(_ string) any { return ss.Rand().Sex() },
+		Demo: "随机性别, e.g. @性别"},
+	"地址": {Fn: func(_ string) any { return ss.Rand().Address() },
+		Demo: "随机地址: e.g. @地址"},
+	"手机": {Fn: func(_ string) any { return ss.Rand().Mobile() },
+		Demo: "随机手机: e.g. @手机"},
+	"身份证": {Fn: func(_ string) any { return ss.Rand().ChinaID() },
+		Demo: "随机身份证: e.g. @身份证"},
+	"发证机关": {Fn: func(_ string) any { return ss.Rand().IssueOrg() },
+		Demo: "随机发证机关: e.g. @发证机关"},
+	"邮箱": {Fn: func(_ string) any { return ss.Rand().Email() },
+		Demo: "随机邮箱: e.g. @邮箱"},
+	"银行卡": {Fn: func(_ string) any { return ss.Rand().BankNo() },
+		Demo: "随机银行卡: e.g. @银行卡"},
+	"env": {Fn: func(name string) any { return os.Getenv(name) },
+		Demo: "环境变量: e.g. @env(PATH)"},
+	"file": {Fn: atFile,
+		Demo: "读取文件: e.g. @file(path/file) @file(path/file, :bytes) @file(path/file, :hex) @file(path/file, :base64) @file(path/file, :datauri)"},
+	"seq": {Fn: SeqGenerator,
+		Demo: "序列生成器: e.g. @seq @seq(100)"},
+	"gofakeit": {Fn: Gofakeit,
+		Demo: "gofakeit.Template: e.g. @gofakeit(Dear {{LastName}}) https://github.com/brianvoe/gofakeit#templates"},
 }
 
-func RegisterSubstituteFn(name string, f func(_ string) any) {
+func RegisterSubstituteFn(name string, f SubstituteFn) {
 	DefaultSubstituteFns[name] = f
 }
 
@@ -199,23 +227,32 @@ func parseImageSize(val string) (width, height int) {
 }
 
 type Substituter struct {
-	raw     map[string]any
+	raw     map[string]SubstituteFn
 	gen     map[string]SubstitutionErrorFn
 	genLock sync.RWMutex
 }
 
-func NewSubstituter(m map[string]any) *Substituter {
+func NewSubstituter(m map[string]SubstituteFn) *Substituter {
 	return &Substituter{
 		raw: m,
 		gen: map[string]SubstitutionErrorFn{},
 	}
 }
 
-func (r *Substituter) Register(fn string, f any) { r.raw[fn] = f }
+func (r *Substituter) UsageDemos() []string {
+	demo := make([]string, 0, len(r.raw))
+	for _, v := range r.raw {
+		demo = append(demo, v.Demo)
+	}
+	return demo
+}
+
+func (r *Substituter) Register(fn string, f SubstituteFn) { r.raw[fn] = f }
 
 type Substitute interface {
 	ss.Valuer
-	Register(fn string, f any)
+	Register(fn string, f SubstituteFn)
+	UsageDemos() []string
 }
 
 type GenRun struct {
@@ -418,7 +455,7 @@ func (r *Substituter) Value(name, params, expr string) (any, error) {
 	fullname := name
 
 	if g, ok := r.raw[name]; ok {
-		if gt, ok := g.(SubstitutionFnGen); ok {
+		if gt, ok := g.Fn.(SubstitutionFnGen); ok {
 			gtf := gt(params)
 			f := func(args string) (any, error) {
 				return gtf(args), nil
@@ -428,12 +465,12 @@ func (r *Substituter) Value(name, params, expr string) (any, error) {
 			return f(params)
 		}
 
-		if gt, ok := g.(SubstitutionErrorFnGen); ok {
+		if gt, ok := g.Fn.(SubstitutionErrorFnGen); ok {
 			f := gt(params)
 			r.gen[fullname] = f
 			return f(params)
 		}
-		if gt, ok := g.(func(args string) func(args string) any); ok {
+		if gt, ok := g.Fn.(func(args string) func(args string) any); ok {
 			gtf := gt(params)
 			f := func(args string) (any, error) {
 				return gtf(args), nil
@@ -441,30 +478,30 @@ func (r *Substituter) Value(name, params, expr string) (any, error) {
 			r.gen[fullname] = f
 			return f(params)
 		}
-		if gt, ok := g.(func(args string) func(args string) (any, error)); ok {
+		if gt, ok := g.Fn.(func(args string) func(args string) (any, error)); ok {
 			f := gt(params)
 			r.gen[fullname] = f
 			return f(params)
 		}
-		if gt, ok := g.(SubstitutionFn); ok {
+		if gt, ok := g.Fn.(SubstitutionFn); ok {
 			f := func(args string) (any, error) {
 				return gt(args), nil
 			}
 			r.gen[fullname] = f
 			return f(params)
 		}
-		if gt, ok := g.(SubstitutionErrorFn); ok {
+		if gt, ok := g.Fn.(SubstitutionErrorFn); ok {
 			r.gen[fullname] = gt
 			return f(params)
 		}
-		if gt, ok := g.(func(args string) any); ok {
+		if gt, ok := g.Fn.(func(args string) any); ok {
 			f := func(args string) (any, error) {
 				return gt(args), nil
 			}
 			r.gen[fullname] = f
 			return f(params)
 		}
-		if gt, ok := g.(func(args string) (any, error)); ok {
+		if gt, ok := g.Fn.(func(args string) (any, error)); ok {
 			r.gen[fullname] = gt
 			return gt(params)
 		}
@@ -546,7 +583,7 @@ type (
 	SubstitutionErrorFnGen func(args string) func(args string) (any, error)
 )
 
-func (r *GenContext) RegisterFn(fn string, f any) { r.Substitute.Register(fn, f) }
+func (r *GenContext) RegisterFn(fn string, f SubstituteFn) { r.Substitute.Register(fn, f) }
 
 var DefaultGen = NewGen()
 

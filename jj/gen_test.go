@@ -15,7 +15,7 @@ func TestGenKeyHitRepeat(t *testing.T) {
 
 func TestGenKeyHitRepeatObjectId(t *testing.T) {
 	gen := jj.NewGen()
-	gen.RegisterFn("对象ID", func(args string) any { return 456 })
+	gen.RegisterFn("对象ID", jj.SubstituteFn{Fn: func(args string) any { return 456 }, Demo: "对象ID, e.g. @对象ID"})
 	ret, _ := gen.Gen(`{"id|2": "@对象ID" }`)
 	assert.Equal(t, `{"id":"456456"}`, ret)
 }
@@ -43,7 +43,7 @@ func TestGenRepeatInt2(t *testing.T) {
 func TestGenRepeatObjectId(t *testing.T) {
 	gen := jj.NewGen()
 	gen.MockTimes = 2
-	gen.RegisterFn("objectId", func(args string) any { return 456 })
+	gen.RegisterFn("objectId", jj.SubstituteFn{Fn: func(args string) any { return 456 }, Demo: "对象ID, e.g. @objectId"})
 	ret, _ := gen.Gen(`["|2-7", { "id": "@objectId" }]`)
 	assert.Equal(t, `[{"id":456},{"id":456}]`, ret)
 }
@@ -51,15 +51,15 @@ func TestGenRepeatObjectId(t *testing.T) {
 func TestGenRepeat2(t *testing.T) {
 	gen := jj.NewGen()
 	gen.MockTimes = 2
-	gen.RegisterFn("objectId", func(args string) any { return 456 })
-	gen.RegisterFn("random", func(args string) any { return 1010 })
+	gen.RegisterFn("objectId", jj.SubstituteFn{Fn: func(args string) any { return 456 }, Demo: "对象ID, e.g. @objectId"})
+	gen.RegisterFn("random", jj.SubstituteFn{Fn: func(args string) any { return 1010 }, Demo: "随机数, e.g. @random(10)"})
 	out, _, _ := gen.Process(`["|2-7", { "id": "@objectId",  "tags": ["|3", "@random(10)"] }]`)
 	assert.Equal(t, `[{"id":456,"tags":[1010,1010]},{"id":456,"tags":[1010,1010]}]`, out.Out)
 }
 
 func TestGenObjectId(t *testing.T) {
 	gen := jj.NewGen()
-	gen.RegisterFn("objectId", func(args string) any { return "123" })
+	gen.RegisterFn("objectId", jj.SubstituteFn{Fn: func(args string) any { return "123" }, Demo: "对象ID, e.g. @objectId"})
 	ret, _ := gen.Gen(` {"id": "@objectId"} `)
 	assert.Equal(t, `{"id":"123"}`, ret)
 }
