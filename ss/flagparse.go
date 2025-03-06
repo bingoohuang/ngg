@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/bingoohuang/ngg/ver"
-	"github.com/bingoohuang/ngg/yaml"
+	"github.com/goccy/go-yaml"
 	"github.com/spf13/pflag"
 )
 
