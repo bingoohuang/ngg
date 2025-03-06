@@ -127,31 +127,25 @@ func atFile(args string) (any, error) {
 		return nil, fmt.Errorf("read file %s: %w", name, err)
 	}
 
-	useBytes := false
-	useBase64 := false
-	useHex := false
-	datauri := false
-	for i := 1; i < len(fileArgs); i++ {
-		switch option := strings.ToLower(fileArgs[i]); option {
-		case ":bytes":
-			useBytes = true
-		case ":hex":
-			useHex = true
-		case ":base64":
-			useBase64 = true
-		case ":datauri":
-			datauri = true
-		}
+	arg := struct {
+		Bytes   bool `arg:":bytes"`
+		Hex     bool `arg:":hex"`
+		Base64  bool `arg:":base64"`
+		DataURI bool `arg:":datauri"`
+	}{}
+
+	if len(fileArgs) > 1 {
+		ParseConf(fileArgs[1], &arg)
 	}
 
 	switch {
-	case useBase64:
+	case arg.Base64:
 		return base64.StdEncoding.EncodeToString(d), nil
-	case useHex:
+	case arg.Hex:
 		return hex.EncodeToString(d), nil
-	case useBytes:
+	case arg.Bytes:
 		return d, nil
-	case datauri:
+	case arg.DataURI:
 		mime := http.DetectContentType(d)
 		data := base64.StdEncoding.EncodeToString(d)
 		return fmt.Sprintf("data:%s;base64,%s", mime, data), nil
@@ -829,7 +823,10 @@ func MapToConf(source map[string][]string, v any) {
 			}
 		}
 
-		name := strings.ToLower(ti.Name)
+		name := ti.Tag.Get("arg")
+		if name == "" {
+			name = strings.ToLower(ti.Name)
+		}
 		if mv, ok := mm[name]; ok {
 			delete(mm, name)
 			bv := mv[0]
