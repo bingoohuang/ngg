@@ -7,15 +7,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bingoohuang/ngg/yaml"
-	"github.com/bingoohuang/ngg/yaml/ast"
-	"github.com/bingoohuang/ngg/yaml/lexer"
-	"github.com/bingoohuang/ngg/yaml/parser"
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/lexer"
+	"github.com/goccy/go-yaml/parser"
+	"github.com/goccy/go-yaml/token"
 )
 
 func TestParser(t *testing.T) {
 	sources := []string{
+		"",
 		"null\n",
 		"0_",
 		"{}\n",
@@ -144,10 +145,50 @@ foo: zzz
 `,
 	}
 	for _, src := range sources {
-		if _, err := parser.Parse(lexer.Tokenize(src), 0); err != nil {
+		f, err := parser.Parse(lexer.Tokenize(src), 0)
+		if err != nil {
 			t.Fatalf("parse error: source [%s]: %+v", src, err)
 		}
+		_ = f.String() // ensure no panic
 	}
+}
+
+func TestParseEmptyDocument(t *testing.T) {
+	t.Run("empty document", func(t *testing.T) {
+		f, err := parser.ParseBytes([]byte(""), parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := f.String()
+		expected := "\n"
+		if got != expected {
+			t.Fatalf("failed to parse comment:\nexpected:\n%q\ngot:\n%q", expected, got)
+		}
+	})
+
+	t.Run("empty document with comment (parse comment = off)", func(t *testing.T) {
+		f, err := parser.ParseBytes([]byte("# comment"), 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := f.String()
+		expected := "\n"
+		if got != expected {
+			t.Fatalf("failed to parse comment:\nexpected:\n%q\ngot:\n%q", expected, got)
+		}
+	})
+
+	t.Run("empty document with comment (parse comment = on)", func(t *testing.T) {
+		f, err := parser.ParseBytes([]byte("# comment"), parser.ParseComments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := f.String()
+		expected := "# comment\n"
+		if got != expected {
+			t.Fatalf("failed to parse comment:\nexpected:\n%q\ngot:\n%q", expected, got)
+		}
+	})
 }
 
 func TestParseComplicatedDocument(t *testing.T) {
@@ -1671,6 +1712,70 @@ multiple:
 	}
 	if multiNode.Values[1].GetComment().GetToken().Value != " c comment" {
 		t.Fatalf("failed to get comment from multiple[1]. got %q", multiNode.Values[1].GetComment().GetToken().Value)
+	}
+}
+
+func TestInFlowStyle(t *testing.T) {
+	type inFlowStyle interface {
+		SetIsFlowStyle(bool)
+	}
+
+	tests := []struct {
+		source string
+		expect string
+	}{
+		{
+			`
+  - foo
+  - bar
+  - baz
+`,
+			`[foo, bar, baz]
+`,
+		},
+		{
+			`
+foo: bar
+baz: fizz
+`,
+			`{foo: bar, baz: fizz}
+`,
+		},
+		{
+			`
+foo:
+  - bar
+  - baz
+  - fizz: buzz
+`,
+			`{foo: [bar, baz, {fizz: buzz}]}
+`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.source, func(t *testing.T) {
+			f, err := parser.ParseBytes([]byte(test.source), parser.ParseComments)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if len(f.Docs) != 1 {
+				t.Fatal("failed to parse content")
+			}
+
+			ifs, ok := f.Docs[0].Body.(inFlowStyle)
+			if !ok {
+				t.Fatalf("failed to get inFlowStyle. got: %T", f.Docs[0].Body)
+			}
+			ifs.SetIsFlowStyle(true)
+
+			got := f.String()
+
+			if got != test.expect {
+				t.Fatalf("failed to parse comment:\nexpected:\n%s\ngot:\n%s", test.expect, got)
+			}
+		})
 	}
 }
 

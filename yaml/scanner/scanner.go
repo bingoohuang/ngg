@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/token"
 )
 
 // IndentState state for indent

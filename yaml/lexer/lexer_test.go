@@ -4,8 +4,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/bingoohuang/ngg/yaml/lexer"
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/lexer"
+	"github.com/goccy/go-yaml/token"
 )
 
 func TestTokenize(t *testing.T) {

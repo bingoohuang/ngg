@@ -14,10 +14,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/yaml"
-	"github.com/bingoohuang/ngg/yaml/ast"
-	"github.com/bingoohuang/ngg/yaml/internal/errors"
-	"github.com/bingoohuang/ngg/yaml/parser"
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/internal/errors"
+	"github.com/goccy/go-yaml/parser"
 )
 
 type Child struct {
@@ -2757,13 +2757,14 @@ type unmarshalList struct {
 
 func (u *unmarshalList) UnmarshalYAML(b []byte) error {
 	expected := `
- - b: c
-   d: |
-     hello
+- b: c # comment
+  # comment
+  d: | # comment
+    hello
 
-     hello
-   f: g
- - h: i`
+    hello
+  f: g
+- h: i`
 	actual := "\n" + string(b)
 	if expected != actual {
 		return fmt.Errorf("unexpected bytes: expected [%q] but got [%q]", expected, actual)
@@ -2807,8 +2808,9 @@ config:
 func TestDecoder_UnmarshalBytesWithSeparatedList(t *testing.T) {
 	yml := `
 a:
- - b: c
-   d: |
+ - b: c # comment
+   # comment
+   d: | # comment
      hello
 
      hello
@@ -2818,7 +2820,8 @@ a:
 	var v struct {
 		A unmarshalList
 	}
-	if err := yaml.Unmarshal([]byte(yml), &v); err != nil {
+	cm := yaml.CommentMap{}
+	if err := yaml.UnmarshalWithOptions([]byte(yml), &v, yaml.CommentToMap(cm)); err != nil {
 		t.Fatal(err)
 	}
 	if len(v.A.v) != 2 {
@@ -3055,6 +3058,28 @@ bar:
 	})
 }
 
+func TestDecodeWithSameAnchor(t *testing.T) {
+	yml := `
+a: &a 1
+b: &a 2
+c: &a 3
+d: *a
+`
+	type T struct {
+		A int
+		B int
+		C int
+		D int
+	}
+	var v T
+	if err := yaml.Unmarshal([]byte(yml), &v); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(v, T{A: 1, B: 2, C: 3, D: 3}) {
+		t.Fatalf("failed to decode same anchor: %+v", v)
+	}
+}
+
 func TestUnmarshalMapSliceParallel(t *testing.T) {
 	content := `
 steps:
@@ -3148,6 +3173,180 @@ func TestMapKeyCustomUnmarshaler(t *testing.T) {
 	}
 }
 
+type bytesUnmershalerWithMapAlias struct{}
+
+func (*bytesUnmershalerWithMapAlias) UnmarshalYAML(b []byte) error {
+	expected := strings.TrimPrefix(`
+aaaaa:
+  bbbbb:
+    bar:
+      - |
+        foo
+          bar
+      - name: |
+          foo
+            bar
+
+`, "\n")
+	if string(b) != expected {
+		return fmt.Errorf("failed to decode: expected:\n[%s]\nbut got:\n[%s]\n", expected, string(b))
+	}
+	return nil
+}
+
+func TestBytesUnmarshalerWithMapAlias(t *testing.T) {
+	yml := `
+x-foo: &data
+  bar:
+    - |
+      foo
+        bar
+    - name: |
+        foo
+          bar
+
+foo:
+  aaaaa:
+    bbbbb: *data
+`
+	type T struct {
+		Foo bytesUnmershalerWithMapAlias `yaml:"foo"`
+	}
+	var v T
+	if err := yaml.Unmarshal([]byte(yml), &v); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestBytesUnmarshalerWithEmptyValue(t *testing.T) {
+	type T struct{}
+
+	unmarshaler := func(dst *T, b []byte) error {
+		var v any
+		return yaml.Unmarshal(b, &v)
+	}
+
+	yml := `
+map: &m {}
+seq: &seq []
+foo: # comment
+bar: *m
+baz: *seq
+`
+	m := yaml.CommentMap{}
+	var v T
+	if err := yaml.UnmarshalWithOptions(
+		[]byte(yml),
+		&v,
+		yaml.CommentToMap(m),
+		yaml.CustomUnmarshaler[T](unmarshaler),
+	); err != nil {
+		t.Fatal(err)
+	}
+	if err := yaml.UnmarshalWithOptions(
+		[]byte(yml),
+		&v,
+		yaml.CustomUnmarshaler[T](unmarshaler),
+	); err != nil {
+		t.Fatal(err)
+	}
+
+}
+
+func TestIssue650(t *testing.T) {
+	type Disk struct {
+		Name   string `yaml:"name"`
+		Format *bool  `yaml:"format"`
+	}
+
+	type Sample struct {
+		Disks []Disk `yaml:"disks"`
+	}
+
+	unmarshalDisk := func(dst *Disk, b []byte) error {
+		var s string
+		if err := yaml.Unmarshal(b, &s); err == nil {
+			*dst = Disk{Name: s}
+			return nil
+		}
+		return yaml.Unmarshal(b, dst)
+	}
+
+	data := []byte(`
+disks:
+    -      name: foo
+           format: true
+`)
+
+	var sample Sample
+	if err := yaml.UnmarshalWithOptions(data, &sample, yaml.CustomUnmarshaler[Disk](unmarshalDisk)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestBytesUnmarshalerWithLiteral(t *testing.T) {
+	t.Run("map value", func(t *testing.T) {
+		type Literal string
+
+		unmarshalLit := func(dst *Literal, b []byte) error {
+			var s string
+			if err := yaml.Unmarshal(b, &s); err != nil {
+				return err
+			}
+			*dst = Literal(s)
+			return nil
+		}
+
+		data := []byte(`
+-         name:  |
+           foo
+             bar
+-         name:
+           |
+           foo
+           bar
+`)
+
+		var v []map[string]Literal
+		if err := yaml.UnmarshalWithOptions(data, &v, yaml.CustomUnmarshaler[Literal](unmarshalLit)); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(v, []map[string]Literal{{"name": "foo\n  bar\n"}, {"name": "foo\nbar\n"}}) {
+			t.Fatalf("failed to get decoded value. got: %q", v)
+		}
+	})
+	t.Run("sequence value", func(t *testing.T) {
+		type Literal string
+
+		unmarshalLit := func(dst *Literal, b []byte) error {
+			var s string
+			if err := yaml.Unmarshal(b, &s); err != nil {
+				return err
+			}
+			*dst = Literal(s)
+			return nil
+		}
+
+		data := []byte(`
+-            |
+  foo
+    bar
+-
+ |
+ foo
+ bar
+`)
+
+		var v []Literal
+		if err := yaml.UnmarshalWithOptions(data, &v, yaml.CustomUnmarshaler[Literal](unmarshalLit)); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(v, []Literal{"foo\n  bar\n", "foo\nbar\n"}) {
+			t.Fatalf("failed to get decoded value. got: %q", v)
+		}
+	})
+}
+
 func TestDecoderPreservesDefaultValues(t *testing.T) {
 	type nested struct {
 		Val string `yaml:"val"`
@@ -3205,5 +3404,54 @@ a: !Not [!Equals [!Ref foo, 'bar']]
 		"a": {[]any{"foo", "bar"}},
 	}) {
 		t.Fatalf("found unexpected value: %v", v)
+	}
+}
+
+type issue337Template struct{}
+
+func (i *issue337Template) UnmarshalYAML(b []byte) error {
+	expected := strings.TrimPrefix(`
+|
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: "abc"
+    namespace: "abc"
+  data:
+    foo: FOO
+`, "\n")
+	if !bytes.Equal(b, []byte(expected)) {
+		return fmt.Errorf("expected:\n%s\nbut got:\n%s\n", expected, string(b))
+	}
+	return nil
+}
+
+func TestIssue337(t *testing.T) {
+	yml := `
+releases:
+- name: foo
+  chart: ./raw
+  values:
+  - templates:
+    - |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "abc"
+        namespace: "abc"
+      data:
+        foo: FOO
+`
+	type Value struct {
+		Templates []*issue337Template `yaml:"templates"`
+	}
+	type Release struct {
+		Values []*Value `yaml:"values"`
+	}
+	var v struct {
+		Releases []*Release `yaml:"releases"`
+	}
+	if err := yaml.Unmarshal([]byte(yml), &v); err != nil {
+		t.Fatal(err)
 	}
 }

@@ -3,7 +3,7 @@ package token_test
 import (
 	"testing"
 
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/token"
 )
 
 func TestToken(t *testing.T) {
@@ -133,6 +133,8 @@ func TestIsNeedQuoted(t *testing.T) {
 		"Null",
 		"NULL",
 		"~",
+		"-",
+		"- --foo",
 	}
 	for i, test := range needQuotedTests {
 		if !token.IsNeedQuoted(test) {

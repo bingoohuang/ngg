@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/bingoohuang/ngg/yaml"
+	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/assert"
 )
 

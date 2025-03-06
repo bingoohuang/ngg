@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/token"
 )
 
 func TestEscapeSingleQuote(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/token"
 )
 
 var (
@@ -51,6 +51,8 @@ const (
 	MappingValueType
 	// SequenceType type identifier for sequence node
 	SequenceType
+	// SequenceEntryType type identifier for sequence entry node
+	SequenceEntryType
 	// AnchorType type identifier for anchor node
 	AnchorType
 	// AliasType type identifier for alias node
@@ -98,6 +100,8 @@ func (t NodeType) String() string {
 		return "MappingValue"
 	case SequenceType:
 		return "Sequence"
+	case SequenceEntryType:
+		return "SequenceEntry"
 	case AnchorType:
 		return "Anchor"
 	case AliasType:
@@ -148,6 +152,8 @@ func (t NodeType) YAMLName() string {
 		return "value"
 	case SequenceType:
 		return "sequence"
+	case SequenceEntryType:
+		return "value"
 	case AnchorType:
 		return "anchor"
 	case AliasType:
@@ -576,7 +582,9 @@ func (d *DocumentNode) String() string {
 	if d.Start != nil {
 		doc = append(doc, d.Start.Value)
 	}
-	doc = append(doc, d.Body.String())
+	if d.Body != nil {
+		doc = append(doc, d.Body.String())
+	}
 	if d.End != nil {
 		doc = append(doc, d.End.Value)
 	}
@@ -816,11 +824,12 @@ func (n *StringNode) String() string {
 		// It works mostly, but inconsistencies occur if line break characters are mixed.
 		header := token.LiteralBlockHeader(n.Value)
 		space := strings.Repeat(" ", n.Token.Position.Column-1)
+		indent := strings.Repeat(" ", n.Token.Position.IndentNum)
 		values := []string{}
 		for _, v := range strings.Split(n.Value, lbc) {
-			values = append(values, fmt.Sprintf("%s  %s", space, v))
+			values = append(values, fmt.Sprintf("%s%s%s", space, indent, v))
 		}
-		block := strings.TrimSuffix(strings.TrimSuffix(strings.Join(values, lbc), fmt.Sprintf("%s  %s", lbc, space)), fmt.Sprintf("  %s", space))
+		block := strings.TrimSuffix(strings.TrimSuffix(strings.Join(values, lbc), fmt.Sprintf("%s%s%s", lbc, indent, space)), fmt.Sprintf("%s%s", indent, space))
 		return fmt.Sprintf("%s%s%s", header, lbc, block)
 	} else if len(n.Value) > 0 && (n.Value[0] == '{' || n.Value[0] == '[') {
 		return fmt.Sprintf(`'%s'`, n.Value)
@@ -847,11 +856,12 @@ func (n *StringNode) stringWithoutComment() string {
 		// It works mostly, but inconsistencies occur if line break characters are mixed.
 		header := token.LiteralBlockHeader(n.Value)
 		space := strings.Repeat(" ", n.Token.Position.Column-1)
+		indent := strings.Repeat(" ", n.Token.Position.IndentNum)
 		values := []string{}
 		for _, v := range strings.Split(n.Value, lbc) {
-			values = append(values, fmt.Sprintf("%s  %s", space, v))
+			values = append(values, fmt.Sprintf("%s%s%s", space, indent, v))
 		}
-		block := strings.TrimSuffix(strings.TrimSuffix(strings.Join(values, lbc), fmt.Sprintf("%s  %s", lbc, space)), fmt.Sprintf("  %s", space))
+		block := strings.TrimSuffix(strings.TrimSuffix(strings.Join(values, lbc), fmt.Sprintf("%s%s%s", lbc, indent, space)), fmt.Sprintf("  %s", space))
 		return fmt.Sprintf("%s%s%s", header, lbc, block)
 	} else if len(n.Value) > 0 && (n.Value[0] == '{' || n.Value[0] == '[') {
 		return fmt.Sprintf(`'%s'`, n.Value)
@@ -1347,10 +1357,12 @@ func (n *MappingKeyNode) IsMergeKey() bool {
 // MappingValueNode type of mapping value
 type MappingValueNode struct {
 	*BaseNode
-	Start       *token.Token
-	Key         MapKeyNode
-	Value       Node
-	FootComment *CommentGroupNode
+	Start        *token.Token // delimiter token ':'.
+	CollectEntry *token.Token // collect entry token ','.
+	Key          MapKeyNode
+	Value        Node
+	FootComment  *CommentGroupNode
+	IsFlowStyle  bool
 }
 
 // Replace replace value node.
@@ -1387,6 +1399,7 @@ func (n *MappingValueNode) AddColumn(col int) {
 
 // SetIsFlowStyle set value to IsFlowStyle field recursively.
 func (n *MappingValueNode) SetIsFlowStyle(isFlow bool) {
+	n.IsFlowStyle = isFlow
 	switch value := n.Value.(type) {
 	case *MappingNode:
 		value.SetIsFlowStyle(isFlow)
@@ -1425,7 +1438,7 @@ func (n *MappingValueNode) toString() string {
 	keyComment := n.Key.GetComment()
 	if _, ok := n.Value.(ScalarNode); ok {
 		return fmt.Sprintf("%s%s: %s", space, n.Key.String(), n.Value.String())
-	} else if keyIndentLevel < valueIndentLevel {
+	} else if keyIndentLevel < valueIndentLevel && !n.IsFlowStyle {
 		if keyComment != nil {
 			return fmt.Sprintf(
 				"%s%s: %s\n%s",
@@ -1444,7 +1457,10 @@ func (n *MappingValueNode) toString() string {
 		return fmt.Sprintf("%s%s: %s", space, n.Key.String(), n.Value.String())
 	} else if _, ok := n.Value.(*AliasNode); ok {
 		return fmt.Sprintf("%s%s: %s", space, n.Key.String(), n.Value.String())
+	} else if _, ok := n.Value.(*TagNode); ok {
+		return fmt.Sprintf("%s%s: %s", space, n.Key.String(), n.Value.String())
 	}
+
 	if keyComment != nil {
 		return fmt.Sprintf(
 			"%s%s: %s\n%s",
@@ -1515,6 +1531,7 @@ type SequenceNode struct {
 	IsFlowStyle       bool
 	Values            []Node
 	ValueHeadComments []*CommentGroupNode
+	Entries           []*SequenceEntryNode
 	FootComment       *CommentGroupNode
 }
 
@@ -1660,6 +1677,65 @@ func (n *SequenceNode) MarshalYAML() ([]byte, error) {
 	return []byte(n.String()), nil
 }
 
+// SequenceEntryNode is the sequence entry.
+type SequenceEntryNode struct {
+	*BaseNode
+	HeadComment *CommentGroupNode // head comment.
+	LineComment *CommentGroupNode // line comment e.g.) - # comment.
+	Start       *token.Token      // entry token.
+	Value       Node              // value node.
+}
+
+// String node to text
+func (n *SequenceEntryNode) String() string {
+	return "" // TODO
+}
+
+// GetToken returns token instance
+func (n *SequenceEntryNode) GetToken() *token.Token {
+	return n.Start
+}
+
+// Type returns type of node
+func (n *SequenceEntryNode) Type() NodeType {
+	return SequenceEntryType
+}
+
+// AddColumn add column number to child nodes recursively
+func (n *SequenceEntryNode) AddColumn(col int) {
+	n.Start.AddColumn(col)
+}
+
+// SetComment set line comment.
+func (n *SequenceEntryNode) SetComment(cm *CommentGroupNode) error {
+	n.LineComment = cm
+	return nil
+}
+
+// Comment returns comment token instance
+func (n *SequenceEntryNode) GetComment() *CommentGroupNode {
+	return n.LineComment
+}
+
+// MarshalYAML
+func (n *SequenceEntryNode) MarshalYAML() ([]byte, error) {
+	return []byte(n.String()), nil
+}
+
+func (n *SequenceEntryNode) Read(p []byte) (int, error) {
+	return readNode(p, n)
+}
+
+// SequenceEntry creates SequenceEntryNode instance.
+func SequenceEntry(start *token.Token, value Node, headComment *CommentGroupNode) *SequenceEntryNode {
+	return &SequenceEntryNode{
+		BaseNode:    &BaseNode{},
+		HeadComment: headComment,
+		Start:       start,
+		Value:       value,
+	}
+}
+
 // SequenceMergeValue creates SequenceMergeValueNode instance.
 func SequenceMergeValue(values ...MapNode) *SequenceMergeValueNode {
 	return &SequenceMergeValueNode{
@@ -1737,9 +1813,7 @@ func (n *AnchorNode) AddColumn(col int) {
 // String anchor to text
 func (n *AnchorNode) String() string {
 	value := n.Value.String()
-	if len(strings.Split(value, "\n")) > 1 {
-		return fmt.Sprintf("&%s\n%s", n.Name.String(), value)
-	} else if s, ok := n.Value.(*SequenceNode); ok && !s.IsFlowStyle {
+	if s, ok := n.Value.(*SequenceNode); ok && !s.IsFlowStyle {
 		return fmt.Sprintf("&%s\n%s", n.Name.String(), value)
 	} else if m, ok := n.Value.(*MappingNode); ok && !m.IsFlowStyle {
 		return fmt.Sprintf("&%s\n%s", n.Name.String(), value)
@@ -1918,7 +1992,14 @@ func (n *TagNode) AddColumn(col int) {
 
 // String tag to text
 func (n *TagNode) String() string {
-	return fmt.Sprintf("%s %s", n.Start.Value, n.Value.String())
+	value := n.Value.String()
+	if s, ok := n.Value.(*SequenceNode); ok && !s.IsFlowStyle {
+		return fmt.Sprintf("%s\n%s", n.Start.Value, value)
+	} else if m, ok := n.Value.(*MappingNode); ok && !m.IsFlowStyle {
+		return fmt.Sprintf("%s\n%s", n.Start.Value, value)
+	}
+
+	return fmt.Sprintf("%s %s", n.Start.Value, value)
 }
 
 // MarshalYAML encodes to a YAML text

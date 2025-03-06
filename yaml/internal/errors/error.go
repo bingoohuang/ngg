@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/bingoohuang/ngg/yaml/ast"
-	"github.com/bingoohuang/ngg/yaml/printer"
-	"github.com/bingoohuang/ngg/yaml/token"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/printer"
+	"github.com/goccy/go-yaml/token"
 )
 
 var (

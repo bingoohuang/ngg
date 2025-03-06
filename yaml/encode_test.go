@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bingoohuang/ngg/yaml"
-	"github.com/bingoohuang/ngg/yaml/ast"
-	"github.com/bingoohuang/ngg/yaml/parser"
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/parser"
 )
 
 var zero = 0
@@ -171,7 +171,7 @@ func TestEncoder(t *testing.T) {
 			},
 		},
 		{
-			"a: -\n",
+			"a: \"-\"\n",
 			map[string]string{"a": "-"},
 			nil,
 		},
@@ -704,7 +704,7 @@ func TestEncoder(t *testing.T) {
 		},
 		// Quote style
 		{
-			`v: '\'a\'b'` + "\n",
+			`v: '''a''b'` + "\n",
 			map[string]string{"v": `'a'b`},
 			[]yaml.EncodeOption{
 				yaml.UseSingleQuote(true),
@@ -715,6 +715,13 @@ func TestEncoder(t *testing.T) {
 			map[string]string{"v": `'a'b`},
 			[]yaml.EncodeOption{
 				yaml.UseSingleQuote(false),
+			},
+		},
+		{
+			`a: '\.yaml'` + "\n",
+			map[string]string{"a": `\.yaml`},
+			[]yaml.EncodeOption{
+				yaml.UseSingleQuote(true),
 			},
 		},
 	}
@@ -1276,6 +1283,54 @@ func TestEncoder_CustomMarshaler(t *testing.T) {
 	})
 }
 
+func TestEncoder_AutoInt(t *testing.T) {
+	for _, test := range []struct {
+		desc     string
+		input    any
+		expected string
+	}{
+		{
+			desc: "int-convertible float64",
+			input: map[string]float64{
+				"key": 1.0,
+			},
+			expected: "key: 1\n",
+		},
+		{
+			desc: "non int-convertible float64",
+			input: map[string]float64{
+				"key": 1.1,
+			},
+			expected: "key: 1.1\n",
+		},
+		{
+			desc: "int-convertible float32",
+			input: map[string]float32{
+				"key": 1.0,
+			},
+			expected: "key: 1\n",
+		},
+		{
+			desc: "non int-convertible float32",
+			input: map[string]float32{
+				"key": 1.1,
+			},
+			expected: "key: 1.1\n",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			var buf bytes.Buffer
+			enc := yaml.NewEncoder(&buf, yaml.AutoInt())
+			if err := enc.Encode(test.input); err != nil {
+				t.Fatalf("failed to encode: %s", err)
+			}
+			if actual := buf.String(); actual != test.expected {
+				t.Errorf("expect:\n%s\nactual\n%s\n", test.expected, actual)
+			}
+		})
+	}
+}
+
 func TestEncoder_MultipleDocuments(t *testing.T) {
 	var buf bytes.Buffer
 	enc := yaml.NewEncoder(&buf)
@@ -1540,49 +1595,71 @@ func TestIssue356(t *testing.T) {
 }
 
 func TestMarshalIndentWithMultipleText(t *testing.T) {
-	t.Run("depth1", func(t *testing.T) {
-		b, err := yaml.MarshalWithOptions(map[string]interface{}{
-			"key": []string{`line1
+	tests := []struct {
+		name   string
+		input  map[string]interface{}
+		indent yaml.EncodeOption
+		want   string
+	}{
+		{
+			name: "depth1",
+			input: map[string]interface{}{
+				"key": []string{`line1
 line2
 line3`},
-		}, yaml.Indent(2))
-		if err != nil {
-			t.Fatal(err)
-		}
-		got := string(b)
-		expected := `key:
+			},
+			indent: yaml.Indent(2),
+			want: `key:
 - |-
   line1
   line2
   line3
-`
-		if expected != got {
-			t.Fatalf("failed to encode.\nexpected:\n%s\nbut got:\n%s\n", expected, got)
-		}
-	})
-	t.Run("depth2", func(t *testing.T) {
-		b, err := yaml.MarshalWithOptions(map[string]interface{}{
-			"key": map[string]interface{}{
-				"key2": []string{`line1
+`,
+		},
+		{
+			name: "depth2",
+			input: map[string]interface{}{
+				"key": map[string]interface{}{
+					"key2": []string{`line1
 line2
 line3`},
+				},
 			},
-		}, yaml.Indent(2))
-		if err != nil {
-			t.Fatal(err)
-		}
-		got := string(b)
-		expected := `key:
+			indent: yaml.Indent(2),
+			want: `key:
   key2:
   - |-
     line1
     line2
     line3
-`
-		if expected != got {
-			t.Fatalf("failed to encode.\nexpected:\n%s\nbut got:\n%s\n", expected, got)
-		}
-	})
+`,
+		},
+		{
+			name: "raw string new lines",
+			input: map[string]interface{}{
+				"key": "line1\nline2\nline3",
+			},
+			indent: yaml.Indent(4),
+			want: `key: |-
+    line1
+    line2
+    line3
+`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b, err := yaml.MarshalWithOptions(tt.input, tt.indent)
+			if err != nil {
+				t.Fatalf("failed to marshal yaml: %v", err)
+			}
+			got := string(b)
+			if tt.want != got {
+				t.Fatalf("failed to encode.\nexpected:\n%s\nbut got:\n%s\n", tt.want, got)
+			}
+		})
+	}
 }
 
 type bytesMarshaler struct{}
@@ -1715,5 +1792,46 @@ values:
 `
 	if strings.TrimPrefix(expected, "\n") != string(b) {
 		t.Fatalf("failed to encode: got = %s", string(b))
+	}
+}
+
+func TestTagMarshalling(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{name: "scalar", input: "a: !mytag 1"},
+		{name: "mapping", input: `
+a: !mytag
+  b: 2`},
+		{name: "sequence", input: `
+a: !mytag
+- 1
+- 2
+- 3`},
+		{name: "anchor before tag", input: `
+a: &anc !mytag
+- 1
+- 2
+- 3`},
+		{name: "flow mapping", input: "a: !mytag {b: 2}"},
+		{name: "flow sequence", input: "a: !mytag [1, 2, 3]"},
+		{name: "explicit type", input: "a: !!timestamp test"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, _ := parser.ParseBytes([]byte(tt.input), 0)
+			result, err := yaml.Marshal(res.Docs[0])
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			expected := strings.TrimSpace(tt.input)
+			output := strings.TrimSpace(string(result))
+			if expected != output {
+				t.Fatalf("input is not equal to output.\n\nexpected:\n%v\n actual:\n%v", expected, output)
+			}
+		})
 	}
 }
