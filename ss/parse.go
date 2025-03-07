@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Parseable interface {
@@ -66,4 +67,15 @@ func GetenvBytes(name string, defaultValue uint64) (uint64, error) {
 	}
 
 	return ParseBytes(env)
+}
+
+// GetenvDuration 获得环境变量 name 的值所表示的时间，例如. 10s
+func GetenvDuration(name string, defaultValue time.Duration) (time.Duration, error) {
+	env := os.Getenv(name)
+	if env == "" {
+		return defaultValue, nil
+	}
+
+	d, _, err := ParseDur(env)
+	return d, err
 }
