@@ -1,7 +1,10 @@
 package jj
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	crand "crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
@@ -28,6 +31,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/segmentio/ksuid"
+	"golang.org/x/crypto/hkdf"
 )
 
 type SubstituteFn struct {
@@ -94,8 +98,23 @@ var DefaultSubstituteFns = map[string]SubstituteFn{
 		Demo: "随机邮箱: e.g. @邮箱"},
 	"银行卡": {Fn: func(_ string) any { return ss.Rand().BankNo() },
 		Demo: "随机银行卡: e.g. @银行卡"},
-	"env": {Fn: func(name string) any { return os.Getenv(name) },
-		Demo: "环境变量: e.g. @env(PATH)"},
+	"env": {
+		Fn: func(args string) any {
+			fileArgs := strings.Split(args, ",")
+			name := fileArgs[0]
+			arg := struct {
+				Sesame bool `arg:":sesame"`
+			}{}
+			if len(fileArgs) > 1 {
+				ParseConf(fileArgs[1], &arg)
+			}
+			val := os.Getenv(name)
+			if arg.Sesame {
+				val = Sesame{Data: val}.Fulfil().MustDecrypt()
+			}
+			return val
+		},
+		Demo: "环境变量: e.g. @env(NAME) @env(NAME, :sesame)"},
 	"file": {Fn: atFile,
 		Demo: "读取文件: e.g. @file(path/file) @file(path/file, :bytes) @file(path/file, :hex) @file(path/file, :base64) @file(path/file, :datauri)"},
 	"seq": {Fn: SeqGenerator,
@@ -1061,4 +1080,108 @@ func NewRandomUUID(version string) (uuid.UUID, error) {
 		return uuid.NewV7()
 	}
 	return uuid.New(), nil
+}
+
+var (
+	// 加密数据的前缀，用于标识数据是否被加密
+	Prefix = "SESAME-"
+	// 默认的秘钥
+	DefaultSecret = "sesame"
+	// 默认的盐值
+	DefaultSalt = "sesame"
+	// 默认的额外信息
+	DefaultInfo = "sesame"
+)
+
+// 加密数据所需的参数
+type Sesame struct {
+	Secret string `json:"secret"` // 加密 Data 的秘钥
+	Salt   string `json:"salt"`   // 加密 Data 的盐值
+	Info   string `json:"info"`   // 加密 Data 的额外信息
+	Data   string `json:"data"`   // 需要加密或解密的原始数据
+}
+
+// Fulfil 填充加密数据所需的参数
+// 支持从以下环境变量中获取参数
+// 1. SESAME_SECRET
+// 2. SESAME_SALT
+// 3. SESAME_INFO
+func (s Sesame) Fulfil() Sesame {
+	if s.Secret == "" {
+		if val := os.Getenv("SESAME_SECRET"); val != "" {
+			s.Secret = val
+		} else {
+			s.Secret = DefaultSecret
+		}
+	}
+	if s.Salt == "" {
+		if val := os.Getenv("SESAME_SALT"); val != "" {
+			s.Salt = val
+		} else {
+			s.Salt = DefaultSalt
+		}
+	}
+	if s.Info == "" {
+		if val := os.Getenv("SESAME_INFO"); val != "" {
+			s.Info = val
+		} else {
+			s.Info = DefaultInfo
+		}
+	}
+	return s
+}
+
+// MustDecrypt 解密数据，如果执行失败，则 panic
+func (s Sesame) MustDecrypt() string {
+	decrypted, err := s.Decrypt()
+	if err != nil {
+		log.Fatalf("decrypt %s failed: %v", s.Data, err)
+	}
+	return decrypted
+}
+
+// Decrypt 解密数据
+func (s Sesame) Decrypt() (string, error) {
+	if !strings.HasPrefix(s.Data, Prefix) {
+		return s.Data, nil
+	}
+
+	data := s.Data[len(Prefix):]
+	if len(data) <= 12 {
+		return "", fmt.Errorf("data too short")
+	}
+
+	// Let's start up our key factory
+	keyFactory := hkdf.New(sha256.New, []byte(s.Secret), []byte(s.Salt), []byte(s.Info))
+
+	// Now, let's produce two 32-byte keys
+	key1 := make([]byte, 32)
+
+	if _, err := io.ReadFull(keyFactory, key1); err != nil {
+		return "", fmt.Errorf("create key: %w", err)
+	}
+
+	block, err := aes.NewCipher(key1)
+	if err != nil {
+		return "", fmt.Errorf("AES: %w", err)
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("cipher.NewGCM: %w", err)
+	}
+
+	encrypted, err := base64.RawURLEncoding.DecodeString(data)
+	if err != nil {
+		return "", fmt.Errorf("base64.StdEncoding.DecodeString: %w", err)
+	}
+
+	nonce := encrypted[:12]
+	encrypted = encrypted[12:]
+	decrypted, err := gcm.Open(nil, nonce, encrypted, nil)
+	if err != nil {
+		return "", fmt.Errorf("gcm.Open: %w", err)
+	}
+
+	return string(decrypted), nil
 }
