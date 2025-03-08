@@ -117,14 +117,14 @@ func (f *Cmd) run() error {
 		return nil
 	}
 
-	p = prompt()
-	runRandoms(p)
+	if p := prompt(); p != nil {
+		runRandoms(p)
+	}
 
 	return nil
 }
 
 func prompt() func(name string, f func(int) any) {
-
 	prompt := promptui.Select{
 		Label: "Select One of the Randoms",
 		Items: allTags,
