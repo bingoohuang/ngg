@@ -1,4 +1,4 @@
-# gg-rand
+# ggtrand
 
 generate random data like name, email, uuid, address, images and etc.
 
@@ -8,15 +8,15 @@ generate random data like name, email, uuid, address, images and etc.
 usage:
 
 ```sh
-$ gg-rand -n3 -tag String -len 10
+$ ggtrand -n3 --tag String -len 10
 BMgRILObDI
 dWLRNVCJiA
 gCVMHElXZA
 ```
 
 ```sh
-$ gg-rand -h    
-Usage of gg-rand:
+$ ggtrand -h    
+Usage of ggtrand:
   -dir,d   string   In which dir to generate random files. (default temp dir)
   -input,i string   Input file name. 
   -n       int      How many random values to generate. (default 1)
@@ -28,7 +28,7 @@ Usage of gg-rand:
 Providing the following random data types:
 
 ```sh
-$ gg-rand -tag help | awk '{print ++i,$0}'
+$ ggtrand --tag help | awk '{print ++i,$0}'
 1 blake3hash-zeebo
 2 blake3hash-luke
 3 xxhash
@@ -93,7 +93,7 @@ $ gg-rand -tag help | awk '{print ++i,$0}'
 ```
 
 ```sh
-$ gg-rand -t all -extra
+$ ggtrand -t all -extra
 2022/02/18 12:51:28 blake3hash-zeebo: NHCQdMI36d87iJEQdlKAzhe-Hj-L-IhKRisBf_fNiPQ (len: 43), cost 81.024754ms
 2022/02/18 12:51:28 blake3hash-luke: tHA_FGtStLU7OF9t_kAj0Rho4Xc8-7kh9faQxIRp-wU2K34EMWpgNm-_wYn3BStK07GqufPhZ31zLvsdYZXVVo2ZAzO7sEgEUU41VZHF4SvryAMDeNFxCKBTJFOY6RRrQGynH_5qAmA5flM7pDX5xGzUOrUqYviD-YjN8fxUk0IfmxN-b8KRw_ZZ7NlFIr7iAzD3IE8ekV92OfakOX0E1fbHDMb45dECta9kEFvsv8otiNGFAdkZsw-vZJ7TPCAI9q0nGscKpEPr84AzwLSjN285vPnbvOxAd1u-z3kYbAcell56jMjry4ogoYWvt4lwwKs43qLPVANdPfq9iaD_wQ (len: 342), cost 88.356272ms
 2022/02/18 12:51:28 xxhash: 9_wX8E03ujk (len: 11), cost 88.075279ms
@@ -174,12 +174,12 @@ $ gg-rand -t all -extra
 
 ## images
 
-`$ GG_IMG_SIZE=640X320 GG_IMG_FORMAT=JPG GG_IMG_FAST=N GG_IMG_FILE_SIZE=2MiB  gg-rand -tag image -n 10`
+`$ GG_IMG_SIZE=640X320 GG_IMG_FORMAT=JPG GG_IMG_FAST=N GG_IMG_FILE_SIZE=2MiB  ggtrand -tag image -n 10`
 
 ## hash functions
 
 ```sh
-🕙[2022-01-23 18:32:34.382] ❯ gg-rand -t hash -i '魔戒首部曲：魔戒现身.终极加长版.mkv' -c
+🕙[2022-01-23 18:32:34.382] ❯ ggtrand -t hash -i '魔戒首部曲：魔戒现身.终极加长版.mkv' -c
 2022/01/23 18:34:44 Started
 2022/01/23 18:34:46 blake3hash-zeebo: 6p2D6TWec8knuEcmwbjw4F7_ubnBp9qYTWO787waCO8
 2022/01/23 18:34:46 Completed, cost 2.418253944s
@@ -203,7 +203,7 @@ $ gg-rand -t all -extra
 ## Unique IDs
 
 ```sh
-$ gg-rand -t id       
+$ ggtrand -t id       
 2022/02/18 12:53:06 oklog/ulid: 01FW5JTCZWVRTAGCGJ4B6E0DNT (len: 26) [base32固定26位，48位时间(ms)+80位随机], cost 4.938µs
 2022/02/18 12:53:06 chilts/sid: 1RKn4ezVuGt-6a4qNe_bDsZ (len: 23) [32位时间(ns)+64位随机], cost 4.572µs
 2022/02/18 12:53:06 kjk/betterguid: -MwAAIEw6eMXaJwRyDl9 (len: 20) [32位时间(ms)+72位随机], cost 995ns

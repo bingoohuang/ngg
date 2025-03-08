@@ -37,7 +37,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"github.com/chilts/sid"
 	oid "github.com/coolbed/mgo-oid"
-	"github.com/golang-module/dongle/base58"
+	"github.com/dromara/dongle/base58"
 	"github.com/google/uuid"
 	"github.com/jxskiss/base62"
 	"github.com/kjk/betterguid"
@@ -59,7 +59,7 @@ import (
 
 func (f *Cmd) initFlags(p *pflag.FlagSet) {
 	p.StringVarP(&dir, "dir", "d", "", "")
-	p.StringVarP(&tag, "tag", "t", "", "")
+	p.StringVarP(&tag, "tag", "t", "", "tag, use help to see all tags")
 	p.StringVarP(&input, "input", "i", "", "")
 	p.IntVarP(&num, "num", "n", 1, "")
 	p.CountVarP(&verbose, "verbose", "v", "")
@@ -97,9 +97,12 @@ type Cmd struct {
 }
 
 func (f *Cmd) run() error {
+	p := createPrinter()
+	runRandoms(p)
+
 	if strings.EqualFold(tag, "HELP") {
-		for _, t := range allTags {
-			fmt.Printf("%s\n", t)
+		for i, t := range allTags {
+			fmt.Printf("%d: %s\n", i+1, t)
 		}
 		return nil
 	}
@@ -110,8 +113,6 @@ func (f *Cmd) run() error {
 		img.Dir = dir
 	}
 
-	p := createPrinter()
-	runRandoms(p)
 	if tag != "" {
 		return nil
 	}
