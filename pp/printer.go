@@ -462,7 +462,7 @@ func (p *printer) printPtr() {
 }
 
 func (p *printer) pointerAddr() string {
-	return p.colorize(fmt.Sprintf("%#v", p.value.Pointer()), p.currentScheme.PointerAdress)
+	return p.colorize(fmt.Sprintf("%#v", p.value.Pointer()), p.currentScheme.PointerAddress)
 }
 
 func (p *printer) typeString() string {

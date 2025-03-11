@@ -60,7 +60,7 @@ type ColorScheme struct {
 	StringQuotation uint16
 	EscapedChar     uint16
 	FieldName       uint16
-	PointerAdress   uint16
+	PointerAddress  uint16
 	Nil             uint16
 	Time            uint16
 	StructName      uint16
@@ -75,7 +75,7 @@ var defaultScheme = ColorScheme{
 	StringQuotation: Red | Bold,
 	EscapedChar:     Magenta | Bold,
 	FieldName:       Yellow,
-	PointerAdress:   Blue | Bold,
+	PointerAddress:  Blue | Bold,
 	Nil:             Cyan | Bold,
 	Time:            Blue | Bold,
 	StructName:      Green,
