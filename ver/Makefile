@@ -173,6 +173,10 @@ windows-upx: init
 	GOOS=windows GOARCH=amd64 ${goinstall}
 	upx --best --lzma ${gobin}/windows_amd64/${app}*
 	ls -lh  ${gobin}/windows_amd64/${app}*
+
+windows-arm-upx: init
+	GOOS=windows GOARCH=arm64 ${goinstall}
+	ls -lh  ${gobin}/windows_arm64/${app}*
 arm-zig: init
 	CGO_ENABLED=1 GOOS=linux GOARCH=arm64 CC="zig cc -target arm-linux-musleabihf" CXX="zig c++ -target arm-linux-musleabihf" ${goinstall}
 	ls -lh  ${gobin}/linux_arm64/${app}*

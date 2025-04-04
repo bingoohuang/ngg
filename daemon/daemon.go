@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/bingoohuang/ngg/q"
 	godaemon "github.com/sevlyar/go-daemon"
@@ -17,8 +16,7 @@ const MarkParentPID = "_GO_DAEMON_PID"
 type Option struct {
 	LogFileName   string
 	ParentProcess func(child *os.Process)
-	// Credential holds user and group identities to be assumed by a daemon-process.
-	Credential *syscall.Credential
+	Extra
 }
 
 // Daemonize set the current process daemonized
@@ -39,8 +37,8 @@ func (o Option) Daemonize() {
 		Env: append(os.Environ(),
 			fmt.Sprintf("%s=%d", MarkParentPID, os.Getpid()),
 		),
-		Credential: o.Credential,
 	}
+	o.fulfile(ctx)
 
 	child, err := ctx.Reborn()
 	if err != nil {
