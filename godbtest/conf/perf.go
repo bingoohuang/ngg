@@ -523,8 +523,12 @@ type cacheValuer struct {
 	internal *jj.Substituter
 }
 
-func (v *cacheValuer) Register(fn string, f any) {
+func (v *cacheValuer) Register(fn string, f jj.SubstituteFn) {
 	v.internal.Register(fn, f)
+}
+
+func (v *cacheValuer) UsageDemos() []string {
+	return v.internal.UsageDemos()
 }
 
 var (

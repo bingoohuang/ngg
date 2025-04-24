@@ -5,7 +5,7 @@
 例如：
 
 1. PostgreSQL 的 RETURNING 效果 `INSERT INTO COMPANY (NAME,AGE,ADDRESS,SALARY) VALUES('Paul', 32, 'California', 20000.00) RETURNING ID`
-2. 编译安装支持 oracle  `TAGS=ora make -f ~/GitHub/bingoohuang/gg/Makefile`
+2. 编译安装支持 oracle  `TAGS=ora make -f ~/GitHub/bingoohuang/ngg/ver/Makefile`
 
 ```sh
 > %connect pgx postgres://postgres:123456@192.168.126.16:14954;
@@ -39,7 +39,7 @@
 
 ## build
 
-1. for oracle, `TAGS=ora make -f ~/github/gg/Makefile fmt install linux-upx`
+1. for oracle, `TAGS=ora make -f ~/github/ngg/ver/Makefile fmt install linux-upx`
 
 ```log
 $ godbtest

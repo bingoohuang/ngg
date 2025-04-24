@@ -68,7 +68,7 @@ func RootCommand(c *cobra.Command, fc any) {
 	}); ok {
 		c.Run = func(cmd *cobra.Command, args []string) {
 			if err := r.Run(cmd, args); err != nil {
-				log.Printf("error occured: %v", err)
+				log.Printf("error occurred: %v", err)
 			}
 		}
 	}

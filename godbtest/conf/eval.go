@@ -8,12 +8,18 @@ import (
 var substituteFns = jj.DefaultSubstituteFns
 
 func init() {
-	substituteFns["address"] = func(args string) any {
-		// Print an american sounding address
-		return randomdata.Address()
+	substituteFns["address"] = jj.SubstituteFn{
+		Fn: func(args string) any {
+			// Print an american sounding address
+			return randomdata.Address()
+		},
+		Demo: "随机地址: e.g. @address",
 	}
 
-	substituteFns["state"] = func(args string) any {
-		return randomdata.State(randomdata.Large)
+	substituteFns["state"] = jj.SubstituteFn{
+		Fn: func(args string) any {
+			return randomdata.State(randomdata.Large)
+		},
+		Demo: "随机州: e.g. @state",
 	}
 }
