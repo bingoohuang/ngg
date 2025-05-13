@@ -98,6 +98,9 @@ func OpenDB(urlstr string, verbose bool) (*sql.DB, error) {
 	if u.GoDriver != "" {
 		driver = u.GoDriver
 	}
+	if driver == "sqlite3" {
+		driver = "sqlite"
+	}
 
 	if verbose {
 		log.Printf("connecting to driver: %s, DSN: %s ...", driver, u.DSN)
