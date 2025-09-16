@@ -1,5 +1,5 @@
 package autoload
 
 const (
-	defaultInstallPath = "/usr/local/"
+	defaultInstallBasePath = "/usr/local/"
 )

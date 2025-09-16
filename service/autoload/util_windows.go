@@ -1,5 +1,5 @@
 package autoload
 
 const (
-	defaultInstallPath = `C:\Program Files\`
+	defaultInstallBasePath = `C:\Program Files\`
 )
