@@ -226,9 +226,9 @@ func (l *Logger) getWriter() io.Writer {
 
 func (l *Logger) getFilter() Filter {
 	l.mu.Lock()
-	f := l.filter
 	defer l.mu.Unlock()
-	return f
+
+	return l.filter
 }
 
 func (l *Logger) getBodyFilter() BodyFilter {
@@ -266,7 +266,7 @@ func (l *Logger) RoundTripper(rt http.RoundTripper, printReqID bool) http.RoundT
 		logger:     l,
 		rt:         rt,
 		printReqID: printReqID,
-		qpsAllow:   createQpsAlloer(l.QPS),
+		qpsAllow:   createQpsAllow(l.QPS),
 	}
 }
 
@@ -365,7 +365,7 @@ func (q *qpsAllow) Allow() bool {
 	}
 }
 
-func createQpsAlloer(qps float64) *qpsAllow {
+func createQpsAllow(qps float64) *qpsAllow {
 	if qps > 0 {
 		return &qpsAllow{
 			tick: time.NewTicker(time.Duration(1e6/(qps)) * time.Microsecond),
@@ -381,7 +381,7 @@ func (l *Logger) Middleware(next http.Handler, printReqID bool) http.Handler {
 		logger:     l,
 		next:       next,
 		printReqID: printReqID,
-		qpsAllow:   createQpsAlloer(l.QPS),
+		qpsAllow:   createQpsAllow(l.QPS),
 	}
 }
 

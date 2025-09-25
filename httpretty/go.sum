@@ -1,5 +1,7 @@
 github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8 h1:4+75nIbwX7lLM+LV6MU/RKTIMnpWDFYCjhk0LwE0O7E=
 github.com/bingoohuang/ngg/tsid v0.0.0-20240907082044-e6fedc0af4e8/go.mod h1:3rWpFvYXe2TVdYDHXGYq6kZV6tMiz5ZHwaTbu22Y2u4=
+github.com/bingoohuang/ngg/tsid v0.0.0-20250919024903-14f0e6d68744 h1:Z/8leYd3t798WxSpWtYl+aaO/bjDBYzSeCT/pndy0YU=
+github.com/bingoohuang/ngg/tsid v0.0.0-20250919024903-14f0e6d68744/go.mod h1:3rWpFvYXe2TVdYDHXGYq6kZV6tMiz5ZHwaTbu22Y2u4=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -8,5 +10,7 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 golang.org/x/tools v0.24.0 h1:J1shsA93PJUEVaUSaay7UXAyE8aimq3GW0pjlolpa24=
 golang.org/x/tools v0.24.0/go.mod h1:YhNqVBIfWHdzvTLs0d8LCuMhkKUgSUKldakyV7W/WDQ=
+golang.org/x/tools v0.37.0 h1:DVSRzp7FwePZW356yEAChSdNcQo6Nsp+fex1SUW09lE=
+golang.org/x/tools v0.37.0/go.mod h1:MBN5QPQtLMHVdvsbtarmTNukZDdgwdwlO5qGacAzF0w=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
