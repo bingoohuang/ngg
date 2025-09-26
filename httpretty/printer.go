@@ -189,14 +189,14 @@ func (p *printer) printResponse(resp *http.Response) {
 	}
 }
 
-func (p *printer) checkBodyFiltered(h http.Header) (skip bool, err error) {
+func (p *printer) checkBodyFiltered(h http.Header, req bool) (skip bool, err error) {
 	if f := p.logger.getBodyFilter(); f != nil {
 		defer func() {
 			if e := recover(); e != nil {
 				p.printf("* panic while filtering body: %v\n", e)
 			}
 		}()
-		return f(h)
+		return f(h, req)
 	}
 	return false, nil
 }
@@ -205,7 +205,7 @@ func (p *printer) printResponseBodyOut(resp *http.Response) {
 	if resp.ContentLength == 0 {
 		return
 	}
-	skip, err := p.checkBodyFiltered(resp.Header)
+	skip, err := p.checkBodyFiltered(resp.Header, false)
 	if err != nil {
 		p.printf("* %s\n", p.format(color.FgRed, "error on response body filter: ", err.Error()))
 	}
@@ -442,7 +442,7 @@ func (p *printer) printServerResponse(req *http.Request, rec *responseRecorder) 
 	if !p.logger.ResponseBody || rec.size == 0 {
 		return
 	}
-	skip, err := p.checkBodyFiltered(h)
+	skip, err := p.checkBodyFiltered(h, false)
 	if err != nil {
 		p.printf("* %s\n", p.format(color.FgRed, "error on response body filter: ", err.Error()))
 	}
@@ -597,7 +597,7 @@ func (p *printer) printRequestBody(req *http.Request) {
 	if req.Body == nil {
 		return
 	}
-	skip, err := p.checkBodyFiltered(req.Header)
+	skip, err := p.checkBodyFiltered(req.Header, true)
 	if err != nil {
 		p.printf("* %s\n", p.format(color.FgRed, "error on request body filter: ", err.Error()))
 	}

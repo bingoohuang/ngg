@@ -155,7 +155,8 @@ type Filter func(req *http.Request) (skip bool, err error)
 //
 // On a HTTP server, this function is called even when no body is present due to
 // http.Request always carrying a non-nil value.
-type BodyFilter func(h http.Header) (skip bool, err error)
+// req is true for request bodies, false for response bodies.
+type BodyFilter func(h http.Header, req bool) (skip bool, err error)
 
 // Flusher defines how logger prints requests.
 type Flusher int

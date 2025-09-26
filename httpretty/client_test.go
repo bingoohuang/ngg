@@ -428,7 +428,7 @@ func TestOutgoingBodyFilter(t *testing.T) {
 		ResponseHeader: true,
 		ResponseBody:   true,
 	}
-	logger.SetBodyFilter(func(h http.Header) (skip bool, err error) {
+	logger.SetBodyFilter(func(h http.Header, req bool) (skip bool, err error) {
 		mediatype, _, _ := mime.ParseMediaType(h.Get("Content-Type"))
 		return mediatype == "application/json", nil
 	})
@@ -464,7 +464,7 @@ func TestOutgoingBodyFilterSoftError(t *testing.T) {
 		ResponseHeader: true,
 		ResponseBody:   true,
 	}
-	logger.SetBodyFilter(func(h http.Header) (skip bool, err error) {
+	logger.SetBodyFilter(func(h http.Header, req bool) (skip bool, err error) {
 		// filter anyway, but print soft error saying something went wrong during the filtering.
 		return true, errors.New("incomplete implementation")
 	})
@@ -500,7 +500,7 @@ func TestOutgoingBodyFilterPanicked(t *testing.T) {
 		ResponseHeader: true,
 		ResponseBody:   true,
 	}
-	logger.SetBodyFilter(func(h http.Header) (skip bool, err error) {
+	logger.SetBodyFilter(func(h http.Header, req bool) (skip bool, err error) {
 		panic("evil panic")
 	})
 	var buf bytes.Buffer
