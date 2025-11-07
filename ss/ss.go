@@ -99,13 +99,15 @@ func IndexN(s, sep string, n int) int {
 
 }
 
-func Or[T comparable](a, b T) T {
+func Or[T comparable](as ...T) T {
 	var zero T
-	if a == zero {
-		return b
+	for _, a := range as {
+		if a != zero {
+			return a
+		}
 	}
 
-	return a
+	return zero
 }
 
 func AnyOfFunc[T any](target T, f func(idx int, elem, target T) bool, anys ...T) bool {
