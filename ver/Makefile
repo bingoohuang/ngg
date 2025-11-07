@@ -115,9 +115,9 @@ fmt-update:
 	go install github.com/dkorunic/betteralign/cmd/betteralign@latest
 	go install -v github.com/go-critic/go-critic/cmd/gocritic@latest
 	# Use right mirror functions for string/[]byte performance bust
-	go install github.com/butuzov/mirror/cmd/mirror@latest
+	# go install github.com/butuzov/mirror/cmd/mirror@latest  # Disabled: incompatible with Go 1.25+
 	go install golang.org/x/vuln/cmd/govulncheck@latest
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
+	# go install github.com/securego/gosec/v2/cmd/gosec@latest  # Disabled: module path issue
 	go install go.uber.org/nilaway/cmd/nilaway@latest
 	# go install github.com/atotto/clipboard/
 

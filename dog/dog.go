@@ -21,11 +21,25 @@ type Dog struct {
 }
 
 // removeFiles 删除指定目录 dir 下，符合 pattern 的文件
-func removeFiles(dir, pattern string) (removeFiles []string) {
+func removeFiles(dir, pattern string, maxDepth int) (removeFiles []string) {
 	if err := filepath.WalkDir(dir, func(path string, info os.DirEntry, err error) error {
-		if err != nil || info.IsDir() {
+		if err != nil {
 			return err
 		}
+
+		// 计算当前路径相对于 root 的深度
+		if info.IsDir() {
+			depth := 0
+			if rel, _ := filepath.Rel(dir, path); rel != "." {
+				depth = len(filepath.SplitList(rel))
+			}
+			// 超出最大深度，跳过该目录的子项
+			if depth > maxDepth {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
 		if ok, _ := filepath.Match(pattern, info.Name()); !ok {
 			return nil
 		}
@@ -55,7 +69,7 @@ func New(options ...ConfigFn) *Dog {
 	// 删除历史文件，例如
 	// Dog.cpu.868.20241010174315.pprof
 	// Dog.cpu.872.20241010173506.pprof
-	removeFiles(d.Dir, "Dog.*.pprof")
+	removeFiles(d.Dir, "Dog.*.pprof", 0)
 
 	if d.RSSThreshold > 0 {
 		d.states = append(d.states, newThresholdState(RSS, d.RSSThreshold, d.statRSS, d.Dir, d.Pid))
