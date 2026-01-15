@@ -14,6 +14,7 @@ new gg
 12. [gnet](gnet) 网络相关
 13. [q](q) is a better way to do print statement debugging.
 14. [pp](pp) Colored pretty printer for Go language
+15. [lsdu](lsdu) 结合 ls、du 和 df 功能的命令行工具，以 Markdown 表格形式展示文件/目录大小、磁盘占用等信息
 
 
 

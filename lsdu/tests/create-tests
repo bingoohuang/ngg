@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+echo "In $(pwd)"
+echo "Deleting any previous tests"
+rm -rf dira dirb
+
+echo "Creating tests"
+
+mkdir dira
+cd dira
+truncate -s 0 emptyfilea
+fallocate -l 10M filea
+fallocate -l 100M fileb
+ln -s fileb symlinkb
+mkdir diraa
+cd diraa
+fallocate -l 100k fileaa
+truncate -s 0 emptyfileaa
+fallocate -l 50M fileab
+ln -s fileaa symlinkaa
+cd ..
+ln -s diraa symlinkdiraa
+cd ..
+
+ln -s dira dirb
+
+echo "Expected output:"
+set -x
+du -k dira
+du -k dirb
