@@ -30,6 +30,7 @@ func init() {
 func daemonRun() {
 	execPath, _ := os.Executable()
 	execName := filepath.Base(execPath)
+	execName = strings.TrimSuffix(execName, ".exe") // Windows 上去掉 .exe，避免 "fost.exe" 被当作目录名
 	d := daemon{productName: execName}
 	d.run()
 }
@@ -69,7 +70,7 @@ func install() {
 	}
 	time.Sleep(time.Second * 2)
 	if err := d.Control("start", targetPath, os.Args[1:]); err != nil {
-		log.Printf("E! start openp2p service error: %v", err)
+		log.Printf("E! start %s service error: %v", execName, err)
 	} else {
 		log.Println("start service ok.")
 	}
@@ -98,9 +99,11 @@ func copyExec(execPath, targetPath string) error {
 func parseExec() (string, string) {
 	execPath, _ := os.Executable()
 	execName := filepath.Base(execPath)
-	if p := strings.Index(execName, "go_build_"); p > 0 { // /usr/local/___1go_build_ccagent_cmd_ccagent;
+	if p := strings.Index(execName, "go_build_"); p > 0 {
 		execName = execName[p+len("go_build_"):]
 	}
+	// Windows 上去掉 .exe，避免 "fost.exe" 被当作目录名
+	execName = strings.TrimSuffix(execName, ".exe")
 	return execPath, execName
 }
 
